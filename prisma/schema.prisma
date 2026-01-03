@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  email        String        @unique
+  username     String        @unique
+  password     String
+  isAdmin      Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  launchPoints LaunchPoint[]
+}
+
+model LaunchPoint {
+  id             Int                      @id @default(autoincrement())
+  name           String
+  latitude       Float
+  longitude      Float
+  isOfficial     Boolean                  @default(false)
+  hints          String?
+  openingHours   String                   @default("24h")
+  parkingOptions String?
+  nearbyWaters   String?
+  foodSupply     String?
+  createdAt      DateTime                 @default(now())
+  createdBy      User                     @relation(fields: [createdById], references: [id])
+  createdById    Int
+  categories     LaunchPointCategory[]
+  stations       PublicTransportStation[]
+}
+
+model LaunchPointCategory {
+  id            Int         @id @default(autoincrement())
+  category      String
+  launchPoint   LaunchPoint @relation(fields: [launchPointId], references: [id], onDelete: Cascade)
+  launchPointId Int
+}
+
+model PublicTransportStation {
+  id             Int         @id @default(autoincrement())
+  name           String
+  distanceMeters Int
+  launchPoint    LaunchPoint @relation(fields: [launchPointId], references: [id], onDelete: Cascade)
+  launchPointId  Int
+}
