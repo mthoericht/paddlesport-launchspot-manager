@@ -23,12 +23,24 @@ dist-ssr
 *.sln
 *.sw?
 
+# Environment variables
+.env
+.env.local
+.env.*.local
+
 # Database
+data/*.db
 data/*.sqlite
 data/*.sqlite-journal
 
-# Environment
-.env
-.env.*
+# Test coverage
+coverage
+*.lcov
 
-/src/generated/prisma
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Vitest
+.vitest/

@@ -15,6 +15,7 @@ A web application for managing launch points for kayaking, canoeing, SUP, and sw
 - **Context menu** (left/right click) for quick point creation
 - **Color-coded markers** by category (Kayak, SUP, Swimming, Relaxing)
 - **Zoom level preservation** when creating new points
+- **Navigation integration** - Opens default navigation app (HERE, Waze, Google Maps, Apple Maps, etc.) for route planning
 
 ### 👤 User Management
 - Registration and login (email, username, password)
@@ -32,6 +33,7 @@ A web application for managing launch points for kayaking, canoeing, SUP, and sw
   - Food supply
   - Hints (free text)
 - **Public transport stations** (max 5) with distance
+- **Navigation**: One-click route planning to launch points
 - **Permissions**: Only creators or admins can delete
 
 ### 🔍 Filters
@@ -45,7 +47,7 @@ A web application for managing launch points for kayaking, canoeing, SUP, and sw
 
 ```
 paddlesport-launchspot-manager/
-├── server/                    # Backend (Express.js)
+├── backend/                   # Backend (Express.js)
 │   ├── index.ts               # Server entry point
 │   ├── prisma.ts              # Prisma Client setup
 │   ├── middleware/
@@ -53,40 +55,52 @@ paddlesport-launchspot-manager/
 │   └── routes/
 │       ├── auth.ts            # Auth routes (login, signup)
 │       └── launchPoints.ts    # CRUD routes for launch points
+├── frontend/                  # Frontend (Vue.js)
+│   ├── index.html             # Entry HTML
+│   ├── public/                # Static assets
+│   └── src/
+│       ├── assets/
+│       │   └── auth.css       # Shared auth styles
+│       ├── components/
+│       │   ├── AppHeader.vue  # App header with navigation
+│       │   └── FilterPanel.vue# Filter sidebar
+│       ├── composables/       # Vue Composables (logic)
+│       │   ├── index.ts
+│       │   ├── useAddressSearch.ts
+│       │   ├── useCategories.ts
+│       │   ├── useContextMenu.ts
+│       │   ├── useLaunchPointForm.ts
+│       │   ├── useMapNavigation.ts
+│       │   ├── useMapState.ts
+│       │   └── useMapViewInteractions.ts
+│       ├── router/
+│       │   └── index.ts       # Vue Router configuration
+│       ├── stores/            # Pinia Stores (state)
+│       │   ├── auth.ts        # Auth state
+│       │   └── launchPoints.ts# Launch points state
+│       ├── types/
+│       │   └── index.ts       # TypeScript interfaces
+│       ├── views/
+│       │   ├── ImpressumView.vue
+│       │   ├── LaunchPointDetailView.vue
+│       │   ├── LaunchPointFormView.vue
+│       │   ├── LoginView.vue
+│       │   ├── MapView.vue
+│       │   └── SignupView.vue
+│       ├── App.vue
+│       ├── main.ts
+│       └── style.css
 ├── prisma/
 │   └── schema.prisma          # Database schema
-├── src/                       # Frontend (Vue.js)
-│   ├── assets/
-│   │   └── auth.css           # Shared auth styles
-│   ├── components/
-│   │   ├── AppHeader.vue      # App header with navigation
-│   │   └── FilterPanel.vue    # Filter sidebar
-│   ├── composables/           # Vue Composables (logic)
-│   │   ├── index.ts
-│   │   ├── useAddressSearch.ts
-│   │   ├── useCategories.ts
-│   │   ├── useContextMenu.ts
-│   │   ├── useLaunchPointForm.ts
-│   │   ├── useMapNavigation.ts
-│   │   └── useMapState.ts
-│   ├── router/
-│   │   └── index.ts           # Vue Router configuration
-│   ├── stores/                # Pinia Stores (state)
-│   │   ├── auth.ts            # Auth state
-│   │   └── launchPoints.ts    # Launch points state
-│   ├── types/
-│   │   └── index.ts           # TypeScript interfaces
-│   ├── views/
-│   │   ├── ImpressumView.vue
-│   │   ├── LaunchPointDetailView.vue
-│   │   ├── LaunchPointFormView.vue
-│   │   ├── LoginView.vue
-│   │   ├── MapView.vue
-│   │   └── SignupView.vue
-│   ├── App.vue
-│   ├── main.ts
-│   └── style.css
-└── data/                      # SQLite database (not in Git)
+├── data/                      # SQLite database (not in Git)
+├── dist/                      # Production build output
+├── frontend/tests/            # Frontend test files
+│   ├── unit/                  # Unit tests (Vitest)
+│   └── integration/           # Integration tests (Vitest)
+│   └── setup.ts               # Test setup file
+└── backend/tests/             # Backend test files
+    ├── integration/           # Backend integration tests
+    └── helpers/                # Test helpers (cleanup, fixtures)
 ```
 
 ## 🛠️ Tech Stack
@@ -98,6 +112,8 @@ paddlesport-launchspot-manager/
 - **Vue Router** for navigation
 - **Leaflet** / **Vue-Leaflet** for maps
 - **Vite** as build tool
+- **Vitest** for unit and integration testing
+- **ESLint** for code quality
 
 ### Backend
 - **Express.js** as REST API server
@@ -158,10 +174,47 @@ paddlesport-launchspot-manager/
 | `npm run dev:client` | Frontend only (Vite) |
 | `npm run dev:server` | Backend only (Express) |
 | `npm run build` | Production build |
+| `npm run lint` | Run ESLint checks |
+| `npm run lint:fix` | Auto-fix ESLint errors |
+| `npm run test` | Run all tests in watch mode |
+| `npm run test:ui` | Run tests with UI |
+| `npm run test:run` | Run all tests once |
+| `npm run test:unit` | Run unit tests only |
+| `npm run test:integration` | Run integration tests only |
+| `npm run test:backend` | Run backend integration tests |
+| `npm run test:coverage` | Run tests with coverage report |
 | `npm run db:migrate` | Run Prisma migrations |
 | `npm run db:push` | Push schema to DB (without migration) |
 | `npm run db:studio` | Open Prisma Studio |
 | `npm run db:generate` | Generate Prisma Client |
+
+## 🧪 Testing
+
+The project uses a comprehensive testing strategy:
+
+### Test Structure
+- **Unit Tests** (`frontend/tests/unit/`): Test individual composables and utilities
+- **Frontend Integration Tests** (`frontend/tests/integration/`): Test Pinia stores with mocked APIs
+- **Backend Integration Tests** (`backend/tests/integration/`): Test API routes with real database
+
+### Test Data Management
+- **All test data uses `TEST_` prefix** (emails, usernames, launch point names)
+- **Automatic cleanup**: Test data is deleted after each test (success or failure)
+- **Isolation**: Each test runs with a clean database state
+
+### Running Tests
+```bash
+# Run all tests
+npm run test
+
+# Run specific test suites
+npm run test:unit          # Frontend unit tests
+npm run test:integration   # Frontend integration tests
+npm run test:backend       # Backend integration tests
+
+# With UI
+npm run test:ui            # Vitest UI
+```
 
 ## 🔐 API Endpoints
 
