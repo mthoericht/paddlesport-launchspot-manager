@@ -126,7 +126,6 @@ paddlesport-launchspot-manager/
 ### Database
 - **SQLite** (local in `data/database.sqlite`)
 - **Prisma ORM** for type-safe database access
-- **Prisma Migrate** for schema versioning and migrations
 
 ## 🚀 Installation
 
@@ -214,8 +213,7 @@ paddlesport-launchspot-manager/
 | Script | Description |
 |--------|-------------|
 | `npm run db:generate` | Generate Prisma Client |
-| `npm run db:push` | Push schema to database (dev, no migration) |
-| `npm run db:migrate` | Create and run Prisma migrations |
+| `npm run db:push` | Push schema to database |
 | `npm run db:studio` | Open Prisma Studio (database GUI) |
 
 ## 🧪 Testing
@@ -330,17 +328,6 @@ npm run build
 5. **HTTPS**: Always use HTTPS in production
 6. **API URL**: Set `VITE_API_URL` to your production API endpoint
 
-### Database Migration
-
-For production deployments, use migrations instead of `db:push`:
-
-```bash
-# Create a migration
-npm run db:migrate
-
-# Apply migrations in production
-npx prisma migrate deploy
-```
 
 ## 📄 License
 
