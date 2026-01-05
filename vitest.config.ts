@@ -4,6 +4,15 @@ import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [vue()],
+  esbuild: {
+    tsconfigRaw: {
+      compilerOptions: {
+        paths: {
+          '@/*': ['./frontend/src/*']
+        }
+      }
+    }
+  },
   test: {
     globals: true,
     environment: 'happy-dom',

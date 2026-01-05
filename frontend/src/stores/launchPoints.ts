@@ -53,7 +53,7 @@ export const useLaunchPointsStore = defineStore('launchPoints', () =>
       
       if (filter.value.categories.length > 0) 
       {
-        params.append('categories', filter.value.categories.join(','));
+        params.append('categories', filter.value.categories.map(String).join(','));
       }
       
       const response = await fetch(`${API_URL}/launch-points?${params}`, {
@@ -214,12 +214,12 @@ export const useLaunchPointsStore = defineStore('launchPoints', () =>
     fetchLaunchPoints();
   }
 
-  function toggleCategory(category: Category) 
+  function toggleCategory(categoryId: number) 
   {
-    const index = filter.value.categories.indexOf(category);
+    const index = filter.value.categories.indexOf(categoryId);
     if (index === -1) 
     {
-      filter.value.categories.push(category);
+      filter.value.categories.push(categoryId);
     }
     else 
     {

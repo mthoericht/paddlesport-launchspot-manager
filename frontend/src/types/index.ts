@@ -11,7 +11,13 @@ export interface PublicTransportStation {
   distance_meters: number;
 }
 
-export type Category = 'Kajak' | 'SUP' | 'Schwimmen' | 'Entspannen';
+export type Category = string;
+
+export interface CategoryInfo {
+  id: number;
+  name_en: string;
+  name_de: string;
+}
 
 export interface LaunchPoint {
   id: number;
@@ -25,6 +31,7 @@ export interface LaunchPoint {
   nearby_waters: string | null;
   food_supply: string | null;
   categories: Category[];
+  category_ids?: number[];
   public_transport_stations: PublicTransportStation[];
   created_by: number;
   creator_username: string;
@@ -40,7 +47,7 @@ export interface LaunchPointFormData {
   parking_options: string;
   nearby_waters: string;
   food_supply: string;
-  categories: Category[];
+  categories: number[];
   public_transport_stations: PublicTransportStation[];
 }
 
@@ -49,6 +56,6 @@ export type FilterType = 'all' | 'mine' | 'official' | 'user';
 export interface FilterState {
   type: FilterType;
   username?: string;
-  categories: Category[];
+  categories: number[];
 }
 

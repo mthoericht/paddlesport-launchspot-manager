@@ -122,7 +122,7 @@ describe('useMapState', () =>
         [53.0, 14.0]
       ];
 
-      const customOptions = { maxZoom: 15, padding: [10, 10] };
+      const customOptions: { maxZoom: number; padding: [number, number] } = { maxZoom: 15, padding: [10, 10] };
 
       fitBounds(mapRef, bounds, customOptions);
 

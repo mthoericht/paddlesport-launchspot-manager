@@ -46,10 +46,11 @@ const {
   cleanupInteractions
 } = useMapViewInteractions({ mapRef });
 
-const { categoryColors, getCategoryIcon } = useCategories();
+const { categoryColors, getCategoryIcon, fetchCategories } = useCategories();
 
-onMounted(() =>
+onMounted(async () =>
 {
+  await fetchCategories();
   launchPointsStore.fetchLaunchPoints();
   setupInteractions();
 });

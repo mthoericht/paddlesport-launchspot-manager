@@ -9,7 +9,7 @@ const route = useRoute();
 const router = useRouter();
 const launchPointsStore = useLaunchPointsStore();
 const authStore = useAuthStore();
-const { categoryColors } = useCategories();
+const { categoryColors, fetchCategories } = useCategories();
 const { openNavigation } = useMapNavigation();
 
 const canEdit = computed(() => {
@@ -37,7 +37,8 @@ function editPoint() {
   router.push(`/launch-point/${route.params.id}/edit`);
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await fetchCategories();
   const id = Number(route.params.id);
   launchPointsStore.fetchLaunchPoint(id);
 });

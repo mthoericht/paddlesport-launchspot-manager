@@ -28,10 +28,8 @@ dist-ssr
 .env.local
 .env.*.local
 
-# Database
-data/*.db
-data/*.sqlite
-data/*.sqlite-journal
+# Database and data files
+data/
 
 # Test coverage
 coverage

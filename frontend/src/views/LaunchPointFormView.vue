@@ -23,9 +23,10 @@ const {
   loadExistingPoint
 } = useLaunchPointForm();
 
-const { allCategories } = useCategories();
+const { allCategories, fetchCategories } = useCategories();
 
-onMounted(() => {
+onMounted(async () => {
+  await fetchCategories();
   loadExistingPoint();
 });
 </script>
@@ -61,13 +62,13 @@ onMounted(() => {
           <div class="category-grid">
             <button 
               v-for="cat in allCategories" 
-              :key="cat" 
+              :key="cat.id" 
               type="button"
               class="category-checkbox"
-              :class="{ active: form.categories.includes(cat) }"
-              @click="toggleCategory(cat)"
+              :class="{ active: form.categories.includes(cat.id) }"
+              @click="toggleCategory(cat.id)"
             >
-              {{ cat }}
+              {{ cat.name_de }}
             </button>
           </div>
         </div>

@@ -4,7 +4,7 @@ import { useLaunchPointsStore } from '@/stores/launchPoints';
 import { useAuthStore } from '@/stores/auth';
 
 // Mock fetch
-global.fetch = vi.fn();
+globalThis.fetch = vi.fn();
 
 describe('LaunchPointsStore Integration', () =>
 {

@@ -3,7 +3,7 @@ import { setActivePinia, createPinia } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
 
 // Mock fetch
-global.fetch = vi.fn();
+globalThis.fetch = vi.fn();
 
 describe('AuthStore Integration', () =>
 {

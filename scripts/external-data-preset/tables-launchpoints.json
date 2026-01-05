@@ -1,0 +1,1589 @@
+[
+  {
+    "name": "Andreas Diebel GbR, Berlin",
+    "latitude": 52.4606337,
+    "longitude": 13.5777707,
+    "isOfficial": true,
+    "hints": "Betreiber: Andreas Diebel GbR\nGewässer: Müggelspree;Altstadtinsel Köpenick",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Müggelspree;Altstadtinsel Köpenick",
+    "foodSupply": null,
+    "address": {
+      "street": "Katzengraben 19/Spindlergasse",
+      "postalCode": "12555",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Andreas Diebel GbR",
+      "anleger": null,
+      "gewaesser": "Müggelspree;Altstadtinsel Köpenick",
+      "km": null
+    }
+  },
+  {
+    "name": "Marina Wendenschloß, Berlin",
+    "latitude": 52.4254452,
+    "longitude": 13.5837607,
+    "isOfficial": true,
+    "hints": "Betreiber: Berliner Wassersport und Service GmbH & Co. Betriebs KG\nGewässer: Spree-Oder-WS Dahme",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-WS Dahme",
+    "foodSupply": null,
+    "address": {
+      "street": "Wendenschloßstr. 350-354",
+      "postalCode": "12557",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Berliner Wassersport und Service GmbH & Co. Betriebs KG",
+      "anleger": "Marina Wendenschloß",
+      "gewaesser": "Spree-Oder-WS Dahme",
+      "km": null
+    }
+  },
+  {
+    "name": "Berliner Yacht-Club e.V., Berlin",
+    "latitude": 52.4438603,
+    "longitude": 13.1755965,
+    "isOfficial": true,
+    "hints": "Betreiber: Berliner Yacht-Club e.V.\nGewässer: UHW, Wannsee",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "UHW, Wannsee",
+    "foodSupply": null,
+    "address": {
+      "street": "Wannseebadweg 55",
+      "postalCode": "14129",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Berliner Yacht-Club e.V.",
+      "anleger": null,
+      "gewaesser": "UHW, Wannsee",
+      "km": null
+    }
+  },
+  {
+    "name": "Best Western Michels Hotel am Schloss Köpenick, Berlin",
+    "latitude": 52.4427319,
+    "longitude": 13.5699765,
+    "isOfficial": true,
+    "hints": "Betreiber: Best Western Michels Hotel am Schloss Köpenick\nGewässer: Spree-Oder-Wasserstr. -Dahme, Frauentog",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-Wasserstr. -Dahme, Frauentog",
+    "foodSupply": null,
+    "address": {
+      "street": "Grünauer Str. 17-21",
+      "postalCode": "12557",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Best Western Michels Hotel am Schloss Köpenick",
+      "anleger": null,
+      "gewaesser": "Spree-Oder-Wasserstr. -Dahme, Frauentog",
+      "km": null
+    }
+  },
+  {
+    "name": "Bootshaus Eiswerder Michael & Eike Röhlicke GbR, Berlin",
+    "latitude": 52.5473956,
+    "longitude": 13.2126247,
+    "isOfficial": true,
+    "hints": "Betreiber: Bootshaus Eiswerder Michael & Eike Röhlicke GbR\nGewässer: Havel-Oder-Wasserstr.:Insel Eiswerder",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Havel-Oder-Wasserstr.:Insel Eiswerder",
+    "foodSupply": null,
+    "address": {
+      "street": "Eiswerder Str. 10-12",
+      "postalCode": "13585",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Bootshaus Eiswerder Michael & Eike Röhlicke GbR",
+      "anleger": null,
+      "gewaesser": "Havel-Oder-Wasserstr.:Insel Eiswerder",
+      "km": null
+    }
+  },
+  {
+    "name": "Bootshaus Hempler, Berlin",
+    "latitude": 52.511632,
+    "longitude": 13.1964848,
+    "isOfficial": true,
+    "hints": "Betreiber: Bootshaus Hempler\nGewässer: Scharfe Lanke WS:UHW",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Scharfe Lanke WS:UHW",
+    "foodSupply": null,
+    "address": {
+      "street": "Am Pichelsee 22",
+      "postalCode": "13595",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Bootshaus Hempler",
+      "anleger": null,
+      "gewaesser": "Scharfe Lanke WS:UHW",
+      "km": null
+    }
+  },
+  {
+    "name": "Andreas Zacholowsky, Berlin",
+    "latitude": 52.5615292,
+    "longitude": 13.2449437,
+    "isOfficial": true,
+    "hints": "Betreiber: Bootsstände Blumeshof\nGewässer: Ober-Havel-WS",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Ober-Havel-WS",
+    "foodSupply": null,
+    "address": {
+      "street": "Im Saatwinkel 55",
+      "postalCode": "13599",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Bootsstände Blumeshof",
+      "anleger": "Andreas Zacholowsky",
+      "gewaesser": "Ober-Havel-WS",
+      "km": null
+    }
+  },
+  {
+    "name": "Bootsstände Angermann, Berlin",
+    "latitude": 52.511632,
+    "longitude": 13.1964848,
+    "isOfficial": true,
+    "hints": "Betreiber: Bootsstände Angermann\nGewässer: UHW",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "UHW",
+    "foodSupply": null,
+    "address": {
+      "street": "Am Pichelsee 50",
+      "postalCode": "13595",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Bootsstände Angermann",
+      "anleger": null,
+      "gewaesser": "UHW",
+      "km": null
+    }
+  },
+  {
+    "name": "Bootsstände Lahe, Berlin",
+    "latitude": 52.5592936,
+    "longitude": 13.2394321,
+    "isOfficial": true,
+    "hints": "Betreiber: Bootsstände Lahe",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": null,
+    "foodSupply": null,
+    "address": {
+      "street": "Im Saatwinkel 15",
+      "postalCode": "13599",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Bootsstände Lahe",
+      "anleger": null,
+      "gewaesser": "",
+      "km": null
+    }
+  },
+  {
+    "name": "Bootssteg/FeWo Hollenbach, Berlin",
+    "latitude": 52.3793421,
+    "longitude": 13.6514642,
+    "isOfficial": true,
+    "hints": "Betreiber: Bootssteg/FeWo Hollenbach\nGewässer: Spree-Oder-Wasserstraße",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-Wasserstraße",
+    "foodSupply": null,
+    "address": {
+      "street": "Imkerweg 36",
+      "postalCode": "12527",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Bootssteg/FeWo Hollenbach",
+      "anleger": null,
+      "gewaesser": "Spree-Oder-Wasserstraße",
+      "km": null
+    }
+  },
+  {
+    "name": "Sportboote sowie Kanus, Berlin",
+    "latitude": 52.4489844,
+    "longitude": 13.5941785,
+    "isOfficial": true,
+    "hints": "Betreiber: Cafe Bistro Evelin\nGewässer: Müggelspree",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Müggelspree",
+    "foodSupply": null,
+    "address": {
+      "street": "Salvador-Allende-Str. 80",
+      "postalCode": "12559",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Cafe Bistro Evelin",
+      "anleger": "Sportboote sowie Kanus",
+      "gewaesser": "Müggelspree",
+      "km": null
+    }
+  },
+  {
+    "name": "Cafe Liebig, Berlin",
+    "latitude": 52.4142448,
+    "longitude": 13.5830382,
+    "isOfficial": true,
+    "hints": "Betreiber: Cafe Liebig\nGewässer: SOW, Langer See",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "SOW, Langer See",
+    "foodSupply": null,
+    "address": {
+      "street": "Regattastr. 1",
+      "postalCode": "12527",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Cafe Liebig",
+      "anleger": null,
+      "gewaesser": "SOW, Langer See",
+      "km": null
+    }
+  },
+  {
+    "name": "Cafe Restaurant Kietz, Berlin",
+    "latitude": 52.444083,
+    "longitude": 13.5748917,
+    "isOfficial": true,
+    "hints": "Betreiber: Cafe Restaurant Kietz\nGewässer: Spree-Oder-WS Dahme, Frauentog",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-WS Dahme, Frauentog",
+    "foodSupply": null,
+    "address": {
+      "street": "Müggelheimer Str. 1",
+      "postalCode": "12555",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Cafe Restaurant Kietz",
+      "anleger": null,
+      "gewaesser": "Spree-Oder-WS Dahme, Frauentog",
+      "km": null
+    }
+  },
+  {
+    "name": "Pier 38, Berlin",
+    "latitude": 52.3691214,
+    "longitude": 13.6863095,
+    "isOfficial": true,
+    "hints": "Betreiber: Campingplatz Krossinsee 1930 GmbH\nGewässer: Krossinsee",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Krossinsee",
+    "foodSupply": null,
+    "address": {
+      "street": "Wernsdorfer Str. 38",
+      "postalCode": "12527",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Campingplatz Krossinsee 1930 GmbH",
+      "anleger": "Pier 38",
+      "gewaesser": "Krossinsee",
+      "km": null
+    }
+  },
+  {
+    "name": "Cöpenicker Segler-Verein, Berlin",
+    "latitude": 52.4515705,
+    "longitude": 13.5824337,
+    "isOfficial": true,
+    "hints": "Betreiber: Cöpenicker Segler-Verein\nGewässer: Müggelspree",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Müggelspree",
+    "foodSupply": null,
+    "address": {
+      "street": "Friedrichshagener Str. 8",
+      "postalCode": "12555",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Cöpenicker Segler-Verein",
+      "anleger": null,
+      "gewaesser": "Müggelspree",
+      "km": null
+    }
+  },
+  {
+    "name": "Frauentog Tourismusverein Berlin Treptow-Köpenick, Berlin",
+    "latitude": 52.4449799,
+    "longitude": 13.5744433,
+    "isOfficial": true,
+    "hints": "Betreiber: Frauentog Tourismusverein Berlin Treptow-Köpenick\nGewässer: Spree-Oder-Wasserstr.-Dahme, Frauentog",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-Wasserstr.-Dahme, Frauentog",
+    "foodSupply": null,
+    "address": {
+      "street": "Alt Köpenick 31-33",
+      "postalCode": "12555",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Frauentog Tourismusverein Berlin Treptow-Köpenick",
+      "anleger": null,
+      "gewaesser": "Spree-Oder-Wasserstr.-Dahme, Frauentog",
+      "km": null
+    }
+  },
+  {
+    "name": "freiheit fünfzehn, Berlin",
+    "latitude": 52.4480138,
+    "longitude": 13.5765416,
+    "isOfficial": true,
+    "hints": "Betreiber: freiheit fünfzehn\nGewässer: Müggelspree; Altstadtinsel Köpenick",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Müggelspree; Altstadtinsel Köpenick",
+    "foodSupply": null,
+    "address": {
+      "street": "Freiheit 15",
+      "postalCode": "12555",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "freiheit fünfzehn",
+      "anleger": null,
+      "gewaesser": "Müggelspree; Altstadtinsel Köpenick",
+      "km": null
+    }
+  },
+  {
+    "name": "Marina Rummelsburg, Berlin",
+    "latitude": 52.4986204,
+    "longitude": 13.4838382,
+    "isOfficial": true,
+    "hints": "Betreiber: Hafen und Hof e.K.\nGewässer: Spree",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree",
+    "foodSupply": null,
+    "address": {
+      "street": "Zur Alten Flusslandschaft 5",
+      "postalCode": "10317",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Hafen und Hof e.K.",
+      "anleger": "Marina Rummelsburg",
+      "gewaesser": "Spree",
+      "km": null
+    }
+  },
+  {
+    "name": "Hotel Dannenberg, Berlin",
+    "latitude": 52.6081121,
+    "longitude": 13.2118169,
+    "isOfficial": true,
+    "hints": "Betreiber: Hotel Dannenberg\nGewässer: OHW",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "OHW",
+    "foodSupply": null,
+    "address": {
+      "street": "Alt Heiligensee 52",
+      "postalCode": "13503",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Hotel Dannenberg",
+      "anleger": null,
+      "gewaesser": "OHW",
+      "km": null
+    }
+  },
+  {
+    "name": "Müggelseeperle, Berlin",
+    "latitude": 52.4260042,
+    "longitude": 13.6410474,
+    "isOfficial": true,
+    "hints": "Betreiber: Hotel Müggelsee Berlin\nGewässer: Müggelspree Großer Müggelsee",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Müggelspree Großer Müggelsee",
+    "foodSupply": null,
+    "address": {
+      "street": "Müggelheimer Damm 145",
+      "postalCode": "12559",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Hotel Müggelsee Berlin",
+      "anleger": "Müggelseeperle",
+      "gewaesser": "Müggelspree Großer Müggelsee",
+      "km": null
+    }
+  },
+  {
+    "name": "Rübezahl, Berlin",
+    "latitude": 52.4263834,
+    "longitude": 13.6291488,
+    "isOfficial": true,
+    "hints": "Betreiber: Hotel Müggelsee Berlin\nGewässer: Müggelspree Großer Müggelsee",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Müggelspree Großer Müggelsee",
+    "foodSupply": null,
+    "address": {
+      "street": "Müggelheimer Damm 143",
+      "postalCode": "12559",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Hotel Müggelsee Berlin",
+      "anleger": "Rübezahl",
+      "gewaesser": "Müggelspree Großer Müggelsee",
+      "km": null
+    }
+  },
+  {
+    "name": "Ideeninsel Lindwerder, Berlin",
+    "latitude": 52.4742533,
+    "longitude": 13.1992138,
+    "isOfficial": true,
+    "hints": "Betreiber: Ideeninsel Lindwerder\nGewässer: Havel (Untere-Havel-Wasserstrasse)",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Havel (Untere-Havel-Wasserstrasse)",
+    "foodSupply": null,
+    "address": {
+      "street": "Havelchaussee",
+      "postalCode": "14193",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Ideeninsel Lindwerder",
+      "anleger": null,
+      "gewaesser": "Havel (Untere-Havel-Wasserstrasse)",
+      "km": null
+    }
+  },
+  {
+    "name": "Im Speicher, Berlin",
+    "latitude": 52.5027602,
+    "longitude": 13.4452913,
+    "isOfficial": true,
+    "hints": "Betreiber: Im Speicher\nGewässer: Spree-Oder-Wasserstraße",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-Wasserstraße",
+    "foodSupply": null,
+    "address": {
+      "street": "Mühlenstr. 78-80",
+      "postalCode": "10243",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Im Speicher",
+      "anleger": null,
+      "gewaesser": "Spree-Oder-Wasserstraße",
+      "km": null
+    }
+  },
+  {
+    "name": "Klipper Restaurantschiff, Berlin",
+    "latitude": 52.4826953,
+    "longitude": 13.4756704,
+    "isOfficial": true,
+    "hints": "Betreiber: Klipper Restaurantschiff\nGewässer: Spree-Oder-Wasserstraße",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-Wasserstraße",
+    "foodSupply": null,
+    "address": {
+      "street": "Bulgarische Straße",
+      "postalCode": "12435",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Klipper Restaurantschiff",
+      "anleger": null,
+      "gewaesser": "Spree-Oder-Wasserstraße",
+      "km": null
+    }
+  },
+  {
+    "name": "Köpenick am Generalshof Tourismusverein Berlin Treptow-Köpenick, Berlin",
+    "latitude": 52.4449799,
+    "longitude": 13.5744433,
+    "isOfficial": true,
+    "hints": "Betreiber: Köpenick am Generalshof Tourismusverein Berlin Treptow-Köpenick\nGewässer: Müggelspree, Alter Spreearm",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Müggelspree, Alter Spreearm",
+    "foodSupply": null,
+    "address": {
+      "street": "Alt-Köpenick 31-33",
+      "postalCode": "12555",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Köpenick am Generalshof Tourismusverein Berlin Treptow-Köpenick",
+      "anleger": null,
+      "gewaesser": "Müggelspree, Alter Spreearm",
+      "km": null
+    }
+  },
+  {
+    "name": "WSGO, Berlin",
+    "latitude": 52.5444354,
+    "longitude": 13.2229532,
+    "isOfficial": true,
+    "hints": "Betreiber: Wassersport-Club Grün-Silber-Orange\nGewässer: Oberhavel",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Oberhavel",
+    "foodSupply": null,
+    "address": {
+      "street": "Elisabeth-Flickenschildt-Straße 24",
+      "postalCode": "13599",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Wassersport-Club Grün-Silber-Orange",
+      "anleger": "WSGO",
+      "gewaesser": "Oberhavel",
+      "km": null
+    }
+  },
+  {
+    "name": "Marina Lanke Berlin, Berlin",
+    "latitude": 52.503201,
+    "longitude": 13.1873509,
+    "isOfficial": true,
+    "hints": "Betreiber: Marina Lanke Berlin\nGewässer: UHW",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "UHW",
+    "foodSupply": null,
+    "address": {
+      "street": "Scharfe Lanke 109",
+      "postalCode": "13595",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Marina Lanke Berlin",
+      "anleger": null,
+      "gewaesser": "UHW",
+      "km": null
+    }
+  },
+  {
+    "name": "Motorwassersportclub 1190 e.V., Berlin",
+    "latitude": 52.4541493,
+    "longitude": 13.5393636,
+    "isOfficial": true,
+    "hints": "Betreiber: Motorwassersportclub 1190 e.V. (MWSC 1190 e.V.)\nGewässer: Spree-Oder-Wasserstraße",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-Wasserstraße",
+    "foodSupply": null,
+    "address": {
+      "street": "Bruno-Bürgel-Weg 63",
+      "postalCode": "12439",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Motorwassersportclub 1190 e.V. (MWSC 1190 e.V.)",
+      "anleger": "Motorwassersportclub 1190 e.V.",
+      "gewaesser": "Spree-Oder-Wasserstraße",
+      "km": null
+    }
+  },
+  {
+    "name": "Motor-Boot-Club Berlin e. V., Berlin",
+    "latitude": 52.4309004,
+    "longitude": 13.1655923,
+    "isOfficial": true,
+    "hints": "Betreiber: Motor-Boot-Club Berlin e. V.\nGewässer: UHW, Großer Wannsee",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "UHW, Großer Wannsee",
+    "foodSupply": null,
+    "address": {
+      "street": "Am Großen Wannsee 50",
+      "postalCode": "14109",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Motor-Boot-Club Berlin e. V.",
+      "anleger": null,
+      "gewaesser": "UHW, Großer Wannsee",
+      "km": null
+    }
+  },
+  {
+    "name": "Motorwassersportclub Grünau e.V., Berlin",
+    "latitude": 52.38235,
+    "longitude": 13.6453166,
+    "isOfficial": true,
+    "hints": "Betreiber: Motorwassersportclub Grünau e.V.\nGewässer: Dahme-Wasser-Str., Langer See",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Dahme-Wasser-Str., Langer See",
+    "foodSupply": null,
+    "address": {
+      "street": "Windwallstr. 1",
+      "postalCode": "12527",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Motorwassersportclub Grünau e.V.",
+      "anleger": null,
+      "gewaesser": "Dahme-Wasser-Str., Langer See",
+      "km": null
+    }
+  },
+  {
+    "name": "Motor-Yacht-Club Preußen e. V. im ADAC, Berlin",
+    "latitude": 52.4894631,
+    "longitude": 13.1829472,
+    "isOfficial": true,
+    "hints": "Betreiber: Motor-Yacht-Club Preußen e. V. im ADAC\nGewässer: Untere-Havel-WS",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Untere-Havel-WS",
+    "foodSupply": null,
+    "address": {
+      "street": "Alt Gatow 1-3",
+      "postalCode": "14089",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Motor-Yacht-Club Preußen e. V. im ADAC",
+      "anleger": null,
+      "gewaesser": "Untere-Havel-WS",
+      "km": null
+    }
+  },
+  {
+    "name": "Motor-Yacht-Club Tegel e. V., Berlin",
+    "latitude": 52.5795551,
+    "longitude": 13.2762157,
+    "isOfficial": true,
+    "hints": "Betreiber: Motor-Yacht-Club Tegel e. V.\nGewässer: Havel-Oder-Wasserstr., Tegeler See",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Havel-Oder-Wasserstr., Tegeler See",
+    "foodSupply": null,
+    "address": {
+      "street": "Borsigdamm 4",
+      "postalCode": "13507",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Motor-Yacht-Club Tegel e. V.",
+      "anleger": null,
+      "gewaesser": "Havel-Oder-Wasserstr., Tegeler See",
+      "km": null
+    }
+  },
+  {
+    "name": "MRC Berlin, Berlin",
+    "latitude": 52.4435312,
+    "longitude": 13.3313742,
+    "isOfficial": true,
+    "hints": "Betreiber: MRC Berlin\nGewässer: Teltow-Kanal",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Teltow-Kanal",
+    "foodSupply": null,
+    "address": {
+      "street": "Teltowkanalstr. 16",
+      "postalCode": "12249",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "MRC Berlin",
+      "anleger": null,
+      "gewaesser": "Teltow-Kanal",
+      "km": null
+    }
+  },
+  {
+    "name": "Neudörfl/FEWO Eisgarten, Berlin",
+    "latitude": 52.4262968,
+    "longitude": 13.7294845,
+    "isOfficial": true,
+    "hints": "Betreiber: Neudörfl/FEWO Eisgarten\nGewässer: Dämeritzsee",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Dämeritzsee",
+    "foodSupply": null,
+    "address": {
+      "street": "Ahornstr. 8",
+      "postalCode": "12589",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Neudörfl/FEWO Eisgarten",
+      "anleger": null,
+      "gewaesser": "Dämeritzsee",
+      "km": null
+    }
+  },
+  {
+    "name": "Potsdamer Yacht Club, Berlin",
+    "latitude": 52.4211639,
+    "longitude": 13.1699257,
+    "isOfficial": true,
+    "hints": "Betreiber: Potsdamer Yacht Club\nGewässer: Großer Wannsee",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Großer Wannsee",
+    "foodSupply": null,
+    "address": {
+      "street": "Königstr. 3 a",
+      "postalCode": "14109",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Potsdamer Yacht Club",
+      "anleger": null,
+      "gewaesser": "Großer Wannsee",
+      "km": null
+    }
+  },
+  {
+    "name": "Pro Sport Berlin 24 e. V., Berlin",
+    "latitude": 52.4309175,
+    "longitude": 13.5729746,
+    "isOfficial": true,
+    "hints": "Betreiber: Pro Sport Berlin 24 e. V.\nGewässer: Langer See/Spree-Oder-Wasserstr./Dahme",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Langer See/Spree-Oder-Wasserstr./Dahme",
+    "foodSupply": null,
+    "address": {
+      "street": "Grünauer Str. 193",
+      "postalCode": "12557",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Pro Sport Berlin 24 e. V.",
+      "anleger": null,
+      "gewaesser": "Langer See/Spree-Oder-Wasserstr./Dahme",
+      "km": null
+    }
+  },
+  {
+    "name": "Rotsch-Hafen-Berlin, Berlin",
+    "latitude": 52.3794804,
+    "longitude": 13.6462916,
+    "isOfficial": true,
+    "hints": "Betreiber: Rotsch-Hafen-Berlin\nGewässer: Spree-Oder-WS, Langer See",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-WS, Langer See",
+    "foodSupply": null,
+    "address": {
+      "street": "Nuscheweg 2",
+      "postalCode": "12527",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Rotsch-Hafen-Berlin",
+      "anleger": null,
+      "gewaesser": "Spree-Oder-WS, Langer See",
+      "km": null
+    }
+  },
+  {
+    "name": "SB-Tankstelle Bläske & Schülke, Berlin",
+    "latitude": 52.4097863,
+    "longitude": 13.6664297,
+    "isOfficial": true,
+    "hints": "Betreiber: SB-Tankstelle Bläske & Schülke\nGewässer: Spree-Oder-WS, Große Krampe",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-WS, Große Krampe",
+    "foodSupply": null,
+    "address": {
+      "street": "Gosener Damm 13-15",
+      "postalCode": "12559",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "SB-Tankstelle Bläske & Schülke",
+      "anleger": null,
+      "gewaesser": "Spree-Oder-WS, Große Krampe",
+      "km": null
+    }
+  },
+  {
+    "name": "SC Brise 1898 e. V., Berlin",
+    "latitude": 52.4223213,
+    "longitude": 13.5842681,
+    "isOfficial": true,
+    "hints": "Betreiber: SC Brise 1898 e. V.\nGewässer: Spree-Oder-Wasserstr.",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-Wasserstr.",
+    "foodSupply": null,
+    "address": {
+      "street": "Wendenschloßstr. 390",
+      "postalCode": "12557",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "SC Brise 1898 e. V.",
+      "anleger": null,
+      "gewaesser": "Spree-Oder-Wasserstr.",
+      "km": null
+    }
+  },
+  {
+    "name": "SC Spandau e. V., Berlin",
+    "latitude": 52.5690791,
+    "longitude": 13.223559,
+    "isOfficial": true,
+    "hints": "Betreiber: SC Spandau e. V.\nGewässer: Havel",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Havel",
+    "foodSupply": null,
+    "address": {
+      "street": "Elkartweg 18",
+      "postalCode": "13587",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "SC Spandau e. V.",
+      "anleger": null,
+      "gewaesser": "Havel",
+      "km": null
+    }
+  },
+  {
+    "name": "Seesportclub, Berlin",
+    "latitude": 52.3959069,
+    "longitude": 13.6359395,
+    "isOfficial": true,
+    "hints": "Betreiber: Seesportclub\nGewässer: Spree-Oder-WS",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-WS",
+    "foodSupply": null,
+    "address": {
+      "street": "Rohrwallallee 11",
+      "postalCode": "12527",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Seesportclub",
+      "anleger": null,
+      "gewaesser": "Spree-Oder-WS",
+      "km": null
+    }
+  },
+  {
+    "name": "Segelclub Fraternitas 1891 e. V., Berlin",
+    "latitude": 52.4237098,
+    "longitude": 13.5868345,
+    "isOfficial": true,
+    "hints": "Betreiber: Segelclub Fraternitas 1891 e. V.\nGewässer: Spree-Oder-WS Dahme",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-WS Dahme",
+    "foodSupply": null,
+    "address": {
+      "street": "Wendenschloßstr. 378",
+      "postalCode": "12557",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Segelclub Fraternitas 1891 e. V.",
+      "anleger": null,
+      "gewaesser": "Spree-Oder-WS Dahme",
+      "km": null
+    }
+  },
+  {
+    "name": "Seglervereinigung 1903 e. V., Berlin",
+    "latitude": 52.446021,
+    "longitude": 13.1764429,
+    "isOfficial": true,
+    "hints": "Betreiber: Seglervereinigung 1903 e. V.\nGewässer: Klare Lanke",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Klare Lanke",
+    "foodSupply": null,
+    "address": {
+      "street": "Wannseebadweg 40",
+      "postalCode": "14129",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Seglervereinigung 1903 e. V.",
+      "anleger": null,
+      "gewaesser": "Klare Lanke",
+      "km": null
+    }
+  },
+  {
+    "name": "Spreehöfe-Spacebowl, Berlin",
+    "latitude": 52.4627272,
+    "longitude": 13.5119904,
+    "isOfficial": true,
+    "hints": "Betreiber: Spreehöfe-Spacebowl\nGewässer: Spree-Oder-WS",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-WS",
+    "foodSupply": null,
+    "address": {
+      "street": "Wilhelminenhofstr. 89a",
+      "postalCode": "12459",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Spreehöfe-Spacebowl",
+      "anleger": null,
+      "gewaesser": "Spree-Oder-WS",
+      "km": null
+    }
+  },
+  {
+    "name": "Stern und Kreis Schifffahrt GmbH, Berlin",
+    "latitude": 52.4963707,
+    "longitude": 13.4502841,
+    "isOfficial": true,
+    "hints": "Betreiber: Stern und Kreis Schifffahrt GmbH\nGewässer: Spree-Oder-Wasserstr. -Spree",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-Wasserstr. -Spree",
+    "foodSupply": null,
+    "address": {
+      "street": "Puschkinallee 16-17",
+      "postalCode": "12435",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Stern und Kreis Schifffahrt GmbH",
+      "anleger": null,
+      "gewaesser": "Spree-Oder-Wasserstr. -Spree",
+      "km": null
+    }
+  },
+  {
+    "name": "TSG 1898 e. V., Berlin",
+    "latitude": 52.3829814,
+    "longitude": 13.6406145,
+    "isOfficial": true,
+    "hints": "Betreiber: TSG 1898 e. V.\nGewässer: Spree-Oder-WS",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-WS",
+    "foodSupply": null,
+    "address": {
+      "street": "Jagen 37",
+      "postalCode": "12527",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "TSG 1898 e. V.",
+      "anleger": null,
+      "gewaesser": "Spree-Oder-WS",
+      "km": null
+    }
+  },
+  {
+    "name": "Union SOZ. Einrichtungen gGmbH, Berlin",
+    "latitude": 52.4175877,
+    "longitude": 13.5821517,
+    "isOfficial": true,
+    "hints": "Betreiber: Union SOZ. Einrichtungen gGmbH\nGewässer: Spree-Oder-Wasserstr-Dahme",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-Wasserstr-Dahme",
+    "foodSupply": null,
+    "address": {
+      "street": "Wassersportallee 2",
+      "postalCode": "12527",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Union SOZ. Einrichtungen gGmbH",
+      "anleger": null,
+      "gewaesser": "Spree-Oder-Wasserstr-Dahme",
+      "km": null
+    }
+  },
+  {
+    "name": "Verein Schmöckwitzer Wassersportler e. V., Berlin",
+    "latitude": 52.3829814,
+    "longitude": 13.6406145,
+    "isOfficial": true,
+    "hints": "Betreiber: Verein Schmöckwitzer Wassersportler e. V.\nGewässer: Spree-Oder-WS, Langer See",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-WS, Langer See",
+    "foodSupply": null,
+    "address": {
+      "street": "Jagen 37",
+      "postalCode": "12527",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Verein Schmöckwitzer Wassersportler e. V.",
+      "anleger": null,
+      "gewaesser": "Spree-Oder-WS, Langer See",
+      "km": null
+    }
+  },
+  {
+    "name": "W.a.G. Großes Fenster e. V., Berlin",
+    "latitude": 52.4515414,
+    "longitude": 13.1913306,
+    "isOfficial": true,
+    "hints": "Betreiber: W.a.G. Großes Fenster e. V.\nGewässer: Untere-Havel-WS",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Untere-Havel-WS",
+    "foodSupply": null,
+    "address": {
+      "street": "Am Großen Fenster",
+      "postalCode": "14165",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "W.a.G. Großes Fenster e. V.",
+      "anleger": null,
+      "gewaesser": "Untere-Havel-WS",
+      "km": null
+    }
+  },
+  {
+    "name": "Havelschanze, Berlin",
+    "latitude": 52.5543279,
+    "longitude": 13.21572,
+    "isOfficial": true,
+    "hints": "Betreiber: Wasserfreunde Spandau 04\nGewässer: Ober-Havel-WS",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Ober-Havel-WS",
+    "foodSupply": null,
+    "address": {
+      "street": "Am Bootshaus 20",
+      "postalCode": "13587",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Wasserfreunde Spandau 04",
+      "anleger": "Havelschanze",
+      "gewaesser": "Ober-Havel-WS",
+      "km": null
+    }
+  },
+  {
+    "name": "Zitadelle, Berlin",
+    "latitude": 52.5389461,
+    "longitude": 13.2164486,
+    "isOfficial": true,
+    "hints": "Betreiber: Wasserfreunde Spandau 04\nGewässer: Ober-Havel-WS",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Ober-Havel-WS",
+    "foodSupply": null,
+    "address": {
+      "street": "Zitadellenweg",
+      "postalCode": "13599",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Wasserfreunde Spandau 04",
+      "anleger": "Zitadelle",
+      "gewaesser": "Ober-Havel-WS",
+      "km": null
+    }
+  },
+  {
+    "name": "Wassersport-Verein 1921 e. V., Berlin",
+    "latitude": 52.3880698,
+    "longitude": 13.6398969,
+    "isOfficial": true,
+    "hints": "Betreiber: Wassersport-Verein 1921 e. V.\nGewässer: Spree-Oder-Wasserstr.-Dahme, Langer See",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-Wasserstr.-Dahme, Langer See",
+    "foodSupply": null,
+    "address": {
+      "street": "Rohrwallallee 87-99",
+      "postalCode": "12527",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Wassersport-Verein 1921 e. V.",
+      "anleger": null,
+      "gewaesser": "Spree-Oder-Wasserstr.-Dahme, Langer See",
+      "km": null
+    }
+  },
+  {
+    "name": "Wassersport-Verein Karolinenhof e. V., Berlin",
+    "latitude": 52.3960031,
+    "longitude": 13.6339418,
+    "isOfficial": true,
+    "hints": "Betreiber: Wassersport-Verein Karolinenhof e. V.\nGewässer: Spree-Oder-Sasserstr.-Dahme, Langer See",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-Sasserstr.-Dahme, Langer See",
+    "foodSupply": null,
+    "address": {
+      "street": "Rohrwallallee 3",
+      "postalCode": "12527",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Wassersport-Verein Karolinenhof e. V.",
+      "anleger": null,
+      "gewaesser": "Spree-Oder-Sasserstr.-Dahme, Langer See",
+      "km": null
+    }
+  },
+  {
+    "name": "Wassersportzentrum Berlin, Berlin",
+    "latitude": 52.4467233,
+    "longitude": 13.6276172,
+    "isOfficial": true,
+    "hints": "Betreiber: Wassersportzentrum Berlin\nGewässer: Müggelspree",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Müggelspree",
+    "foodSupply": null,
+    "address": {
+      "street": "Müggelseedamm 42-70",
+      "postalCode": "12587",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Wassersportzentrum Berlin",
+      "anleger": null,
+      "gewaesser": "Müggelspree",
+      "km": null
+    }
+  },
+  {
+    "name": "Weisse Villa (Herr Wengelsdorf), Berlin",
+    "latitude": 52.4457075,
+    "longitude": 13.6252041,
+    "isOfficial": true,
+    "hints": "Betreiber: Weisse Villa (Herr Wengelsdorf)\nGewässer: Müggelspree",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Müggelspree",
+    "foodSupply": null,
+    "address": {
+      "street": "Josef-Nawrocki-Str. 10",
+      "postalCode": "12587",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Weisse Villa (Herr Wengelsdorf)",
+      "anleger": null,
+      "gewaesser": "Müggelspree",
+      "km": null
+    }
+  },
+  {
+    "name": "Westernrestaurant Richtershorn, Berlin",
+    "latitude": 52.4015321,
+    "longitude": 13.62538,
+    "isOfficial": true,
+    "hints": "Betreiber: Westernrestaurant Richtershorn\nGewässer: Spree-Oder-Wasserstr.-Dahme",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-Wasserstr.-Dahme",
+    "foodSupply": null,
+    "address": {
+      "street": "Sportpromenade 15",
+      "postalCode": "12527",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Westernrestaurant Richtershorn",
+      "anleger": null,
+      "gewaesser": "Spree-Oder-Wasserstr.-Dahme",
+      "km": null
+    }
+  },
+  {
+    "name": "Wilhelmstadt Spandau Interessengemeinschaft Wilhelmstadt e. V., Berlin",
+    "latitude": 52.5229772,
+    "longitude": 13.1974457,
+    "isOfficial": true,
+    "hints": "Betreiber: Wilhelmstadt Spandau Interessengemeinschaft Wilhelmstadt e. V.\nGewässer: Untere-Havel-WS",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Untere-Havel-WS",
+    "foodSupply": null,
+    "address": {
+      "street": "Pichelsdorfer Str. 89",
+      "postalCode": "13595",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Wilhelmstadt Spandau Interessengemeinschaft Wilhelmstadt e. V.",
+      "anleger": null,
+      "gewaesser": "Untere-Havel-WS",
+      "km": null
+    }
+  },
+  {
+    "name": "Yachtcharter Löber, Berlin",
+    "latitude": 52.4187276,
+    "longitude": 13.5874644,
+    "isOfficial": true,
+    "hints": "Betreiber: Yachthafen Löber\nGewässer: Spree-Oder-Wasserstr.-Dahme",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Spree-Oder-Wasserstr.-Dahme",
+    "foodSupply": null,
+    "address": {
+      "street": "Müggelbergallee 1",
+      "postalCode": "12557",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Yachthafen Löber",
+      "anleger": "Yachtcharter Löber",
+      "gewaesser": "Spree-Oder-Wasserstr.-Dahme",
+      "km": null
+    }
+  },
+  {
+    "name": "Yachthafen Marina Wannsee, Berlin",
+    "latitude": 52.4213652,
+    "longitude": 13.16691,
+    "isOfficial": true,
+    "hints": "Betreiber: Yachthafen Marina Wannsee\nGewässer: Untere-Havel-WS, Wannsee",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Untere-Havel-WS, Wannsee",
+    "foodSupply": null,
+    "address": {
+      "street": "Am Grossen Wannsee 4",
+      "postalCode": "14109",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Yachthafen Marina Wannsee",
+      "anleger": null,
+      "gewaesser": "Untere-Havel-WS, Wannsee",
+      "km": null
+    }
+  },
+  {
+    "name": "Tempelhofer Hafen Berlin, Berlin",
+    "latitude": 52.4548778,
+    "longitude": 13.3845378,
+    "isOfficial": true,
+    "hints": "Betreiber: Tempelhofer Hafen Berlin\nGewässer: Teltow-Kanal",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Teltow-Kanal",
+    "foodSupply": null,
+    "address": {
+      "street": "Tempelhofer Damm 227",
+      "postalCode": "12099",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Tempelhofer Hafen Berlin",
+      "anleger": null,
+      "gewaesser": "Teltow-Kanal",
+      "km": null
+    }
+  },
+  {
+    "name": "Seesportclub Berlin-Grünau e. V., Berlin",
+    "latitude": 52.3959069,
+    "longitude": 13.6359395,
+    "isOfficial": true,
+    "hints": "Betreiber: Bezirksamt Treptow-Köpenick\nGewässer: SOW Langer See",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "SOW Langer See",
+    "foodSupply": null,
+    "address": {
+      "street": "Rohrwallallee 11",
+      "postalCode": "12527",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Bezirksamt Treptow-Köpenick",
+      "anleger": "Seesportclub Berlin-Grünau e. V.",
+      "gewaesser": "SOW Langer See",
+      "km": null
+    }
+  },
+  {
+    "name": "Zeltplatz Kuhle Wampe, Berlin",
+    "latitude": 52.3883781,
+    "longitude": 13.6489292,
+    "isOfficial": true,
+    "hints": "Betreiber: Bezirksamt Treptow-Köpenick\nGewässer: Große Krampe",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Große Krampe",
+    "foodSupply": null,
+    "address": {
+      "street": "Straße zur Krampenburg",
+      "postalCode": "12559",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Bezirksamt Treptow-Köpenick",
+      "anleger": "Zeltplatz Kuhle Wampe",
+      "gewaesser": "Große Krampe",
+      "km": null
+    }
+  },
+  {
+    "name": "Mellowpark, Berlin",
+    "latitude": 52.4559429,
+    "longitude": 13.5603933,
+    "isOfficial": true,
+    "hints": "Betreiber: Bezirksamt Treptow-Köpenick\nGewässer: SOW",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "SOW",
+    "foodSupply": null,
+    "address": {
+      "street": "An der Wuhlheide 252",
+      "postalCode": "12459",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Bezirksamt Treptow-Köpenick",
+      "anleger": "Mellowpark",
+      "gewaesser": "SOW",
+      "km": null
+    }
+  },
+  {
+    "name": "Regattastraße 249, Berlin",
+    "latitude": 52.4111225,
+    "longitude": 13.5947302,
+    "isOfficial": true,
+    "hints": "Betreiber: Bezirksamt Treptow-Köpenick\nGewässer: SOW (Dahme)",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "SOW (Dahme)",
+    "foodSupply": null,
+    "address": {
+      "street": "Regattastraße 249",
+      "postalCode": "12527",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Bezirksamt Treptow-Köpenick",
+      "anleger": "Regattastraße 249",
+      "gewaesser": "SOW (Dahme)",
+      "km": null
+    }
+  },
+  {
+    "name": "Am Generalshof, Berlin",
+    "latitude": 52.4520169,
+    "longitude": 13.5741327,
+    "isOfficial": true,
+    "hints": "Betreiber: Bezirksamt Treptow-Köpenick\nGewässer: Nebenarm Köpenicker Alte Spree",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Nebenarm Köpenicker Alte Spree",
+    "foodSupply": null,
+    "address": {
+      "street": "Am Generalshof",
+      "postalCode": "12555",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Bezirksamt Treptow-Köpenick",
+      "anleger": "Am Generalshof",
+      "gewaesser": "Nebenarm Köpenicker Alte Spree",
+      "km": null
+    }
+  },
+  {
+    "name": "Insel der Jugend, Berlin",
+    "latitude": 52.4872862,
+    "longitude": 13.4807905,
+    "isOfficial": true,
+    "hints": "Betreiber: Bezirksamt Treptow-Köpenick\nGewässer: Nebenarm Spee, Insel der Jugend",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "Nebenarm Spee, Insel der Jugend",
+    "foodSupply": null,
+    "address": {
+      "street": "Insel der Jugend, Abteibrücke",
+      "postalCode": "12435",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Bezirksamt Treptow-Köpenick",
+      "anleger": "Insel der Jugend",
+      "gewaesser": "Nebenarm Spee, Insel der Jugend",
+      "km": null
+    }
+  },
+  {
+    "name": "Zum Seeblick, Berlin",
+    "latitude": 52.3798545,
+    "longitude": 13.6433378,
+    "isOfficial": true,
+    "hints": "Betreiber: Bezirksamt Treptow-Köpenick\nGewässer: SOW",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "SOW",
+    "foodSupply": null,
+    "address": {
+      "street": "Zum Seeblick",
+      "postalCode": "12527",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Bezirksamt Treptow-Köpenick",
+      "anleger": "Zum Seeblick",
+      "gewaesser": "SOW",
+      "km": null
+    }
+  },
+  {
+    "name": "Schmetterlingshorst, Berlin",
+    "latitude": 52.4125993,
+    "longitude": 13.6094304,
+    "isOfficial": true,
+    "hints": "Betreiber: Bezirksamt Treptow-Köpenick\nGewässer: SOW",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "SOW",
+    "foodSupply": null,
+    "address": {
+      "street": "Zum Schmetterlingshorst 2",
+      "postalCode": "12559",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Bezirksamt Treptow-Köpenick",
+      "anleger": "Schmetterlingshorst",
+      "gewaesser": "SOW",
+      "km": null
+    }
+  },
+  {
+    "name": "KKC Berlin e. V., Berlin",
+    "latitude": 52.4571301,
+    "longitude": 13.5405831,
+    "isOfficial": true,
+    "hints": "Betreiber: Bezirksamt Treptow-Köpenick\nGewässer: SOW",
+    "openingHours": "24h",
+    "parkingOptions": null,
+    "nearbyWaters": "SOW",
+    "foodSupply": null,
+    "address": {
+      "street": "Weiskopffstr. 15",
+      "postalCode": "12459",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "originalData": {
+      "betreiber": "Bezirksamt Treptow-Köpenick",
+      "anleger": "KKC Berlin e. V.",
+      "gewaesser": "SOW",
+      "km": null
+    }
+  }
+]

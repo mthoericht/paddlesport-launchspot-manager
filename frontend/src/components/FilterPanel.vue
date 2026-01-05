@@ -12,7 +12,7 @@ const emit = defineEmits<{
 
 const launchPointsStore = useLaunchPointsStore();
 const authStore = useAuthStore();
-const { allCategories } = useCategories();
+const { allCategories, fetchCategories } = useCategories();
 
 const users = ref<{ id: number; username: string }[]>([]);
 const selectedUsername = ref(launchPointsStore.filter.username || '');
@@ -49,7 +49,8 @@ function clearFilters() {
   launchPointsStore.clearFilters();
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await fetchCategories();
   fetchUsers();
 });
 </script>
@@ -133,21 +134,21 @@ onMounted(() => {
         <div class="category-options">
           <label 
             v-for="cat in allCategories" 
-            :key="cat" 
+            :key="cat.id" 
             class="category-checkbox"
-            :class="{ active: launchPointsStore.filter.categories.includes(cat) }"
+            :class="{ active: launchPointsStore.filter.categories.includes(cat.id) }"
           >
             <input 
               type="checkbox" 
-              :checked="launchPointsStore.filter.categories.includes(cat)"
-              @change="launchPointsStore.toggleCategory(cat)"
+              :checked="launchPointsStore.filter.categories.includes(cat.id)"
+              @change="launchPointsStore.toggleCategory(cat.id)"
             />
             <span class="checkbox-icon">
-              <svg v-if="launchPointsStore.filter.categories.includes(cat)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <svg v-if="launchPointsStore.filter.categories.includes(cat.id)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
             </span>
-            <span>{{ cat }}</span>
+            <span>{{ cat.name_de }}</span>
           </label>
         </div>
       </div>

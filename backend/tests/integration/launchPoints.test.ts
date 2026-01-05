@@ -26,6 +26,21 @@ describe('LaunchPoints Routes Integration Tests', () =>
 {
   let testUser: any;
   let authToken: string;
+  let categoryIds: Record<string, number> = {};
+
+  // Helper function to get category IDs
+  async function getCategoryIds()
+  {
+    if (Object.keys(categoryIds).length === 0)
+    {
+      const categories = await prisma.category.findMany();
+      for (const cat of categories)
+      {
+        categoryIds[cat.name_de] = cat.id;
+      }
+    }
+    return categoryIds;
+  }
 
   // Helper function to ensure user exists
   async function ensureUserExists()
@@ -181,6 +196,9 @@ describe('LaunchPoints Routes Integration Tests', () =>
       expect(testUser).toBeDefined();
       expect(testUser.id).toBeDefined();
       
+      // Get category IDs
+      const catIds = await getCategoryIds();
+      
       const response = await request(app)
         .post('/api/launch-points')
         .set('Authorization', `Bearer ${authToken}`)
@@ -188,7 +206,7 @@ describe('LaunchPoints Routes Integration Tests', () =>
           name: 'TEST_New Launch Point',
           latitude: 52.5200,
           longitude: 13.4050,
-          categories: ['Kajak', 'SUP'],
+          categories: [catIds['Kajak'], catIds['SUP']],
           opening_hours: '24h'
         });
 
@@ -222,13 +240,15 @@ describe('LaunchPoints Routes Integration Tests', () =>
 
     it('should reject request without authentication', async () =>
     {
+      const catIds = await getCategoryIds();
+      
       const response = await request(app)
         .post('/api/launch-points')
         .send({
           name: 'TEST_Unauthorized Point',
           latitude: 52.5200,
           longitude: 13.4050,
-          categories: ['Kajak']
+          categories: [catIds['Kajak']]
         });
 
       expect(response.status).toBe(401);
@@ -236,6 +256,8 @@ describe('LaunchPoints Routes Integration Tests', () =>
 
     it('should reject request with invalid token', async () =>
     {
+      const catIds = await getCategoryIds();
+      
       const response = await request(app)
         .post('/api/launch-points')
         .set('Authorization', 'Bearer invalid_token')
@@ -243,7 +265,7 @@ describe('LaunchPoints Routes Integration Tests', () =>
           name: 'TEST_Invalid Token Point',
           latitude: 52.5200,
           longitude: 13.4050,
-          categories: ['Kajak']
+          categories: [catIds['Kajak']]
         });
 
       // Auth middleware returns 403 for invalid token, not 401
@@ -286,6 +308,7 @@ describe('LaunchPoints Routes Integration Tests', () =>
     it('should filter by category', async () =>
     {
       await ensureUserExists();
+      const catIds = await getCategoryIds();
       
       await createTestLaunchPoint({
         createdById: testUser.id,
@@ -300,7 +323,7 @@ describe('LaunchPoints Routes Integration Tests', () =>
       });
 
       const response = await request(app)
-        .get('/api/launch-points?categories=Kajak')
+        .get(`/api/launch-points?categories=${catIds['Kajak']}`)
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response.status).toBe(200);
@@ -356,6 +379,8 @@ describe('LaunchPoints Routes Integration Tests', () =>
         categories: ['Kajak']
       });
 
+      const catIds = await getCategoryIds();
+      
       const response = await request(app)
         .put(`/api/launch-points/${point.id}`)
         .set('Authorization', `Bearer ${authToken}`)
@@ -363,7 +388,7 @@ describe('LaunchPoints Routes Integration Tests', () =>
           name: 'TEST_Updated Point',
           latitude: 52.5200,
           longitude: 13.4050,
-          categories: ['SUP'],
+          categories: [catIds['SUP']],
           opening_hours: '06:00-22:00'
         });
 
@@ -401,6 +426,8 @@ describe('LaunchPoints Routes Integration Tests', () =>
         otherUser.username
       );
 
+      const catIds = await getCategoryIds();
+      
       const response = await request(app)
         .put(`/api/launch-points/${point.id}`)
         .set('Authorization', `Bearer ${otherToken}`)
@@ -408,7 +435,7 @@ describe('LaunchPoints Routes Integration Tests', () =>
           name: 'TEST_Unauthorized Update',
           latitude: 52.5200,
           longitude: 13.4050,
-          categories: ['Kajak']
+          categories: [catIds['Kajak']]
         });
 
       expect(response.status).toBe(403);

@@ -89,12 +89,12 @@ export function useLaunchPointForm()
   });
   const localError = ref('');
 
-  function toggleCategory(cat: Category): void 
+  function toggleCategory(categoryId: number): void 
   {
-    const index = form.value.categories.indexOf(cat);
+    const index = form.value.categories.indexOf(categoryId);
     if (index === -1) 
     {
-      form.value.categories.push(cat);
+      form.value.categories.push(categoryId);
     }
     else 
     {
@@ -150,15 +150,31 @@ export function useLaunchPointForm()
       return false;
     }
     
+    // Ensure all category IDs are valid numbers
+    const validCategoryIds = form.value.categories.filter(id => typeof id === 'number' && id > 0);
+    if (validCategoryIds.length === 0) 
+    {
+      localError.value = 'Ungültige Kategorien ausgewählt. Bitte versuche es erneut.';
+      return false;
+    }
+    
+    // Create a clean form data object with valid category IDs
+    const formData: LaunchPointFormData = {
+      ...form.value,
+      categories: validCategoryIds
+    };
+    
+    console.log('Submitting form with categories:', formData.categories);
+    
     let success: boolean | number | null;
     
     if (isEdit.value) 
     {
-      success = await launchPointsStore.updateLaunchPoint(pointId.value, form.value);
+      success = await launchPointsStore.updateLaunchPoint(pointId.value, formData);
     }
     else 
     {
-      success = await launchPointsStore.createLaunchPoint(form.value);
+      success = await launchPointsStore.createLaunchPoint(formData);
     }
     
     if (success) 
@@ -190,7 +206,7 @@ export function useLaunchPointForm()
           parking_options: point.parking_options || '',
           nearby_waters: point.nearby_waters || '',
           food_supply: point.food_supply || '',
-          categories: [...point.categories],
+          categories: point.category_ids ? [...point.category_ids] : [],
           public_transport_stations: [...point.public_transport_stations]
         };
         markerPosition.value = [point.latitude, point.longitude];

@@ -1,0 +1,554 @@
+[
+  {
+    "betreiber": "Andreas Diebel GbR",
+    "anleger": "",
+    "strasse": "Katzengraben 19/Spindlergasse",
+    "plz": "12555",
+    "ort": "Berlin",
+    "gewaesser": "Müggelspree;Altstadtinsel Köpenick"
+  },
+  {
+    "betreiber": "Berliner Wassersport und Service GmbH & Co. Betriebs KG",
+    "anleger": "Marina Wendenschloß",
+    "strasse": "Wendenschloßstr. 350-354",
+    "plz": "12557",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-WS Dahme"
+  },
+  {
+    "betreiber": "Berliner Yacht-Club e.V.",
+    "anleger": "",
+    "strasse": "Wannseebadweg 55",
+    "plz": "14129",
+    "ort": "Berlin",
+    "gewaesser": "UHW, Wannsee"
+  },
+  {
+    "betreiber": "Best Western Michels Hotel am Schloss Köpenick",
+    "anleger": "",
+    "strasse": "Grünauer Str. 17-21",
+    "plz": "12557",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-Wasserstr. -Dahme, Frauentog"
+  },
+  {
+    "betreiber": "Bootshaus Eiswerder Michael & Eike Röhlicke GbR",
+    "anleger": "",
+    "strasse": "Eiswerder Str. 10-12",
+    "plz": "13585",
+    "ort": "Berlin",
+    "gewaesser": "Havel-Oder-Wasserstr.:Insel Eiswerder"
+  },
+  {
+    "betreiber": "Bootshaus Hempler",
+    "anleger": "",
+    "strasse": "Am Pichelsee 22",
+    "plz": "13595",
+    "ort": "Berlin",
+    "gewaesser": "Scharfe Lanke WS:UHW"
+  },
+  {
+    "betreiber": "Bootsstände Blumeshof",
+    "anleger": "Andreas Zacholowsky",
+    "strasse": "Im Saatwinkel 55",
+    "plz": "13599",
+    "ort": "Berlin",
+    "gewaesser": "Ober-Havel-WS"
+  },
+  {
+    "betreiber": "Bootsstände Angermann",
+    "anleger": "",
+    "strasse": "Am Pichelsee 50",
+    "plz": "13595",
+    "ort": "Berlin",
+    "gewaesser": "UHW"
+  },
+  {
+    "betreiber": "Bootsstände Lahe",
+    "anleger": "",
+    "strasse": "Im Saatwinkel 15",
+    "plz": "13599",
+    "ort": "Berlin",
+    "gewaesser": ""
+  },
+  {
+    "betreiber": "Bootssteg/FeWo Hollenbach",
+    "anleger": "",
+    "strasse": "Imkerweg 36",
+    "plz": "12527",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-Wasserstraße"
+  },
+  {
+    "betreiber": "Cafe Bistro Evelin",
+    "anleger": "Sportboote sowie Kanus",
+    "strasse": "Salvador-Allende-Str. 80",
+    "plz": "12559",
+    "ort": "Berlin",
+    "gewaesser": "Müggelspree"
+  },
+  {
+    "betreiber": "Cafe Liebig",
+    "anleger": "",
+    "strasse": "Regattastr. 1",
+    "plz": "12527",
+    "ort": "Berlin",
+    "gewaesser": "SOW, Langer See"
+  },
+  {
+    "betreiber": "Cafe Restaurant Kietz",
+    "anleger": "",
+    "strasse": "Müggelheimer Str. 1",
+    "plz": "12555",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-WS Dahme, Frauentog"
+  },
+  {
+    "betreiber": "Campingplatz Krossinsee 1930 GmbH",
+    "anleger": "Pier 38",
+    "strasse": "Wernsdorfer Str. 38",
+    "plz": "12527",
+    "ort": "Berlin",
+    "gewaesser": "Krossinsee"
+  },
+  {
+    "betreiber": "Cöpenicker Segler-Verein",
+    "anleger": "",
+    "strasse": "Friedrichshagener Str. 8",
+    "plz": "12555",
+    "ort": "Berlin",
+    "gewaesser": "Müggelspree"
+  },
+  {
+    "betreiber": "Frauentog Tourismusverein Berlin Treptow-Köpenick",
+    "anleger": "",
+    "strasse": "Alt Köpenick 31-33",
+    "plz": "12555",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-Wasserstr.-Dahme, Frauentog"
+  },
+  {
+    "betreiber": "freiheit fünfzehn",
+    "anleger": "",
+    "strasse": "Freiheit 15",
+    "plz": "12555",
+    "ort": "Berlin",
+    "gewaesser": "Müggelspree; Altstadtinsel Köpenick"
+  },
+  {
+    "betreiber": "Hafen und Hof e.K.",
+    "anleger": "Marina Rummelsburg",
+    "strasse": "Zur Alten Flusslandschaft 5",
+    "plz": "10317",
+    "ort": "Berlin",
+    "gewaesser": "Spree"
+  },
+  {
+    "betreiber": "Hotel Dannenberg",
+    "anleger": "",
+    "strasse": "Alt Heiligensee 52",
+    "plz": "13503",
+    "ort": "Berlin",
+    "gewaesser": "OHW"
+  },
+  {
+    "betreiber": "Hotel Müggelsee Berlin",
+    "anleger": "Müggelseeperle",
+    "strasse": "Müggelheimer Damm 145",
+    "plz": "12559",
+    "ort": "Berlin",
+    "gewaesser": "Müggelspree Großer Müggelsee"
+  },
+  {
+    "betreiber": "Hotel Müggelsee Berlin",
+    "anleger": "Rübezahl",
+    "strasse": "Müggelheimer Damm 143",
+    "plz": "12559",
+    "ort": "Berlin",
+    "gewaesser": "Müggelspree Großer Müggelsee"
+  },
+  {
+    "betreiber": "Ideeninsel Lindwerder",
+    "anleger": "",
+    "strasse": "Havelchaussee",
+    "plz": "14193",
+    "ort": "Berlin",
+    "gewaesser": "Havel (Untere-Havel-Wasserstrasse)"
+  },
+  {
+    "betreiber": "Im Speicher",
+    "anleger": "",
+    "strasse": "Mühlenstr. 78-80",
+    "plz": "10243",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-Wasserstraße"
+  },
+  {
+    "betreiber": "Klipper Restaurantschiff",
+    "anleger": "",
+    "strasse": "Bulgarische Straße",
+    "plz": "12435",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-Wasserstraße"
+  },
+  {
+    "betreiber": "Köpenick am Generalshof Tourismusverein Berlin Treptow-Köpenick",
+    "anleger": "",
+    "strasse": "Alt-Köpenick 31-33",
+    "plz": "12555",
+    "ort": "Berlin",
+    "gewaesser": "Müggelspree, Alter Spreearm"
+  },
+  {
+    "betreiber": "Wassersport-Club Grün-Silber-Orange",
+    "anleger": "WSGO",
+    "strasse": "Elisabeth-Flickenschildt-Straße 24",
+    "plz": "13599",
+    "ort": "Berlin",
+    "gewaesser": "Oberhavel"
+  },
+  {
+    "betreiber": "Marina Lanke Berlin",
+    "anleger": "",
+    "strasse": "Scharfe Lanke 109",
+    "plz": "13595",
+    "ort": "Berlin",
+    "gewaesser": "UHW"
+  },
+  {
+    "betreiber": "Motorwassersportclub 1190 e.V. (MWSC 1190 e.V.)",
+    "anleger": "Motorwassersportclub 1190 e.V.",
+    "strasse": "Bruno-Bürgel-Weg 63",
+    "plz": "12439",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-Wasserstraße"
+  },
+  {
+    "betreiber": "Motor-Boot-Club Berlin e. V.",
+    "anleger": "",
+    "strasse": "Am Großen Wannsee 50",
+    "plz": "14109",
+    "ort": "Berlin",
+    "gewaesser": "UHW, Großer Wannsee"
+  },
+  {
+    "betreiber": "Motorwassersportclub Grünau e.V.",
+    "anleger": "",
+    "strasse": "Windwallstr. 1",
+    "plz": "12527",
+    "ort": "Berlin",
+    "gewaesser": "Dahme-Wasser-Str., Langer See"
+  },
+  {
+    "betreiber": "Motor-Yacht-Club Preußen e. V. im ADAC",
+    "anleger": "",
+    "strasse": "Alt Gatow 1-3",
+    "plz": "14089",
+    "ort": "Berlin",
+    "gewaesser": "Untere-Havel-WS"
+  },
+  {
+    "betreiber": "Motor-Yacht-Club Tegel e. V.",
+    "anleger": "",
+    "strasse": "Borsigdamm 4",
+    "plz": "13507",
+    "ort": "Berlin",
+    "gewaesser": "Havel-Oder-Wasserstr., Tegeler See"
+  },
+  {
+    "betreiber": "MRC Berlin",
+    "anleger": "",
+    "strasse": "Teltowkanalstr. 16",
+    "plz": "12249",
+    "ort": "Berlin",
+    "gewaesser": "Teltow-Kanal"
+  },
+  {
+    "betreiber": "Neudörfl/FEWO Eisgarten",
+    "anleger": "",
+    "strasse": "Ahornstr. 8",
+    "plz": "12589",
+    "ort": "Berlin",
+    "gewaesser": "Dämeritzsee"
+  },
+  {
+    "betreiber": "Potsdamer Yacht Club",
+    "anleger": "",
+    "strasse": "Königstr. 3 a",
+    "plz": "14109",
+    "ort": "Berlin",
+    "gewaesser": "Großer Wannsee"
+  },
+  {
+    "betreiber": "Pro Sport Berlin 24 e. V.",
+    "anleger": "",
+    "strasse": "Grünauer Str. 193",
+    "plz": "12557",
+    "ort": "Berlin",
+    "gewaesser": "Langer See/Spree-Oder-Wasserstr./Dahme"
+  },
+  {
+    "betreiber": "Rotsch-Hafen-Berlin",
+    "anleger": "",
+    "strasse": "Nuscheweg 2",
+    "plz": "12527",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-WS, Langer See"
+  },
+  {
+    "betreiber": "SB-Tankstelle Bläske & Schülke",
+    "anleger": "",
+    "strasse": "Gosener Damm 13-15",
+    "plz": "12559",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-WS, Große Krampe"
+  },
+  {
+    "betreiber": "SC Brise 1898 e. V.",
+    "anleger": "",
+    "strasse": "Wendenschloßstr. 390",
+    "plz": "12557",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-Wasserstr."
+  },
+  {
+    "betreiber": "SC Spandau e. V.",
+    "anleger": "",
+    "strasse": "Elkartweg 18",
+    "plz": "13587",
+    "ort": "Berlin",
+    "gewaesser": "Havel"
+  },
+  {
+    "betreiber": "Seesportclub",
+    "anleger": "",
+    "strasse": "Rohrwallallee 11",
+    "plz": "12527",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-WS"
+  },
+  {
+    "betreiber": "Segelclub Fraternitas 1891 e. V.",
+    "anleger": "",
+    "strasse": "Wendenschloßstr. 378",
+    "plz": "12557",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-WS Dahme"
+  },
+  {
+    "betreiber": "Seglervereinigung 1903 e. V.",
+    "anleger": "",
+    "strasse": "Wannseebadweg 40",
+    "plz": "14129",
+    "ort": "Berlin",
+    "gewaesser": "Klare Lanke"
+  },
+  {
+    "betreiber": "Spreehöfe-Spacebowl",
+    "anleger": "",
+    "strasse": "Wilhelminenhofstr. 89a",
+    "plz": "12459",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-WS"
+  },
+  {
+    "betreiber": "Stern und Kreis Schifffahrt GmbH",
+    "anleger": "",
+    "strasse": "Puschkinallee 16-17",
+    "plz": "12435",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-Wasserstr. -Spree"
+  },
+  {
+    "betreiber": "TSG 1898 e. V.",
+    "anleger": "",
+    "strasse": "Jagen 37",
+    "plz": "12527",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-WS"
+  },
+  {
+    "betreiber": "Union SOZ. Einrichtungen gGmbH",
+    "anleger": "",
+    "strasse": "Wassersportallee 2",
+    "plz": "12527",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-Wasserstr-Dahme"
+  },
+  {
+    "betreiber": "Verein Schmöckwitzer Wassersportler e. V.",
+    "anleger": "",
+    "strasse": "Jagen 37",
+    "plz": "12527",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-WS, Langer See"
+  },
+  {
+    "betreiber": "W.a.G. Großes Fenster e. V.",
+    "anleger": "",
+    "strasse": "Am Großen Fenster",
+    "plz": "14165",
+    "ort": "Berlin",
+    "gewaesser": "Untere-Havel-WS"
+  },
+  {
+    "betreiber": "Wasserfreunde Spandau 04",
+    "anleger": "Havelschanze",
+    "strasse": "Am Bootshaus 20",
+    "plz": "13587",
+    "ort": "Berlin",
+    "gewaesser": "Ober-Havel-WS"
+  },
+  {
+    "betreiber": "Wasserfreunde Spandau 04",
+    "anleger": "Zitadelle",
+    "strasse": "Zitadellenweg",
+    "plz": "13599",
+    "ort": "Berlin",
+    "gewaesser": "Ober-Havel-WS"
+  },
+  {
+    "betreiber": "Wassersport-Verein 1921 e. V.",
+    "anleger": "",
+    "strasse": "Rohrwallallee 87-99",
+    "plz": "12527",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-Wasserstr.-Dahme, Langer See"
+  },
+  {
+    "betreiber": "Wassersport-Verein Karolinenhof e. V.",
+    "anleger": "",
+    "strasse": "Rohrwallallee 3",
+    "plz": "12527",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-Sasserstr.-Dahme, Langer See"
+  },
+  {
+    "betreiber": "Wassersportzentrum Berlin",
+    "anleger": "",
+    "strasse": "Müggelseedamm 42-70",
+    "plz": "12587",
+    "ort": "Berlin",
+    "gewaesser": "Müggelspree"
+  },
+  {
+    "betreiber": "Weisse Villa (Herr Wengelsdorf)",
+    "anleger": "",
+    "strasse": "Josef-Nawrocki-Str. 10",
+    "plz": "12587",
+    "ort": "Berlin",
+    "gewaesser": "Müggelspree"
+  },
+  {
+    "betreiber": "Westernrestaurant Richtershorn",
+    "anleger": "",
+    "strasse": "Sportpromenade 15",
+    "plz": "12527",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-Wasserstr.-Dahme"
+  },
+  {
+    "betreiber": "Wilhelmstadt Spandau Interessengemeinschaft Wilhelmstadt e. V.",
+    "anleger": "",
+    "strasse": "Pichelsdorfer Str. 89",
+    "plz": "13595",
+    "ort": "Berlin",
+    "gewaesser": "Untere-Havel-WS"
+  },
+  {
+    "betreiber": "Yachthafen Löber",
+    "anleger": "Yachtcharter Löber",
+    "strasse": "Müggelbergallee 1",
+    "plz": "12557",
+    "ort": "Berlin",
+    "gewaesser": "Spree-Oder-Wasserstr.-Dahme"
+  },
+  {
+    "betreiber": "Yachthafen Marina Wannsee",
+    "anleger": "",
+    "strasse": "Am Grossen Wannsee 4",
+    "plz": "14109",
+    "ort": "Berlin",
+    "gewaesser": "Untere-Havel-WS, Wannsee"
+  },
+  {
+    "betreiber": "Tempelhofer Hafen Berlin",
+    "anleger": "",
+    "strasse": "Tempelhofer Damm 227",
+    "plz": "12099",
+    "ort": "Berlin",
+    "gewaesser": "Teltow-Kanal"
+  },
+  {
+    "betreiber": "Bezirksamt Treptow-Köpenick",
+    "anleger": "Seesportclub Berlin-Grünau e. V.",
+    "strasse": "Rohrwallallee 11",
+    "plz": "12527",
+    "ort": "Berlin",
+    "gewaesser": "SOW Langer See"
+  },
+  {
+    "betreiber": "Bezirksamt Treptow-Köpenick",
+    "anleger": "Zeltplatz Kuhle Wampe",
+    "strasse": "Straße zur Krampenburg",
+    "plz": "12559",
+    "ort": "Berlin",
+    "gewaesser": "Große Krampe"
+  },
+  {
+    "betreiber": "Bezirksamt Treptow-Köpenick",
+    "anleger": "Mellowpark",
+    "strasse": "An der Wuhlheide 252",
+    "plz": "12459",
+    "ort": "Berlin",
+    "gewaesser": "SOW"
+  },
+  {
+    "betreiber": "Bezirksamt Treptow-Köpenick",
+    "anleger": "Regattastraße 249",
+    "strasse": "Regattastraße 249",
+    "plz": "12527",
+    "ort": "Berlin",
+    "gewaesser": "SOW (Dahme)"
+  },
+  {
+    "betreiber": "Bezirksamt Treptow-Köpenick",
+    "anleger": "Am Generalshof",
+    "strasse": "Am Generalshof",
+    "plz": "12555",
+    "ort": "Berlin",
+    "gewaesser": "Nebenarm Köpenicker Alte Spree"
+  },
+  {
+    "betreiber": "Bezirksamt Treptow-Köpenick",
+    "anleger": "Insel der Jugend",
+    "strasse": "Insel der Jugend, Abteibrücke",
+    "plz": "12435",
+    "ort": "Berlin",
+    "gewaesser": "Nebenarm Spee, Insel der Jugend"
+  },
+  {
+    "betreiber": "Bezirksamt Treptow-Köpenick",
+    "anleger": "Zum Seeblick",
+    "strasse": "Zum Seeblick",
+    "plz": "12527",
+    "ort": "Berlin",
+    "gewaesser": "SOW"
+  },
+  {
+    "betreiber": "Bezirksamt Treptow-Köpenick",
+    "anleger": "Schmetterlingshorst",
+    "strasse": "Zum Schmetterlingshorst 2",
+    "plz": "12559",
+    "ort": "Berlin",
+    "gewaesser": "SOW"
+  },
+  {
+    "betreiber": "Bezirksamt Treptow-Köpenick",
+    "anleger": "KKC Berlin e. V.",
+    "strasse": "Weiskopffstr. 15",
+    "plz": "12459",
+    "ort": "Berlin",
+    "gewaesser": "SOW"
+  }
+]

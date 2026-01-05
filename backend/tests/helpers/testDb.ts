@@ -73,7 +73,8 @@ export async function cleanupTestData(): Promise<void>
     
     // Step 1: Find ONLY TEST_ users (with retry)
     // Safety: We explicitly filter by TEST_ prefix to ensure we never touch existing data
-    const testUsers = await retryOperation(async () => {
+    const testUsers = await retryOperation(async () => 
+    {
       return await prisma.user.findMany({
         where: {
           OR: [
@@ -102,7 +103,8 @@ export async function cleanupTestData(): Promise<void>
     if (userIds.length > 0)
     {
       // Step 2: Find all launch points created by TEST_ users
-      const testLaunchPoints = await retryOperation(async () => {
+      const testLaunchPoints = await retryOperation(async () => 
+      {
         return await prisma.launchPoint.findMany({
           where: {
             createdById: {
@@ -118,7 +120,8 @@ export async function cleanupTestData(): Promise<void>
       // Step 3: Delete related data (stations and categories) - sequential to avoid locks
       if (launchPointIds.length > 0)
       {
-        await retryOperation(async () => {
+        await retryOperation(async () => 
+        {
           await prisma.publicTransportStation.deleteMany({
             where: {
               launchPointId: {
@@ -131,7 +134,8 @@ export async function cleanupTestData(): Promise<void>
         // Small delay between operations to reduce lock contention
         await new Promise(resolve => setTimeout(resolve, 50));
         
-        await retryOperation(async () => {
+        await retryOperation(async () => 
+        {
           await prisma.launchPointCategory.deleteMany({
             where: {
               launchPointId: {
@@ -148,7 +152,8 @@ export async function cleanupTestData(): Promise<void>
       // Step 4: Delete launch points
       if (launchPointIds.length > 0)
       {
-        await retryOperation(async () => {
+        await retryOperation(async () => 
+        {
           await prisma.launchPoint.deleteMany({
             where: {
               id: {
@@ -165,7 +170,8 @@ export async function cleanupTestData(): Promise<void>
       // Step 5: Delete users
       if (userIds.length > 0)
       {
-        await retryOperation(async () => {
+        await retryOperation(async () => 
+        {
           await prisma.user.deleteMany({
             where: {
               id: {
@@ -179,7 +185,8 @@ export async function cleanupTestData(): Promise<void>
 
     // Step 6: Also clean up any orphaned TEST_ launch points (safety net)
     // Safety: Only delete launch points with TEST_ prefix in name
-    const orphanedPoints = await retryOperation(async () => {
+    const orphanedPoints = await retryOperation(async () => 
+    {
       return await prisma.launchPoint.findMany({
         where: {
           name: {
@@ -205,7 +212,8 @@ export async function cleanupTestData(): Promise<void>
     {
       const orphanedIds = verifiedOrphanedPoints.map(lp => lp.id);
       
-      await retryOperation(async () => {
+      await retryOperation(async () => 
+      {
         await prisma.publicTransportStation.deleteMany({
           where: {
             launchPointId: {
@@ -218,7 +226,8 @@ export async function cleanupTestData(): Promise<void>
       // Small delay between operations to reduce lock contention
       await new Promise(resolve => setTimeout(resolve, 50));
       
-      await retryOperation(async () => {
+      await retryOperation(async () => 
+      {
         await prisma.launchPointCategory.deleteMany({
           where: {
             launchPointId: {
@@ -231,7 +240,8 @@ export async function cleanupTestData(): Promise<void>
       // Small delay before deleting launch points
       await new Promise(resolve => setTimeout(resolve, 50));
 
-      await retryOperation(async () => {
+      await retryOperation(async () => 
+      {
         await prisma.launchPoint.deleteMany({
           where: {
             id: {
@@ -274,7 +284,8 @@ export async function createTestUser(data?: {
   const hashedPassword = await bcrypt.default.hash(password, 10);
 
   // Use retry for user creation to handle potential locks
-  return await retryOperation(async () => {
+  return await retryOperation(async () => 
+  {
     return await prisma.user.create({
       data: {
         email: email.startsWith('TEST_') ? email : `TEST_${email}`,
@@ -294,7 +305,7 @@ export async function createTestLaunchPoint(data: {
   name?: string;
   latitude?: number;
   longitude?: number;
-  categories?: string[];
+  categories?: (number | string)[];
 })
 {
   const timestamp = Date.now();
@@ -303,8 +314,52 @@ export async function createTestLaunchPoint(data: {
     ? data.name 
     : `TEST_${data.name || `Point_${timestamp}_${random}`}`;
 
+  // Convert category names to IDs if needed
+  let categoryIds: number[] = [];
+  
+  if (!data.categories || data.categories.length === 0) 
+  {
+    // Get default category ID (kajak) if no categories provided
+    const defaultCategory = await prisma.category.findFirst({
+      where: { name_en: 'kajak' }
+    });
+    categoryIds = defaultCategory ? [defaultCategory.id] : [];
+  }
+  else 
+  {
+    // Convert category names/IDs to IDs
+    for (const cat of data.categories) 
+    {
+      if (typeof cat === 'number') 
+      {
+        categoryIds.push(cat);
+      }
+      else if (typeof cat === 'string') 
+      {
+        // Look up category by German name
+        const category = await prisma.category.findFirst({
+          where: { name_de: cat }
+        });
+        if (category) 
+        {
+          categoryIds.push(category.id);
+        }
+        else 
+        {
+          console.warn(`Category "${cat}" not found, skipping`);
+        }
+      }
+    }
+  }
+
+  if (categoryIds.length === 0) 
+  {
+    throw new Error('No valid categories found. Make sure categories are seeded.');
+  }
+
   // Use retry for launch point creation to handle potential locks
-  const launchPoint = await retryOperation(async () => {
+  const launchPoint = await retryOperation(async () => 
+  {
     return await prisma.launchPoint.create({
       data: {
         name,
@@ -312,13 +367,17 @@ export async function createTestLaunchPoint(data: {
         longitude: data.longitude || 13.4050,
         createdById: data.createdById,
         categories: {
-          create: (data.categories || ['Kajak']).map(cat => ({
-            category: cat
+          create: categoryIds.map(categoryId => ({
+            categoryId
           }))
         }
       },
       include: {
-        categories: true,
+        categories: {
+          include: {
+            category: true
+          }
+        },
         createdBy: true
       }
     });

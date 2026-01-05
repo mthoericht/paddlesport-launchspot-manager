@@ -5,6 +5,6 @@ export { useContextMenu } from './useContextMenu';
 export { useMapState } from './useMapState';
 export { useMapNavigation } from './useMapNavigation';
 export { useMapViewInteractions } from './useMapViewInteractions';
-export { useCategories, ALL_CATEGORIES, CATEGORY_COLORS } from './useCategories';
+export { useCategories } from './useCategories';
 export { useLaunchPointForm } from './useLaunchPointForm';
 

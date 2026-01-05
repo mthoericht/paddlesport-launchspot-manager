@@ -29,10 +29,10 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) =>
 
     if (categories) 
     {
-      const categoryList = (categories as string).split(',');
+      const categoryIds = (categories as string).split(',').map(id => parseInt(id));
       where.categories = {
         some: {
-          category: { in: categoryList }
+          categoryId: { in: categoryIds }
         }
       };
     }
@@ -44,7 +44,11 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) =>
           select: { username: true }
         },
         categories: {
-          select: { category: true }
+          include: {
+            category: {
+              select: { id: true, name_en: true, name_de: true }
+            }
+          }
         },
         stations: {
           select: { id: true, name: true, distanceMeters: true }
@@ -68,7 +72,8 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) =>
       created_by: lp.createdById,
       creator_username: lp.createdBy.username,
       created_at: lp.createdAt.toISOString(),
-      categories: lp.categories.map(c => c.category),
+      categories: lp.categories.map(c => c.category.name_de),
+      category_ids: lp.categories.map(c => c.categoryId),
       public_transport_stations: lp.stations.map(s => ({
         id: s.id,
         name: s.name,
@@ -82,6 +87,29 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) =>
   {
     console.error('Get launch points error:', error);
     res.status(500).json({ error: 'Serverfehler beim Abrufen der Einsetzpunkte.' });
+  }
+});
+
+// Get all unique categories (must be before /:id route)
+router.get('/categories', authenticateToken, async (req: AuthRequest, res: Response) => 
+{
+  try 
+  {
+    const categories = await prisma.category.findMany({
+      orderBy: { name_de: 'asc' }
+    });
+
+    const categoryList = categories.map(c => ({
+      id: c.id,
+      name_en: c.name_en,
+      name_de: c.name_de
+    }));
+    res.json(categoryList);
+  }
+  catch (error) 
+  {
+    console.error('Get categories error:', error);
+    res.status(500).json({ error: 'Serverfehler beim Abrufen der Kategorien.' });
   }
 });
 
@@ -99,7 +127,11 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
           select: { username: true }
         },
         categories: {
-          select: { category: true }
+          include: {
+            category: {
+              select: { id: true, name_en: true, name_de: true }
+            }
+          }
         },
         stations: {
           select: { id: true, name: true, distanceMeters: true }
@@ -126,7 +158,8 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
       created_by: launchPoint.createdById,
       creator_username: launchPoint.createdBy.username,
       created_at: launchPoint.createdAt.toISOString(),
-      categories: launchPoint.categories.map(c => c.category),
+      categories: launchPoint.categories.map(c => c.category.name_de),
+      category_ids: launchPoint.categories.map(c => c.categoryId),
       public_transport_stations: launchPoint.stations.map(s => ({
         id: s.id,
         name: s.name,
@@ -158,6 +191,15 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) =>
       categories,
       public_transport_stations
     } = req.body;
+
+    console.log('Create launch point request:', {
+      name,
+      latitude,
+      longitude,
+      categories,
+      categoriesType: typeof categories,
+      categoriesIsArray: Array.isArray(categories)
+    });
 
     if (!name || latitude === undefined || longitude === undefined) 
     {
@@ -201,6 +243,46 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) =>
           return res.status(400).json({ error: 'Benutzer nicht gefunden.' });
         }
         
+        // Validate category IDs exist
+        const categoryIds = Array.isArray(categories) ? categories : [categories];
+        
+        // Filter out any invalid values and convert to numbers
+        const validCategoryIds: number[] = [];
+        for (const id of categoryIds) 
+        {
+          const parsed = typeof id === 'number' ? id : parseInt(String(id), 10);
+          if (!isNaN(parsed) && parsed > 0) 
+          {
+            validCategoryIds.push(parsed);
+          }
+        }
+        
+        if (validCategoryIds.length === 0) 
+        {
+          console.error('No valid category IDs provided:', categoryIds);
+          return res.status(400).json({ 
+            error: 'Ungültige Kategorie-IDs. Bitte wähle mindestens eine gültige Kategorie.' 
+          });
+        }
+        
+        console.log('Validating category IDs:', validCategoryIds);
+        
+        const existingCategories = await prisma.category.findMany({
+          where: { id: { in: validCategoryIds } }
+        });
+
+        console.log('Found categories:', existingCategories.map(c => ({ id: c.id, name: c.name_de })));
+
+        if (existingCategories.length !== validCategoryIds.length) 
+        {
+          const missingIds = validCategoryIds.filter(id => !existingCategories.some(c => c.id === id));
+          console.error('Invalid category IDs:', missingIds, 'Valid IDs in DB:', existingCategories.map(c => c.id));
+          return res.status(400).json({ 
+            error: 'Eine oder mehrere Kategorien sind ungültig.',
+            details: `Fehlende Kategorie-IDs: ${missingIds.join(', ')}`
+          });
+        }
+
         launchPoint = await prisma.launchPoint.create({
           data: {
             name,
@@ -213,7 +295,7 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) =>
             foodSupply: food_supply || null,
             createdById: userId,
             categories: {
-              create: categories.map((cat: string) => ({ category: cat }))
+              create: validCategoryIds.map((categoryId: number) => ({ categoryId }))
             },
             stations: {
               create: (public_transport_stations || []).slice(0, 5).map((s: any) => ({
@@ -254,6 +336,11 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) =>
         // Wait before retry (exponential backoff)
         await new Promise(resolve => setTimeout(resolve, 200 * (4 - retries)));
       }
+    }
+
+    if (!launchPoint)
+    {
+      throw new Error('Failed to create launch point after retries');
     }
 
     res.status(201).json({ 
@@ -324,9 +411,22 @@ router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
       // Update categories
       if (categories) 
       {
+        const categoryIds = Array.isArray(categories) ? categories : [categories];
+        const validCategoryIds = categoryIds.map((id: any) => parseInt(id));
+        
+        // Validate category IDs exist
+        const existingCategories = await tx.category.findMany({
+          where: { id: { in: validCategoryIds } }
+        });
+
+        if (existingCategories.length !== validCategoryIds.length) 
+        {
+          throw new Error('Eine oder mehrere Kategorien sind ungültig.');
+        }
+
         await tx.launchPointCategory.deleteMany({ where: { launchPointId: id } });
         await tx.launchPointCategory.createMany({
-          data: categories.map((cat: string) => ({ launchPointId: id, category: cat }))
+          data: validCategoryIds.map((categoryId: number) => ({ launchPointId: id, categoryId }))
         });
       }
 

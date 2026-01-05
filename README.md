@@ -1,5 +1,7 @@
 # 🚣 Paddlesport Launchspot Manager
 
+> ⚠️ **Status: In Progress** - This project is currently under active development. Features may change and some functionality may be incomplete.
+
 A full-stack web application for managing launch points for kayaking, canoeing, SUP, and swimming. Users can mark their own launch points on an interactive map, add detailed information, and filter by various criteria.
 
 ![Vue.js](https://img.shields.io/badge/Vue.js-3.5-4FC08D?logo=vue.js)
@@ -93,6 +95,15 @@ paddlesport-launchspot-manager/
 │       └── style.css
 ├── prisma/
 │   └── schema.prisma          # Database schema
+├── scripts/                   # Utility scripts
+│   ├── csv-to-json.ts         # Convert CSV to JSON
+│   ├── parse-tables-export.ts # Parse and geocode launch points
+│   ├── import-external-launchpoints.ts  # Import launch points to database
+│   ├── delete-all-launchpoints.ts # Delete all launch points
+│   └── external-data-preset/  # Data files (not in Git)
+│       ├── tables-export.csv  # Source CSV file
+│       ├── tables-export.json # Converted JSON file
+│       └── tables-launchpoints.json # Parsed launch points
 ├── data/                      # SQLite database (database.sqlite, not in Git)
 ├── dist/                      # Production build output (generated)
 ├── frontend/tests/            # Frontend test files
@@ -165,11 +176,18 @@ paddlesport-launchspot-manager/
 
 4. **Initialize database**
    ```bash
+   # Complete setup (recommended)
+   npm run db:setup
+   
+   # Or step by step:
    # Generate Prisma Client
    npm run db:generate
    
    # Push schema to database (creates database if it doesn't exist)
    npm run db:push
+   
+   # Seed database with initial data (categories, imported user)
+   npm run db:seed
    ```
 
 5. **Start development server**
@@ -215,6 +233,17 @@ paddlesport-launchspot-manager/
 | `npm run db:generate` | Generate Prisma Client |
 | `npm run db:push` | Push schema to database |
 | `npm run db:studio` | Open Prisma Studio (database GUI) |
+| `npm run db:seed` | Seed database with initial data (categories, imported user) |
+| `npm run db:reset` | Reset database and restore data (backup/restore) |
+| `npm run db:setup` | Complete database setup (generate + push + seed) |
+| `npm run db:delete-all-launchpoints` | Delete all launch points from database (useful before re-importing) |
+
+### Data Import
+| Script | Description |
+|--------|-------------|
+| `npm run csv:to-json` | Convert CSV file to JSON format. Default: `scripts/external-data-preset/tables-export.csv` → `scripts/external-data-preset/tables-export.json`. Usage: `npm run csv:to-json [input.csv] [output.json]` |
+| `npm run parse:tables-export` | Parse and geocode launch points from JSON. Default: `scripts/external-data-preset/tables-export.json`. Usage: `npm run parse:tables-export [input.json]` |
+| `npm run import:external-launchpoints` | Import parsed launch points into database. Default: `scripts/external-data-preset/tables-launchpoints.json`. Usage: `npm run import:external-launchpoints [input.json]` |
 
 ## 🧪 Testing
 
@@ -307,6 +336,77 @@ The application is optimized for desktop and mobile:
 - **Dark mode**: Automatic based on system preference
 - **Animations**: Subtle transitions and micro-interactions
 - **Accessibility**: Semantic HTML and ARIA labels where appropriate
+
+## 📊 Data Import Workflow
+
+> ⚠️ **Note on Location Data**: Due to data protection regulations, location data files (CSV, JSON) cannot be committed to the repository. The following steps describe how you can create the data yourself.
+
+The project includes scripts for importing launch point data from external sources.
+
+### Quick Start: Creating Data Yourself
+
+If you want to import launch point data, follow these steps:
+
+1. **Prepare data source**: Create a CSV file with launch point data (see CSV format below)
+   
+   **Default workflow**: Place your CSV file as `scripts/external-data-preset/tables-export.csv` to use the default paths.
+
+2. **Convert CSV to JSON**: 
+   ```bash
+   # Using default path (scripts/external-data-preset/tables-export.csv)
+   npm run csv:to-json
+   
+   # Or specify custom paths
+   npm run csv:to-json <your-file.csv> [output.json]
+   ```
+   The script automatically handles:
+   - Header normalization (supports German and English column names)
+   - Quoted fields and special characters
+   - Empty rows
+   - **Default**: Converts `scripts/external-data-preset/tables-export.csv` to `scripts/external-data-preset/tables-export.json`
+
+3. **Parse and geocode data**:
+   ```bash
+   # Using default path (scripts/external-data-preset/tables-export.json)
+   npm run parse:tables-export
+   
+   # Or specify custom input file
+   npm run parse:tables-export <input.json>
+   ```
+   This script:
+   - **Default**: Reads from `scripts/external-data-preset/tables-export.json`
+   - Extracts coordinates from coordinate strings when available
+   - Geocodes addresses using Nominatim (OpenStreetMap)
+   - **Default**: Outputs to `scripts/external-data-preset/tables-launchpoints.json` (same directory as input)
+   - Includes retry logic for entries with minimal address information
+
+4. **Import into database**:
+   ```bash
+   # Using default path (scripts/external-data-preset/tables-launchpoints.json)
+   npm run import:external-launchpoints
+   
+   # Or specify custom input file
+   npm run import:external-launchpoints <input.json>
+   ```
+   This imports the parsed launch points into the database.
+   
+   **Note**: Make sure the database is seeded first (`npm run db:seed`) to create the "imported" user that will own these launch points.
+
+### CSV Format
+
+The CSV file should have the following columns (case-insensitive, supports German/English names):
+- `betreiber` / `operator` - Operator name
+- `anleger` / `landing` - Landing point name
+- `strasse` / `street` / `straße` - Street address
+- `plz` / `postalcode` / `postleitzahl` - Postal code
+- `ort` / `city` / `stadt` - City name
+- `gewaesser` / `water` / `gewässer` - Water body name
+
+**Note**: The following columns are optional and not used in the current import process (removed for data protection):
+- `km` / `kilometer` - River kilometer (optional)
+- `gastliegeplaetze` / `gastliegeplätze` - Guest berths (optional)
+- `internet` / `website` - Website URL (optional, removed for data protection)
+- `telefon` / `phone` / `tel` - Phone number (optional, removed for data protection)
 
 ## 🚀 Production Deployment
 

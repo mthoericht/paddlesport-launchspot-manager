@@ -34,11 +34,21 @@ model LaunchPoint {
   stations       PublicTransportStation[]
 }
 
+model Category {
+  id                Int                  @id @default(autoincrement())
+  name_en            String               @unique
+  name_de            String
+  launchPoints       LaunchPointCategory[]
+}
+
 model LaunchPointCategory {
   id            Int         @id @default(autoincrement())
-  category      String
   launchPoint   LaunchPoint @relation(fields: [launchPointId], references: [id], onDelete: Cascade)
   launchPointId Int
+  category      Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId    Int
+
+  @@unique([launchPointId, categoryId])
 }
 
 model PublicTransportStation {
