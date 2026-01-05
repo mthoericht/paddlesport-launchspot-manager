@@ -13,130 +13,46 @@ A full-stack web application for managing launch points for kayaking, canoeing, 
 ## ✨ Features
 
 ### 🗺️ Interactive Map
-- **OpenStreetMap integration** with Leaflet
+- **OpenStreetMap** with Leaflet
 - **Address search** with Nominatim geocoding
-- **Context menu** (left/right click) for quick point creation
-- **Color-coded markers** by category (Kayak, SUP, Swimming, Relaxing)
-- **Zoom level preservation** when creating new points
-- **Navigation integration** - Opens default navigation app (HERE, Waze, Google Maps, Apple Maps, etc.) for route planning
+- **Context menu** for quick point creation
+- **Color-coded markers** by category
+- **Navigation integration** for route planning
 
 ### 👤 User Management
-- Registration and login (email, username, password)
+- Registration and login
 - JWT-based authentication
-- Admin role for extended permissions
-- User-specific data
+- Admin role with extended permissions
 
 ### 📍 Launch Point Management
 - **Create, edit, delete** launch points
 - **Categories**: Kayak, SUP, Swimming, Relaxing (multi-select)
-- **Details**:
-  - Opening hours (optional, default: 24h)
-  - Parking options
-  - Nearby waters
-  - Food supply
-  - Hints (free text)
+- **Details**: Opening hours, parking, nearby waters, food supply, hints
 - **Public transport stations** (max 5) with distance
-- **Navigation**: One-click route planning to launch points
+- **Navigation**: One-click route planning
 - **Permissions**: Only creators or admins can delete
 
 ### 🔍 Filters
-- **"All points"**: Shows all available launch points
-- **"My points"**: Only created by current user
-- **"Official points"**: Admin-marked points
-- **"By user"**: Filter by specific username
-- **Category filter**: Multi-select available
+- All points, My points, Official points, By user
+- Category filter (multi-select)
 
-## 🏗️ Architecture
-
-```
-paddlesport-launchspot-manager/
-├── backend/                   # Backend (Express.js)
-│   ├── index.ts               # Server entry point
-│   ├── prisma.ts              # Prisma Client setup
-│   ├── middleware/
-│   │   └── auth.ts            # JWT authentication
-│   └── routes/
-│       ├── auth.ts            # Auth routes (login, signup)
-│       └── launchPoints.ts    # CRUD routes for launch points
-├── frontend/                  # Frontend (Vue.js)
-│   ├── index.html             # Entry HTML
-│   ├── public/                # Static assets
-│   └── src/
-│       ├── assets/
-│       │   └── auth.css       # Shared auth styles
-│       ├── components/
-│       │   ├── AppHeader.vue  # App header with navigation
-│       │   └── FilterPanel.vue# Filter sidebar
-│       ├── composables/       # Vue Composables (logic)
-│       │   ├── index.ts
-│       │   ├── useAddressSearch.ts
-│       │   ├── useCategories.ts
-│       │   ├── useContextMenu.ts
-│       │   ├── useLaunchPointForm.ts
-│       │   ├── useMapNavigation.ts
-│       │   ├── useMapState.ts
-│       │   └── useMapViewInteractions.ts
-│       ├── router/
-│       │   └── index.ts       # Vue Router configuration
-│       ├── stores/            # Pinia Stores (state)
-│       │   ├── auth.ts        # Auth state
-│       │   └── launchPoints.ts# Launch points state
-│       ├── types/
-│       │   └── index.ts       # TypeScript interfaces
-│       ├── views/
-│       │   ├── ImpressumView.vue
-│       │   ├── LaunchPointDetailView.vue
-│       │   ├── LaunchPointFormView.vue
-│       │   ├── LoginView.vue
-│       │   ├── MapView.vue
-│       │   └── SignupView.vue
-│       ├── App.vue
-│       ├── main.ts
-│       └── style.css
-├── prisma/
-│   └── schema.prisma          # Database schema
-├── scripts/                   # Utility scripts
-│   ├── csv-to-json.ts         # Convert CSV to JSON
-│   ├── parse-tables-export.ts # Parse and geocode launch points
-│   ├── import-external-launchpoints.ts  # Import launch points to database
-│   ├── delete-all-launchpoints.ts # Delete all launch points
-│   └── external-data-preset/  # Data files (not in Git)
-│       ├── tables-export.csv  # Source CSV file
-│       ├── tables-export.json # Converted JSON file
-│       └── tables-launchpoints.json # Parsed launch points
-├── data/                      # SQLite database (database.sqlite, not in Git)
-├── dist/                      # Production build output (generated)
-├── frontend/tests/            # Frontend test files
-│   ├── unit/                  # Unit tests (Vitest)
-│   └── integration/           # Integration tests (Vitest)
-│   └── setup.ts               # Test setup file
-└── backend/tests/             # Backend test files
-    ├── integration/           # Backend integration tests
-    └── helpers/                # Test helpers (cleanup, fixtures)
-```
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **Vue.js 3** with Composition API
-- **TypeScript** for type safety
-- **Pinia** for state management
-- **Vue Router** for navigation
+- **Vue.js 3** (Composition API)
+- **TypeScript**, **Pinia**, **Vue Router**
 - **Leaflet** / **Vue-Leaflet** for maps
-- **Vite** as build tool
-- **Vitest** for unit and integration testing
-- **ESLint** for code quality
+- **Vite**, **Vitest**, **ESLint**
 
 ### Backend
-- **Express.js** as REST API server
+- **Express.js** REST API server
 - **Prisma ORM** with SQLite
-- **JWT** (jsonwebtoken) for authentication
-- **bcryptjs** for password hashing
-- **tsx** for TypeScript execution
+- **JWT** authentication
+- **bcryptjs** password hashing
 
 ### Database
-- **SQLite** (local in `data/database.sqlite`)
-- **Prisma ORM** for type-safe database access
+- **SQLite** with Prisma ORM
 
 ## 🚀 Installation
 
@@ -241,53 +157,23 @@ paddlesport-launchspot-manager/
 ### Data Import
 | Script | Description |
 |--------|-------------|
-| `npm run csv:to-json` | Convert CSV file to JSON format. Default: `scripts/external-data-preset/tables-export.csv` → `scripts/external-data-preset/tables-export.json`. Usage: `npm run csv:to-json [input.csv] [output.json]` |
-| `npm run parse:tables-export` | Parse and geocode launch points from JSON. Default: `scripts/external-data-preset/tables-export.json`. Usage: `npm run parse:tables-export [input.json]` |
-| `npm run import:external-launchpoints` | Import parsed launch points into database. Default: `scripts/external-data-preset/tables-launchpoints.json`. Usage: `npm run import:external-launchpoints [input.json]` |
+| `npm run csv:to-json` | Convert CSV to JSON (default: `scripts/external-data-preset/tables-export.csv`) |
+| `npm run parse:tables-export` | Parse and geocode data (default: `scripts/external-data-preset/tables-export.json`) |
+| `npm run import:external-launchpoints` | Import to database (default: `scripts/external-data-preset/tables-launchpoints.json`) |
 
 ## 🧪 Testing
 
-The project uses **Vitest** for comprehensive testing with a multi-layered strategy:
+The project uses **Vitest** with a multi-layered testing strategy:
 
-### Test Structure
-- **Unit Tests** (`frontend/tests/unit/`): Test individual composables and utilities in isolation
-- **Frontend Integration Tests** (`frontend/tests/integration/`): Test Pinia stores with mocked API calls
-- **Backend Integration Tests** (`backend/tests/integration/`): Test API routes with real database using Supertest
+- **Unit Tests** (`frontend/tests/unit/`): Test composables in isolation
+- **Frontend Integration** (`frontend/tests/integration/`): Test Pinia stores with mocked API
+- **Backend Integration** (`backend/tests/integration/`): Test API routes with real database
 
-### Test Data Management
-- **All test data uses `TEST_` prefix** (emails, usernames, launch point names) for easy identification
-- **Automatic cleanup**: Test data is deleted after each test (success or failure)
-- **Isolation**: Each test runs with a clean database state
-- **Test helpers**: Utilities in `backend/tests/helpers/` for database setup and cleanup
-
-### Running Tests
-```bash
-# Run all tests in watch mode
-npm run test
-
-# Run all tests once
-npm run test:run
-
-# Run specific test suites
-npm run test:unit          # Frontend unit tests
-npm run test:integration   # Frontend integration tests
-npm run test:backend       # Backend integration tests
-
-# With interactive UI
-npm run test:ui            # Vitest UI (browser-based)
-
-# With coverage report
-npm run test:coverage      # Generate coverage report
-```
-
-### Test Environment
-- Uses **happy-dom** for DOM simulation in frontend tests
-- Uses **Supertest** for HTTP assertions in backend tests
-- Test database is automatically managed and cleaned between tests
+Test data uses `TEST_` prefix and is automatically cleaned up after each test. See NPM Scripts section for test commands.
 
 ## 🔐 API Endpoints
 
-All API endpoints are prefixed with `/api`. The backend runs on port 3001 by default.
+All endpoints are prefixed with `/api` (backend runs on port 3001).
 
 ### Authentication
 | Method | Endpoint | Auth Required | Description |
@@ -310,8 +196,6 @@ All API endpoints are prefixed with `/api`. The backend runs on port 3001 by def
 
 ## 🌐 Environment Variables
 
-The application uses environment variables for configuration. Create a `.env` file in the root directory:
-
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
 | `DATABASE_URL` | Prisma database connection string | `file:./data/database.sqlite` | ✅ |
@@ -321,31 +205,27 @@ The application uses environment variables for configuration. Create a `.env` fi
 
 **Security Note**: Never commit `.env` files to version control. Use strong, random values for `JWT_SECRET` in production.
 
-## 📱 Responsive Design
-
-The application is optimized for desktop and mobile:
-- **Adaptive layouts** for different screen sizes
-- **Touch-friendly controls** for mobile interaction
-- **Optimized map interaction** on mobile devices
-- **Responsive filter panel** that adapts to screen width
-
 ## 🎨 Design
 
+- **Responsive**: Optimized for desktop and mobile
 - **Color palette**: Ocean-inspired blue tones
 - **Typography**: Outfit (display) + DM Sans (body)
 - **Dark mode**: Automatic based on system preference
-- **Animations**: Subtle transitions and micro-interactions
-- **Accessibility**: Semantic HTML and ARIA labels where appropriate
+- **Accessibility**: Semantic HTML and ARIA labels
 
-## 📊 Data Import Workflow
+## 📊 Data Import
 
-> ⚠️ **Note on Location Data**: Due to data protection regulations, location data files (CSV, JSON) cannot be committed to the repository. The following steps describe how you can create the data yourself.
+> ⚠️ **Note**: The test data for launch points are provided as examples only and cannot guarantee accuracy.
 
-The project includes scripts for importing launch point data from external sources.
+**Workflow**: `CSV → JSON → Parse/Geocode → Import`
 
-### Quick Start: Creating Data Yourself
+1. **Convert CSV to JSON**: `npm run csv:to-json [input.csv] [output.json]`
+2. **Parse and geocode**: `npm run parse:tables-export [input.json]`
+3. **Import to database**: `npm run import:external-launchpoints [input.json]`
 
-If you want to import launch point data, follow these steps:
+**CSV Format** (case-insensitive, German/English):
+- Required: `betreiber`/`operator`, `anleger`/`landing`, `strasse`/`street`, `plz`/`postalcode`, `ort`/`city`, `gewaesser`/`water`
+- Optional: `km`, `gastliegeplaetze`, `internet`, `telefon`
 
 1. **Prepare data source**: Create a CSV file with launch point data (see CSV format below)
    
