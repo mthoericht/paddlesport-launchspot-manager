@@ -7,52 +7,69 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 /**
  * Simple CSV parser that handles quoted fields and commas
  */
-function parseCSV(csvContent: string): string[][] {
+function parseCSV(csvContent: string): string[][] 
+{
   const lines: string[][] = [];
   let currentLine: string[] = [];
   let currentField = '';
   let inQuotes = false;
   
-  for (let i = 0; i < csvContent.length; i++) {
+  for (let i = 0; i < csvContent.length; i++) 
+  {
     const char = csvContent[i];
     const nextChar = csvContent[i + 1];
     
-    if (char === '"') {
-      if (inQuotes && nextChar === '"') {
+    if (char === '"') 
+    {
+      if (inQuotes && nextChar === '"') 
+      {
         // Escaped quote
         currentField += '"';
         i++; // Skip next quote
-      } else {
+      }
+      else 
+      {
         // Toggle quote state
         inQuotes = !inQuotes;
       }
-    } else if (char === ',' && !inQuotes) {
+    }
+    else if (char === ',' && !inQuotes) 
+    {
       // Field separator
       currentLine.push(currentField.trim());
       currentField = '';
-    } else if ((char === '\n' || char === '\r') && !inQuotes) {
+    }
+    else if ((char === '\n' || char === '\r') && !inQuotes) 
+    {
       // Line separator
-      if (currentField || currentLine.length > 0) {
+      if (currentField || currentLine.length > 0) 
+      {
         currentLine.push(currentField.trim());
-        if (currentLine.some(field => field.length > 0)) {
+        if (currentLine.some(field => field.length > 0)) 
+        {
           lines.push(currentLine);
         }
         currentLine = [];
         currentField = '';
       }
       // Skip \r\n combination
-      if (char === '\r' && nextChar === '\n') {
+      if (char === '\r' && nextChar === '\n') 
+      {
         i++;
       }
-    } else {
+    }
+    else 
+    {
       currentField += char;
     }
   }
   
   // Handle last field/line
-  if (currentField || currentLine.length > 0) {
+  if (currentField || currentLine.length > 0) 
+  {
     currentLine.push(currentField.trim());
-    if (currentLine.some(field => field.length > 0)) {
+    if (currentLine.some(field => field.length > 0)) 
+    {
       lines.push(currentLine);
     }
   }
@@ -63,8 +80,10 @@ function parseCSV(csvContent: string): string[][] {
 /**
  * Convert CSV to JSON format matching the expected structure
  */
-function csvToJson(csvPath: string, outputPath: string): void {
-  if (!fs.existsSync(csvPath)) {
+function csvToJson(csvPath: string, outputPath: string): void 
+{
+  if (!fs.existsSync(csvPath)) 
+  {
     console.error(`❌ Error: CSV file not found at ${csvPath}`);
     process.exit(1);
   }
@@ -72,7 +91,8 @@ function csvToJson(csvPath: string, outputPath: string): void {
   const csvContent = fs.readFileSync(csvPath, 'utf-8');
   const lines = parseCSV(csvContent);
   
-  if (lines.length === 0) {
+  if (lines.length === 0) 
+  {
     console.error('❌ Error: CSV file is empty');
     process.exit(1);
   }
@@ -109,7 +129,8 @@ function csvToJson(csvPath: string, outputPath: string): void {
   };
   
   // Normalize headers
-  const normalizedHeaders = headers.map(h => {
+  const normalizedHeaders = headers.map(h => 
+  {
     const key = Object.keys(headerMap).find(k => h.includes(k.toLowerCase()));
     return key ? headerMap[key] : h;
   });
@@ -118,17 +139,20 @@ function csvToJson(csvPath: string, outputPath: string): void {
   const jsonData: any[] = [];
   let skippedRows = 0;
   
-  for (let i = 1; i < lines.length; i++) {
+  for (let i = 1; i < lines.length; i++) 
+  {
     const row = lines[i];
     
     // Skip empty rows
-    if (row.every(cell => !cell || cell.trim() === '')) {
+    if (row.every(cell => !cell || cell.trim() === '')) 
+    {
       skippedRows++;
       continue;
     }
     
     const entry: any = {};
-    normalizedHeaders.forEach((header, index) => {
+    normalizedHeaders.forEach((header, index) => 
+    {
       entry[header] = row[index] || '';
     });
     
@@ -153,7 +177,8 @@ const defaultOutputPath = path.join(__dirname, 'external-data-preset', 'tables-e
 let inputPath: string;
 let outputPath: string;
 
-if (args.length === 0) {
+if (args.length === 0) 
+{
   // Use default paths
   inputPath = defaultInputPath;
   outputPath = defaultOutputPath;
@@ -164,7 +189,9 @@ if (args.length === 0) {
   console.log('💡 Tip: You can specify custom input and output paths:');
   console.log('   npm run csv:to-json <input.csv> [output.json]');
   console.log('');
-} else {
+}
+else 
+{
   // Use provided paths
   inputPath = path.isAbsolute(args[0]) 
     ? args[0] 

@@ -15,7 +15,8 @@ const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error']
 });
 
-async function deleteAllLaunchPoints() {
+async function deleteAllLaunchPoints() 
+{
   console.log('🗑️  Deleting all launch points from database...\n');
   
   // Delete in correct order due to foreign key constraints
@@ -32,11 +33,13 @@ async function deleteAllLaunchPoints() {
 }
 
 deleteAllLaunchPoints()
-  .catch((e) => {
+  .catch((e) => 
+  {
     console.error('Error:', e);
     process.exit(1);
   })
-  .finally(async () => {
+  .finally(async () => 
+  {
     await prisma.$disconnect();
   });
 

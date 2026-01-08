@@ -1,16 +1,42 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, watch, onBeforeUnmount } from 'vue';
+import { useRoute } from 'vue-router';
 import { LMap, LTileLayer, LMarker, LPopup, LIcon } from '@vue-leaflet/vue-leaflet';
 import { useLaunchPointsStore } from '../stores/launchPoints';
-import { useMapViewInteractions, useCategories } from '../composables';
+import { useMapViewInteractions, useCategories, useShowPointOnMap } from '../composables';
 import FilterPanel from '../components/FilterPanel.vue';
 import AppHeader from '../components/AppHeader.vue';
+import LaunchPointListView from '../components/LaunchPointListView.vue';
+import type { LaunchPoint } from '../types';
 
 // Stores
 const launchPointsStore = useLaunchPointsStore();
+const route = useRoute();
 
 // Local refs
 const mapRef = ref<any>(null);
+const highlightedPointId = ref<number | null>(null);
+const isMobile = ref(window.innerWidth <= 768);
+const showListView = ref(!isMobile.value); // Auf Mobile standardmäßig ausgeblendet
+
+// Watch for window resize to update mobile state
+function checkMobile() {
+  isMobile.value = window.innerWidth <= 768;
+  // Auf Mobile: Liste standardmäßig ausblenden, auf Desktop: anzeigen
+  if (isMobile.value && showListView.value) {
+    showListView.value = false;
+  } else if (!isMobile.value && !showListView.value) {
+    showListView.value = true;
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('resize', checkMobile);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', checkMobile);
+});
 
 // Composables
 const {
@@ -48,11 +74,62 @@ const {
 
 const { categoryColors, getCategoryIcon, fetchCategories } = useCategories();
 
+// Use show point on map composable
+const { showPointOnMap } = useShowPointOnMap({
+  mapRef,
+  highlightedPointId,
+  showListView,
+  isMobile
+});
+
+function handleHighlightFromQuery() {
+  const highlightId = route.query.highlight;
+  const lat = route.query.lat;
+  const lng = route.query.lng;
+  
+  if (highlightId && lat && lng) {
+    // Auf Mobile: Liste ausblenden, wenn von Detailansicht navigiert wird
+    if (isMobile.value) {
+      showListView.value = false;
+    }
+    
+    const pointId = Number(highlightId);
+    const point = launchPointsStore.launchPoints.find(p => p.id === pointId);
+    
+    if (point) {
+      showPointOnMap(point);
+    } else if (mapRef.value?.leafletObject) {
+      // Point not loaded yet, center map and wait for points to load
+      mapRef.value.leafletObject.setView([parseFloat(lat as string), parseFloat(lng as string)], 15);
+      
+      // Watch for points to load
+      const unwatch = watch(() => launchPointsStore.launchPoints, (points) => {
+        const foundPoint = points.find(p => p.id === pointId);
+        if (foundPoint) {
+          showPointOnMap(foundPoint);
+          unwatch();
+        }
+      }, { immediate: true });
+    }
+  }
+}
+
+function handleListViewOpenDetail(point: LaunchPoint) {
+  openDetail(point);
+}
+
+function toggleListView() {
+  showListView.value = !showListView.value;
+}
+
 onMounted(async () =>
 {
   await fetchCategories();
-  launchPointsStore.fetchLaunchPoints();
+  await launchPointsStore.fetchLaunchPoints();
   setupInteractions();
+  
+  // Handle highlight from query parameters (e.g., from detail view)
+  handleHighlightFromQuery();
 });
 
 onUnmounted(() =>
@@ -63,11 +140,16 @@ onUnmounted(() =>
 
 <template>
   <div class="map-view">
-    <AppHeader @toggle-filter="toggleFilterPanel" />
+    <AppHeader 
+      :show-list="showListView"
+      @toggle-filter="toggleFilterPanel"
+      @toggle-list="toggleListView"
+    />
     
-    <div class="map-container">
+    <div class="view-container">
+      <div class="map-container" :class="{ 'with-list': showListView }">
       <!-- Adress-Suchfeld -->
-      <div class="search-container">
+      <div v-if="!showListView" class="search-container">
         <div class="search-box">
           <input
             v-model="searchQuery"
@@ -145,7 +227,12 @@ onUnmounted(() =>
         </LMarker>
       </LMap>
       
-      <button class="fab" @click="addNewPoint" title="Neuen Einsetzpunkt hinzufügen">
+      <button 
+        class="fab" 
+        :class="{ 'hide-on-mobile': showListView || showFilterPanel }"
+        @click="addNewPoint" 
+        title="Neuen Einsetzpunkt hinzufügen"
+      >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="12" y1="5" x2="12" y2="19"/>
           <line x1="5" y1="12" x2="19" y2="12"/>
@@ -172,6 +259,15 @@ onUnmounted(() =>
         v-if="showFilterPanel" 
         @close="closeFilterPanel"
       />
+      </div>
+      
+      <LaunchPointListView 
+        v-if="showListView"
+        :highlighted-point-id="highlightedPointId"
+        @show-on-map="showPointOnMap"
+        @open-detail="handleListViewOpenDetail"
+        class="list-view-container"
+      />
     </div>
   </div>
 </template>
@@ -184,10 +280,28 @@ onUnmounted(() =>
   background: var(--bg-primary);
 }
 
+.view-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
 .map-container {
   flex: 1;
   position: relative;
   overflow: hidden;
+  transition: width 0.3s ease;
+}
+
+.map-container.with-list {
+  width: 60%;
+  min-width: 400px;
+}
+
+.list-view-container {
+  width: 40%;
+  min-width: 320px;
+  max-width: 500px;
 }
 
 .map {
@@ -393,9 +507,46 @@ onUnmounted(() =>
 }
 
 @media (max-width: 768px) {
+  .view-container {
+    position: relative;
+  }
+  
+  .map-container.with-list {
+    width: 100%;
+  }
+  
+  .list-view-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    border-left: none;
+    z-index: 500;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    animation: slideInRight 0.3s ease;
+  }
+  
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  
   .fab {
     bottom: 1rem;
     right: 1rem;
+  }
+  
+  .list-toggle-btn {
+    bottom: 5rem;
+    left: 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
   }
 }
 
@@ -448,5 +599,43 @@ onUnmounted(() =>
   width: 1.25rem;
   height: 1.25rem;
   flex-shrink: 0;
+}
+
+
+
+@media (max-width: 768px) {
+  .view-container {
+    position: relative;
+  }
+  
+  .map-container.with-list {
+    width: 100%;
+  }
+  
+  .list-view-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    border-left: none;
+    z-index: 500;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    animation: slideInRight 0.3s ease;
+  }
+  
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  
+  .fab.hide-on-mobile {
+    display: none; /* Hide FAB button when list or filter is shown on mobile */
+  }
 }
 </style>

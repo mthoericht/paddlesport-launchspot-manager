@@ -12,6 +12,20 @@ const authStore = useAuthStore();
 const { categoryColors, fetchCategories } = useCategories();
 const { openNavigation } = useMapNavigation();
 
+function showOnMap() {
+  if (!launchPointsStore.selectedPoint) return;
+  
+  // Navigate to map with highlight parameter
+  router.push({
+    path: '/map',
+    query: {
+      highlight: launchPointsStore.selectedPoint.id.toString(),
+      lat: launchPointsStore.selectedPoint.latitude.toString(),
+      lng: launchPointsStore.selectedPoint.longitude.toString()
+    }
+  });
+}
+
 const canEdit = computed(() => {
   const point = launchPointsStore.selectedPoint;
   if (!point || !authStore.user) return false;
@@ -96,6 +110,20 @@ onMounted(async () => {
               {{ launchPointsStore.selectedPoint.latitude.toFixed(6) }}, 
               {{ launchPointsStore.selectedPoint.longitude.toFixed(6) }}
             </span>
+          </div>
+          
+          <div class="info-item">
+            <span class="info-label">Auf Karte anzeigen</span>
+            <button 
+              class="map-btn"
+              @click="showOnMap"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              Auf Karte anzeigen
+            </button>
           </div>
           
           <div class="info-item">
@@ -313,6 +341,31 @@ onMounted(async () => {
 .info-value {
   font-size: 0.9rem;
   color: var(--text-primary);
+}
+
+.map-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.map-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+.map-btn svg {
+  width: 1rem;
+  height: 1rem;
 }
 
 .nav-btn {

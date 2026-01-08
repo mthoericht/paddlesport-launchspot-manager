@@ -4,8 +4,13 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useLaunchPointsStore } from '../stores/launchPoints';
 
+const props = defineProps<{
+  showList?: boolean;
+}>();
+
 const emit = defineEmits<{
-  'toggle-filter': []
+  'toggle-filter': [];
+  'toggle-list': [];
 }>();
 
 const router = useRouter();
@@ -89,6 +94,21 @@ function getActiveFilterLabel() {
     </div>
     
     <div class="header-right">
+      <button class="list-btn" @click="$emit('toggle-list')" :title="props.showList ? 'Liste ausblenden' : 'Liste anzeigen'">
+        <svg v-if="props.showList" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+        <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="8" y1="6" x2="21" y2="6"/>
+          <line x1="8" y1="12" x2="21" y2="12"/>
+          <line x1="8" y1="18" x2="21" y2="18"/>
+          <line x1="3" y1="6" x2="3.01" y2="6"/>
+          <line x1="3" y1="12" x2="3.01" y2="12"/>
+          <line x1="3" y1="18" x2="3.01" y2="18"/>
+        </svg>
+      </button>
+      
       <button class="filter-btn" @click="$emit('toggle-filter')" title="Filter">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
@@ -183,6 +203,30 @@ function getActiveFilterLabel() {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.list-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.625rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.list-btn:hover {
+  background: var(--bg-hover);
+  color: var(--color-primary);
+}
+
+.list-btn svg {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .filter-btn {

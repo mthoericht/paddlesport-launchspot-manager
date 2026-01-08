@@ -18,6 +18,9 @@ A full-stack web application for managing launch points for kayaking, canoeing, 
 - **Context menu** for quick point creation
 - **Color-coded markers** by category
 - **Navigation integration** for route planning
+- **List view** alongside map (toggleable)
+- **"Show on map"** button to highlight and center points
+- **Responsive design** with mobile-optimized layout
 
 ### 👤 User Management
 - Registration and login
@@ -31,10 +34,21 @@ A full-stack web application for managing launch points for kayaking, canoeing, 
 - **Public transport stations** (max 5) with distance
 - **Navigation**: One-click route planning
 - **Permissions**: Only creators or admins can delete
+- **List view**: Browse all launch points in a scrollable list
+- **Quick navigation**: Jump to any point on the map from list or detail view
 
 ### 🔍 Filters
 - All points, My points, Official points, By user
 - Category filter (multi-select)
+
+### 📋 List View
+- **Toggleable list view** alongside map (desktop) or as overlay (mobile)
+- **Quick access** to all launch points with key information
+- **"Show on map" button** in list items and detail view
+- **Auto-hide on mobile** when navigating to map view
+- **Highlighting** of selected point in list when shown on map
+- **Smart popup handling** - automatically opens popup when centering on a point
+- **Responsive behavior** - search bar and FAB button auto-hide when list/filter panels are open on mobile
 
 
 ## 🛠️ Tech Stack
@@ -44,6 +58,20 @@ A full-stack web application for managing launch points for kayaking, canoeing, 
 - **TypeScript**, **Pinia**, **Vue Router**
 - **Leaflet** / **Vue-Leaflet** for maps
 - **Vite**, **Vitest**, **ESLint**
+- **Composables**: Modular, reusable logic (map state, navigation, show on map, etc.)
+
+### Composables Architecture
+
+The frontend uses Vue 3 Composition API with custom composables for reusable logic:
+
+- **`useMapState`** - Map center, zoom, and view management
+- **`useMapNavigation`** - Navigation to detail pages and external navigation apps
+- **`useShowPointOnMap`** - Center map on point, open popup, handle highlighting
+- **`useMapViewInteractions`** - Map click handlers, context menu, search
+- **`useCategories`** - Category fetching and icon/color management
+- **`useAddressSearch`** - Address geocoding with Nominatim
+- **`useContextMenu`** - Right-click context menu handling
+- **`useLaunchPointForm`** - Form state and validation
 
 ### Backend
 - **Express.js** REST API server
@@ -166,10 +194,30 @@ A full-stack web application for managing launch points for kayaking, canoeing, 
 The project uses **Vitest** with a multi-layered testing strategy:
 
 - **Unit Tests** (`frontend/tests/unit/`): Test composables in isolation
+  - `useMapState.test.ts` - Map state management
+  - `useMapNavigation.test.ts` - Navigation functionality
+  - `useShowPointOnMap.test.ts` - "Show on map" feature with highlighting
+  - `useCategories.test.ts` - Category management
 - **Frontend Integration** (`frontend/tests/integration/`): Test Pinia stores with mocked API
+  - `authStore.test.ts` - Authentication store
+  - `launchPointsStore.test.ts` - Launch points store
+  - `listView.test.ts` - List view data handling
 - **Backend Integration** (`backend/tests/integration/`): Test API routes with real database
+  - `auth.test.ts` - Authentication endpoints
+  - `launchPoints.test.ts` - Launch points endpoints
 
 Test data uses `TEST_` prefix and is automatically cleaned up after each test. See NPM Scripts section for test commands.
+
+### Test Coverage
+
+The test suite covers:
+- ✅ Map interactions and state management
+- ✅ Navigation and routing
+- ✅ "Show on map" functionality with popup handling
+- ✅ List view data provision and filtering
+- ✅ Authentication and authorization
+- ✅ Launch point CRUD operations
+- ✅ Mobile vs. desktop behavior
 
 ## 🔐 API Endpoints
 
@@ -212,6 +260,8 @@ All endpoints are prefixed with `/api` (backend runs on port 3001).
 - **Typography**: Outfit (display) + DM Sans (body)
 - **Dark mode**: Automatic based on system preference
 - **Accessibility**: Semantic HTML and ARIA labels
+- **Mobile-first**: List view as overlay on mobile, side-by-side on desktop
+- **Smart UI**: Auto-hide elements (search, FAB button) when panels are open on mobile
 
 ## 📊 Data Import
 
