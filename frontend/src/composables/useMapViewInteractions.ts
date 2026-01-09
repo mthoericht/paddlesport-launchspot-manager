@@ -1,5 +1,5 @@
 import { ref, type Ref, watch } from 'vue';
-import { useRoute, type RouteLocationNormalizedLoaded } from 'vue-router';
+import { useRoute, useRouter, type RouteLocationNormalizedLoaded } from 'vue-router';
 import type { LeafletMouseEvent, LeafletEvent } from 'leaflet';
 import { useContextMenu } from './useContextMenu';
 import { useMapState } from './useMapState';
@@ -66,9 +66,27 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
 {
   const { mapRef } = options;
   const route = useRoute();
+  const router = useRouter();
 
   // Get initial map state from query params or sessionStorage
   const initialMapState = getInitialMapState(route);
+
+  // Function to remove highlight query parameters from URL
+  function removeHighlightParams(): void
+  {
+    if (route.query.highlight || route.query.lat || route.query.lng)
+    {
+      const newQuery = { ...route.query };
+      delete newQuery.highlight;
+      delete newQuery.lat;
+      delete newQuery.lng;
+      
+      router.replace({
+        path: route.path,
+        query: newQuery
+      });
+    }
+  }
 
   // Compose other composables
   const {
@@ -80,10 +98,17 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
     handleMapClick: contextMenuHandleClick,
     handleMapContextMenu: contextMenuHandleContextMenu,
     cancelPendingMenu,
-    closeContextMenu,
+    closeContextMenu: contextMenuClose,
     setupGlobalClickHandler,
     cleanupGlobalClickHandler
   } = useContextMenu();
+
+  // Wrapper for closeContextMenu that also removes highlight params
+  function closeContextMenu(): void
+  {
+    contextMenuClose();
+    removeHighlightParams();
+  }
 
   const {
     mapCenter,
@@ -131,7 +156,7 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
   function handleMapMoveEnd(e: LeafletEvent): void
   {
     mapStateHandleMoveEnd(e);
-    closeContextMenu();
+    closeContextMenu(); // This also removes highlight params
     
     // Save current map state to sessionStorage for restoration when navigating back
     if (mapRef.value?.leafletObject)
