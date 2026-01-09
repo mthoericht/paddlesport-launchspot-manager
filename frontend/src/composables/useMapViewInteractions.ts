@@ -345,6 +345,7 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
     handleMapMoveStart,
     handleMapMoveEnd,
     addPointAtContextMenu,
+    addPointAtLocation,
     addNewPoint,
     handleSearch,
     openDetail,

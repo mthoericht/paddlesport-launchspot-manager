@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch, onBeforeUnmount, nextTick } from 'vue';
+import { onMounted, onUnmounted, ref, watch, onBeforeUnmount, nextTick, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { LMap, LTileLayer, LMarker, LPopup, LIcon } from '@vue-leaflet/vue-leaflet';
+import { LMap, LTileLayer, LMarker, LPopup, LIcon, LCircle } from '@vue-leaflet/vue-leaflet';
 import { useLaunchPointsStore } from '../stores/launchPoints';
-import { useMapViewInteractions, useCategories, useShowPointOnMap } from '../composables';
+import { useMapViewInteractions, useCategories, useShowPointOnMap, useGeolocation } from '../composables';
 import FilterPanel from '../components/FilterPanel.vue';
 import AppHeader from '../components/AppHeader.vue';
 import LaunchPointListView from '../components/LaunchPointListView.vue';
@@ -43,12 +43,11 @@ const {
   // Context menu
   showContextMenu,
   contextMenuPosition,
+  closeContextMenu,
 
   // Map state
   mapCenter,
   zoom,
-  currentCenter,
-  currentZoom,
 
   // Search
   searchQuery,
@@ -68,6 +67,7 @@ const {
   handleMapMoveStart,
   handleMapMoveEnd,
   addPointAtContextMenu,
+  addPointAtLocation,
   addNewPoint,
   handleSearch,
   openDetail,
@@ -87,6 +87,75 @@ const { showPointOnMap } = useShowPointOnMap({
   showListView,
   isMobile
 });
+
+// Use geolocation composable
+const { currentPosition, isLocating, getCurrentPosition, watchPosition, stopWatching } = useGeolocation();
+
+// Create GPS marker icon as SVG data URL
+const gpsIconUrl = computed(() => 
+{
+  const svg = `
+    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="10" fill="#4285F4" stroke="white" stroke-width="2"/>
+      <circle cx="12" cy="12" r="4" fill="white"/>
+    </svg>
+  `;
+  return 'data:image/svg+xml;base64,' + btoa(svg);
+});
+
+// Function to center map on current position
+function centerOnCurrentPosition(): void
+{
+  if (currentPosition.value && mapRef.value?.leafletObject)
+  {
+    mapRef.value.leafletObject.setView([currentPosition.value.lat, currentPosition.value.lng], 15);
+  }
+  else
+  {
+    getCurrentPosition().then(() =>
+    {
+      centerOnCurrentPosition();
+    }).catch(() =>
+    {
+      // Error handling is done in the composable
+    });
+  }
+}
+
+// Function to add point at current GPS position
+function addPointAtCurrentPosition(): void
+{
+  if (currentPosition.value)
+  {
+    const zoomLevel = mapRef.value?.leafletObject?.getZoom() || 15;
+    addPointAtLocation(
+      currentPosition.value.lat,
+      currentPosition.value.lng,
+      zoomLevel
+    );
+    closeContextMenu();
+  }
+  else
+  {
+    // Try to get position first
+    getCurrentPosition().then(() =>
+    {
+      if (currentPosition.value)
+      {
+        const zoomLevel = mapRef.value?.leafletObject?.getZoom() || 15;
+        addPointAtLocation(
+          currentPosition.value.lat,
+          currentPosition.value.lng,
+          zoomLevel
+        );
+        closeContextMenu();
+      }
+    }).catch(() =>
+    {
+      // Error handling is done in the composable
+    });
+  }
+}
 
 function handleHighlightFromQuery() {
   const highlightId = route.query.highlight;
@@ -149,6 +218,9 @@ onMounted(async () =>
   await launchPointsStore.fetchLaunchPoints();
   setupInteractions();
   
+  // Start watching position for GPS marker
+  watchPosition();
+  
   // Wait for map to be ready, then handle highlight if needed
   // Note: Map view restoration is already handled in useMapViewInteractions
   // by setting initial values, so we only need to handle highlight here
@@ -172,6 +244,7 @@ onMounted(async () =>
 onUnmounted(() =>
 {
   cleanupInteractions();
+  stopWatching();
 });
 </script>
 
@@ -230,6 +303,7 @@ onUnmounted(() =>
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         
+        <!-- Launch Point Markers -->
         <LMarker 
           v-for="point in launchPointsStore.launchPoints" 
           :key="point.id"
@@ -266,8 +340,57 @@ onUnmounted(() =>
             </div>
           </LPopup>
         </LMarker>
+        
+        <!-- Current GPS Position Marker -->
+        <template v-if="currentPosition">
+          <LMarker 
+            :lat-lng="[currentPosition.lat, currentPosition.lng]"
+            :key="'gps-marker'"
+          >
+            <LIcon 
+              :icon-url="gpsIconUrl"
+              :icon-size="[24, 24]"
+              :icon-anchor="[12, 12]"
+            />
+            <LPopup>
+              <div class="popup-content">
+                <h3>Meine Position</h3>
+                <p>Genauigkeit: {{ Math.round(currentPosition.accuracy) }}m</p>
+                <div class="popup-actions">
+                  <button @click="centerOnCurrentPosition" class="popup-btn">Zentrieren</button>
+                  <button @click="addPointAtCurrentPosition" class="popup-btn">Einsetzpunkt hinzufügen</button>
+                </div>
+              </div>
+            </LPopup>
+          </LMarker>
+          <LCircle
+            v-if="currentPosition.accuracy > 0"
+            :lat-lng="[currentPosition.lat, currentPosition.lng]"
+            :radius="currentPosition.accuracy"
+            :fill-opacity="0.2"
+            fill-color="#4285F4"
+            color="#4285F4"
+            :weight="1"
+          />
+        </template>
       </LMap>
       
+      <!-- GPS Location Button -->
+      <button 
+        v-if="currentPosition"
+        class="fab gps-fab" 
+        :class="{ 'hide-on-mobile': showListView || showFilterPanel }"
+        @click="centerOnCurrentPosition" 
+        title="Auf meine Position zentrieren"
+        :disabled="isLocating"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+      </button>
+      
+      <!-- Add Point Button -->
       <button 
         class="fab" 
         :class="{ 'hide-on-mobile': showListView || showFilterPanel }"
@@ -599,6 +722,22 @@ onUnmounted(() =>
   z-index: 1000;
 }
 
+.fab.gps-fab {
+  bottom: 5.5rem;
+  background: linear-gradient(135deg, #4285F4, #34A853);
+  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.4);
+}
+
+.fab.gps-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(66, 133, 244, 0.5);
+}
+
+.fab:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .fab:hover {
   transform: scale(1.1);
   box-shadow: 0 6px 16px rgba(14, 165, 233, 0.5);
@@ -633,6 +772,10 @@ onUnmounted(() =>
   .fab {
     bottom: 1rem;
     right: 1rem;
+  }
+  
+  .fab.gps-fab {
+    bottom: 5.5rem;
   }
   
   .list-toggle-btn {

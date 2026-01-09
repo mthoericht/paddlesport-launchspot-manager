@@ -8,4 +8,5 @@ export { useMapViewInteractions } from './useMapViewInteractions';
 export { useCategories } from './useCategories';
 export { useLaunchPointForm } from './useLaunchPointForm';
 export { useShowPointOnMap } from './useShowPointOnMap';
+export { useGeolocation } from './useGeolocation';
 

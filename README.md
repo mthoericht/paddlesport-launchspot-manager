@@ -18,6 +18,14 @@ A full-stack web application for managing launch points for kayaking, canoeing, 
 - **Context menu** for quick point creation
   - **Desktop**: Right-click shows menu immediately; left-click (hold 500ms) shows menu with delay
   - **Mobile**: Touch and hold (500ms) shows menu
+- **GPS position tracking** - Shows current location with accuracy circle
+  - Automatic position updates
+  - "Center on my position" button
+  - Add launch point at current GPS position from marker popup
+- **Map view persistence** - Remembers zoom level and position when navigating
+  - Preserves view when adding points
+  - Restores view when using back button
+  - Automatic cleanup of highlight URL parameters
 - **Color-coded markers** by category
 - **Navigation integration** for route planning
 - **List view** alongside map (toggleable)
@@ -69,7 +77,7 @@ The frontend uses Vue 3 Composition API with custom composables for reusable log
 - **`useMapState`** - Map center, zoom, and view management
 - **`useMapNavigation`** - Navigation to detail pages and external navigation apps
 - **`useShowPointOnMap`** - Center map on point, open popup, handle highlighting
-- **`useMapViewInteractions`** - Map click handlers, context menu, search
+- **`useMapViewInteractions`** - Map click handlers, context menu, search, map view persistence
 - **`useCategories`** - Category fetching and icon/color management
 - **`useAddressSearch`** - Address geocoding with Nominatim
 - **`useContextMenu`** - Context menu handling with smart delay logic:
@@ -77,6 +85,12 @@ The frontend uses Vue 3 Composition API with custom composables for reusable log
   - Left-click/Touch: 500ms delay before showing menu
   - Prevents menu from closing on mouseup/click events
   - Handles both desktop and mobile touch events
+  - Automatically removes highlight URL parameters when closed or map is moved
+- **`useGeolocation`** - GPS position tracking and management:
+  - Continuous position updates via `watchPosition()`
+  - One-time position request via `getCurrentPosition()`
+  - Error handling for permission denied, unavailable, and timeout cases
+  - Automatic cleanup on component unmount
 - **`useLaunchPointForm`** - Form state and validation
 
 ### Backend
@@ -204,6 +218,7 @@ The project uses **Vitest** with a multi-layered testing strategy:
   - `useMapNavigation.test.ts` - Navigation functionality
   - `useShowPointOnMap.test.ts` - "Show on map" feature with highlighting
   - `useCategories.test.ts` - Category management
+  - `useGeolocation.test.ts` - GPS position tracking and error handling
 - **Frontend Integration** (`frontend/tests/integration/`): Test Pinia stores with mocked API
   - `authStore.test.ts` - Authentication store
   - `launchPointsStore.test.ts` - Launch points store
@@ -224,6 +239,7 @@ The test suite covers:
 - ✅ Authentication and authorization
 - ✅ Launch point CRUD operations
 - ✅ Mobile vs. desktop behavior
+- ✅ GPS position tracking and error handling
 
 ## 🔐 API Endpoints
 
