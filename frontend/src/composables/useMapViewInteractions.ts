@@ -18,7 +18,11 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
     showContextMenu,
     contextMenuPosition,
     contextMenuLatLng,
+    handleMapMouseDown: contextMenuHandleMouseDown,
+    handleMapMouseUp: contextMenuHandleMouseUp,
     handleMapClick: contextMenuHandleClick,
+    handleMapContextMenu: contextMenuHandleContextMenu,
+    cancelPendingMenu,
     closeContextMenu,
     setupGlobalClickHandler,
     cleanupGlobalClickHandler
@@ -40,9 +44,30 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
   const showFilterPanel = ref(false);
 
   // Event Handlers
+  function onMapMouseDown(e: LeafletMouseEvent): void
+  {
+    contextMenuHandleMouseDown(e);
+  }
+
+  function onMapMouseUp(): void
+  {
+    contextMenuHandleMouseUp();
+  }
+
   function onMapClick(e: LeafletMouseEvent): void
   {
     contextMenuHandleClick(e);
+  }
+
+  function onMapContextMenu(e: LeafletMouseEvent): void
+  {
+    contextMenuHandleContextMenu(e);
+  }
+
+  function handleMapMoveStart(): void
+  {
+    // Cancel pending context menu when starting drag
+    cancelPendingMenu();
   }
 
   function handleMapMoveEnd(e: LeafletEvent): void
@@ -103,11 +128,54 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
   function setupInteractions(): void
   {
     setupGlobalClickHandler();
+    
+    // Register touch events directly on Leaflet Map object for mobile devices
+    // Leaflet does emit mousedown/mouseup for touch, but we register
+    // additionally touchstart/touchend for better compatibility
+    if (mapRef.value?.leafletObject)
+    {
+      const map = mapRef.value.leafletObject;
+      
+      const touchStartHandler = (e: LeafletEvent) =>
+      {
+        // Only process if it's really a touch event
+        const mouseEvent = e as unknown as LeafletMouseEvent;
+        const originalEvent = mouseEvent.originalEvent as TouchEvent | MouseEvent | null;
+        if (originalEvent && 'touches' in originalEvent && originalEvent.touches)
+        {
+          contextMenuHandleMouseDown(mouseEvent);
+        }
+      };
+      
+      const touchEndHandler = () =>
+      {
+        contextMenuHandleMouseUp();
+      };
+      
+      map.on('touchstart', touchStartHandler);
+      map.on('touchend', touchEndHandler);
+      
+      // Store handlers for cleanup
+      (map as any)._contextMenuTouchHandlers = { touchStartHandler, touchEndHandler };
+    }
   }
 
   function cleanupInteractions(): void
   {
     cleanupGlobalClickHandler();
+    
+    // Remove touch event handlers
+    if (mapRef.value?.leafletObject)
+    {
+      const map = mapRef.value.leafletObject;
+      const handlers = (map as any)._contextMenuTouchHandlers;
+      if (handlers)
+      {
+        map.off('touchstart', handlers.touchStartHandler);
+        map.off('touchend', handlers.touchEndHandler);
+        delete (map as any)._contextMenuTouchHandlers;
+      }
+    }
   }
 
   return {
@@ -134,7 +202,11 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
     closeFilterPanel,
 
     // Event handlers
+    onMapMouseDown,
+    onMapMouseUp,
     onMapClick,
+    onMapContextMenu,
+    handleMapMoveStart,
     handleMapMoveEnd,
     addPointAtContextMenu,
     addNewPoint,

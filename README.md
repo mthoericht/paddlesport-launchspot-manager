@@ -16,6 +16,8 @@ A full-stack web application for managing launch points for kayaking, canoeing, 
 - **OpenStreetMap** with Leaflet
 - **Address search** with Nominatim geocoding
 - **Context menu** for quick point creation
+  - **Desktop**: Right-click shows menu immediately; left-click (hold 500ms) shows menu with delay
+  - **Mobile**: Touch and hold (500ms) shows menu
 - **Color-coded markers** by category
 - **Navigation integration** for route planning
 - **List view** alongside map (toggleable)
@@ -70,7 +72,11 @@ The frontend uses Vue 3 Composition API with custom composables for reusable log
 - **`useMapViewInteractions`** - Map click handlers, context menu, search
 - **`useCategories`** - Category fetching and icon/color management
 - **`useAddressSearch`** - Address geocoding with Nominatim
-- **`useContextMenu`** - Right-click context menu handling
+- **`useContextMenu`** - Context menu handling with smart delay logic:
+  - Right-click: Immediate display
+  - Left-click/Touch: 500ms delay before showing menu
+  - Prevents menu from closing on mouseup/click events
+  - Handles both desktop and mobile touch events
 - **`useLaunchPointForm`** - Form state and validation
 
 ### Backend

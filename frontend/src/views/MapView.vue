@@ -59,7 +59,11 @@ const {
   closeFilterPanel,
 
   // Event handlers
+  onMapMouseDown,
+  onMapMouseUp,
   onMapClick,
+  onMapContextMenu,
+  handleMapMoveStart,
   handleMapMoveEnd,
   addPointAtContextMenu,
   addNewPoint,
@@ -195,8 +199,11 @@ onUnmounted(() =>
         :zoom="zoom" 
         :use-global-leaflet="false"
         class="map"
+        @mousedown="onMapMouseDown"
+        @mouseup="onMapMouseUp"
         @click="onMapClick"
-        @contextmenu="onMapClick"
+        @contextmenu="onMapContextMenu"
+        @movestart="handleMapMoveStart"
         @moveend="handleMapMoveEnd"
         @zoomend="handleMapMoveEnd"
       >
