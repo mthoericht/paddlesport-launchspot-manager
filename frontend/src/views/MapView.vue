@@ -47,6 +47,8 @@ const {
   // Map state
   mapCenter,
   zoom,
+  currentCenter,
+  currentZoom,
 
   // Search
   searchQuery,
@@ -147,8 +149,24 @@ onMounted(async () =>
   await launchPointsStore.fetchLaunchPoints();
   setupInteractions();
   
-  // Handle highlight from query parameters (e.g., from detail view)
-  handleHighlightFromQuery();
+  // Wait for map to be ready, then handle highlight if needed
+  // Note: Map view restoration is already handled in useMapViewInteractions
+  // by setting initial values, so we only need to handle highlight here
+  await nextTick();
+  setTimeout(() =>
+  {
+    if (!mapRef.value?.leafletObject)
+    {
+      return;
+    }
+    
+    // Handle highlight from query parameters (e.g., from detail view)
+    // This takes precedence over restore and will override the initial view
+    if (route.query.highlight)
+    {
+      handleHighlightFromQuery();
+    }
+  }, 100);
 });
 
 onUnmounted(() =>

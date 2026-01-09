@@ -179,7 +179,17 @@ export function useLaunchPointForm()
     
     if (success) 
     {
-      router.push('/map');
+      // Preserve zoom and center from current view when navigating back to map
+      const currentZoom = zoom.value;
+      const [currentLat, currentLng] = mapCenter.value;
+      router.push({
+        path: '/map',
+        query: {
+          centerLat: currentLat.toFixed(6),
+          centerLng: currentLng.toFixed(6),
+          zoom: currentZoom.toString()
+        }
+      });
       return true;
     }
     return false;

@@ -1,4 +1,5 @@
-import { ref, type Ref } from 'vue';
+import { ref, type Ref, watch } from 'vue';
+import { useRoute, type RouteLocationNormalizedLoaded } from 'vue-router';
 import type { LeafletMouseEvent, LeafletEvent } from 'leaflet';
 import { useContextMenu } from './useContextMenu';
 import { useMapState } from './useMapState';
@@ -9,9 +10,65 @@ interface UseMapViewInteractionsOptions {
   mapRef: Ref<InstanceType<typeof import('@vue-leaflet/vue-leaflet').LMap> | null>;
 }
 
+// Helper function to get initial map state from query params or sessionStorage
+function getInitialMapState(route: RouteLocationNormalizedLoaded): { center?: [number, number], zoom?: number } | null
+{
+  const { centerLat, centerLng, zoom: queryZoom, highlight } = route.query;
+  
+  // Don't restore if we're highlighting a point (that has its own logic)
+  if (highlight)
+  {
+    return null;
+  }
+  
+  // First try query parameters (e.g., after submitting a form)
+  if (centerLat && centerLng && queryZoom)
+  {
+    const lat = parseFloat(centerLat as string);
+    const lng = parseFloat(centerLng as string);
+    const zoomLevel = parseInt(queryZoom as string);
+    
+    if (!isNaN(lat) && !isNaN(lng) && !isNaN(zoomLevel))
+    {
+      return { center: [lat, lng], zoom: zoomLevel };
+    }
+  }
+  
+  // If no query parameters, try sessionStorage (e.g., when using back button)
+  if (!centerLat && !centerLng)
+  {
+    try
+    {
+      const savedState = sessionStorage.getItem('mapState');
+      if (savedState)
+      {
+        const { centerLat: savedLat, centerLng: savedLng, zoom: savedZoom } = JSON.parse(savedState);
+        const lat = parseFloat(savedLat);
+        const lng = parseFloat(savedLng);
+        const zoomLevel = parseInt(savedZoom);
+        
+        if (!isNaN(lat) && !isNaN(lng) && !isNaN(zoomLevel))
+        {
+          return { center: [lat, lng], zoom: zoomLevel };
+        }
+      }
+    }
+    catch (e)
+    {
+      // Ignore storage errors
+    }
+  }
+  
+  return null;
+}
+
 export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
 {
   const { mapRef } = options;
+  const route = useRoute();
+
+  // Get initial map state from query params or sessionStorage
+  const initialMapState = getInitialMapState(route);
 
   // Compose other composables
   const {
@@ -34,8 +91,9 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
     currentCenter,
     currentZoom,
     handleMapMoveEnd: mapStateHandleMoveEnd,
+    setMapView,
     fitBounds
-  } = useMapState();
+  } = useMapState(initialMapState?.center, initialMapState?.zoom);
 
   const { openDetail, addPointAtLocation, addPointWithCurrentView, openNavigation } = useMapNavigation();
   const { searchQuery, isSearching, searchError, searchAddress } = useAddressSearch();
@@ -74,6 +132,27 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
   {
     mapStateHandleMoveEnd(e);
     closeContextMenu();
+    
+    // Save current map state to sessionStorage for restoration when navigating back
+    if (mapRef.value?.leafletObject)
+    {
+      const map = mapRef.value.leafletObject;
+      const center = map.getCenter();
+      const zoomLevel = map.getZoom();
+      
+      try
+      {
+        sessionStorage.setItem('mapState', JSON.stringify({
+          centerLat: center.lat,
+          centerLng: center.lng,
+          zoom: zoomLevel
+        }));
+      }
+      catch (e)
+      {
+        // Ignore storage errors (e.g., in private browsing mode)
+      }
+    }
   }
 
   function addPointAtContextMenu(): void
@@ -123,6 +202,38 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
   {
     showFilterPanel.value = false;
   }
+
+  // Watch for route changes to restore map view when query parameters change
+  // This handles cases where the route changes after initial mount
+  watch(() => route.query, (newQuery) =>
+  {
+    // Only restore if we're on the map route and query parameters changed
+    if (route.name === 'map' && mapRef.value?.leafletObject)
+    {
+      const { centerLat, centerLng, zoom: queryZoom, highlight } = newQuery;
+      
+      // Don't restore if we're highlighting a point (that has its own logic)
+      if (highlight)
+      {
+        return;
+      }
+      
+      // Only restore if query parameters actually changed
+      if (centerLat && centerLng && queryZoom)
+      {
+        const lat = parseFloat(centerLat as string);
+        const lng = parseFloat(centerLng as string);
+        const zoomLevel = parseInt(queryZoom as string);
+        
+        if (!isNaN(lat) && !isNaN(lng) && !isNaN(zoomLevel))
+        {
+          // Update map view when query parameters change
+          setMapView([lat, lng], zoomLevel);
+          mapRef.value.leafletObject.setView([lat, lng], zoomLevel);
+        }
+      }
+    }
+  }, { immediate: false });
 
   // Lifecycle
   function setupInteractions(): void
