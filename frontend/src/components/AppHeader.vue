@@ -6,6 +6,7 @@ import { useLaunchPointsStore } from '../stores/launchPoints';
 
 const props = defineProps<{
   showList?: boolean;
+  showFilter?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -109,7 +110,7 @@ function getActiveFilterLabel() {
         </svg>
       </button>
       
-      <button class="filter-btn" @click="$emit('toggle-filter')" title="Filter">
+      <button class="filter-btn" :class="{ active: props.showFilter }" @click="$emit('toggle-filter')" title="Filter">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
         </svg>
@@ -246,6 +247,12 @@ function getActiveFilterLabel() {
 .filter-btn:hover {
   background: var(--bg-hover);
   color: var(--color-primary);
+}
+
+.filter-btn.active {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  border-color: transparent;
+  color: white;
 }
 
 .filter-btn svg {

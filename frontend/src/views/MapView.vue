@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch, onBeforeUnmount } from 'vue';
+import { onMounted, onUnmounted, ref, watch, onBeforeUnmount, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { LMap, LTileLayer, LMarker, LPopup, LIcon } from '@vue-leaflet/vue-leaflet';
 import { useLaunchPointsStore } from '../stores/launchPoints';
@@ -122,6 +122,21 @@ function toggleListView() {
   showListView.value = !showListView.value;
 }
 
+// Watch for list view and filter panel changes to invalidate map size
+function invalidateMapSize() {
+  // Wait for transition to complete (0.3s) plus a small buffer
+  nextTick(() => {
+    setTimeout(() => {
+      if (mapRef.value?.leafletObject) {
+        mapRef.value.leafletObject.invalidateSize();
+      }
+    }, 350); // Slightly longer than transition duration (0.3s)
+  });
+}
+
+watch(showListView, invalidateMapSize);
+watch(showFilterPanel, invalidateMapSize);
+
 onMounted(async () =>
 {
   await fetchCategories();
@@ -142,6 +157,7 @@ onUnmounted(() =>
   <div class="map-view">
     <AppHeader 
       :show-list="showListView"
+      :show-filter="showFilterPanel"
       @toggle-filter="toggleFilterPanel"
       @toggle-list="toggleListView"
     />
@@ -149,7 +165,7 @@ onUnmounted(() =>
     <div class="view-container">
       <div class="map-container" :class="{ 'with-list': showListView }">
       <!-- Adress-Suchfeld -->
-      <div v-if="!showListView" class="search-container">
+      <div v-if="!isMobile || !showListView" class="search-container">
         <div class="search-box">
           <input
             v-model="searchQuery"
@@ -255,19 +271,23 @@ onUnmounted(() =>
         </button>
       </div>
       
-      <FilterPanel 
-        v-if="showFilterPanel" 
-        @close="closeFilterPanel"
-      />
+      <Transition name="filter-slide">
+        <FilterPanel 
+          v-if="showFilterPanel" 
+          @close="closeFilterPanel"
+        />
+      </Transition>
       </div>
       
-      <LaunchPointListView 
-        v-if="showListView"
-        :highlighted-point-id="highlightedPointId"
-        @show-on-map="showPointOnMap"
-        @open-detail="handleListViewOpenDetail"
-        class="list-view-container"
-      />
+      <Transition name="list-slide">
+        <LaunchPointListView 
+          v-if="showListView"
+          :highlighted-point-id="highlightedPointId"
+          @show-on-map="showPointOnMap"
+          @open-detail="handleListViewOpenDetail"
+          class="list-view-container"
+        />
+      </Transition>
     </div>
   </div>
 </template>
@@ -302,6 +322,64 @@ onUnmounted(() =>
   width: 40%;
   min-width: 320px;
   max-width: 500px;
+}
+
+/* List view transition animations */
+.list-slide-enter-active {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.list-slide-leave-active {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.list-slide-enter-from {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.list-slide-enter-to {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.list-slide-leave-from {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.list-slide-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+/* Filter panel transition animations */
+.filter-slide-enter-active {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.filter-slide-leave-active {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.filter-slide-enter-from {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.filter-slide-enter-to {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.filter-slide-leave-from {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.filter-slide-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
 }
 
 .map {
@@ -525,16 +603,6 @@ onUnmounted(() =>
     border-left: none;
     z-index: 500;
     box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
-    animation: slideInRight 0.3s ease;
-  }
-  
-  @keyframes slideInRight {
-    from {
-      transform: translateX(100%);
-    }
-    to {
-      transform: translateX(0);
-    }
   }
   
   .fab {
@@ -547,6 +615,10 @@ onUnmounted(() =>
     left: 1rem;
     width: 2.5rem;
     height: 2.5rem;
+  }
+  
+  .fab.hide-on-mobile {
+    display: none; /* Hide FAB button when list or filter is shown on mobile */
   }
 }
 
@@ -599,43 +671,5 @@ onUnmounted(() =>
   width: 1.25rem;
   height: 1.25rem;
   flex-shrink: 0;
-}
-
-
-
-@media (max-width: 768px) {
-  .view-container {
-    position: relative;
-  }
-  
-  .map-container.with-list {
-    width: 100%;
-  }
-  
-  .list-view-container {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 100%;
-    max-width: 100%;
-    height: 100%;
-    border-left: none;
-    z-index: 500;
-    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
-    animation: slideInRight 0.3s ease;
-  }
-  
-  @keyframes slideInRight {
-    from {
-      transform: translateX(100%);
-    }
-    to {
-      transform: translateX(0);
-    }
-  }
-  
-  .fab.hide-on-mobile {
-    display: none; /* Hide FAB button when list or filter is shown on mobile */
-  }
 }
 </style>

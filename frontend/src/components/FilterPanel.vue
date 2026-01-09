@@ -173,17 +173,9 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   z-index: 1000;
-  animation: slideIn 0.3s ease;
+  transition: transform 0.3s ease, margin-right 0.3s ease;
 }
 
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
 
 .panel-header {
   display: flex;
@@ -372,6 +364,12 @@ onMounted(async () => {
 .btn-clear:hover {
   background: var(--bg-hover);
   color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .filter-panel {
+    z-index: 1001; /* Above list view on mobile */
+  }
 }
 
 @media (max-width: 480px) {
