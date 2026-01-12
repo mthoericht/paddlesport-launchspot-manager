@@ -155,5 +155,99 @@ describe('useMapNavigation', () =>
       });
     });
   });
+
+  describe('navigateToPoint', () =>
+  {
+    it('should navigate to map with highlight parameters', () =>
+    {
+      const point = {
+        id: 42,
+        latitude: 52.5200,
+        longitude: 13.4050
+      };
+
+      const { navigateToPoint } = useMapNavigation();
+      navigateToPoint(point);
+
+      expect(mockPush).toHaveBeenCalledWith({
+        path: '/map',
+        query: {
+          highlight: '42',
+          lat: '52.52',
+          lng: '13.405'
+        }
+      });
+    });
+
+    it('should handle point with optional name', () =>
+    {
+      const point = {
+        id: 1,
+        latitude: 48.137,
+        longitude: 11.575,
+        name: 'Munich Point'
+      };
+
+      const { navigateToPoint } = useMapNavigation();
+      navigateToPoint(point);
+
+      expect(mockPush).toHaveBeenCalledWith({
+        path: '/map',
+        query: {
+          highlight: '1',
+          lat: '48.137',
+          lng: '11.575'
+        }
+      });
+    });
+  });
+
+  describe('navigateToStation', () =>
+  {
+    it('should navigate to map with station parameters', () =>
+    {
+      const station = {
+        id: 123,
+        latitude: 52.5200,
+        longitude: 13.4050,
+        name: 'Alexanderplatz'
+      };
+
+      const { navigateToStation } = useMapNavigation();
+      navigateToStation(station);
+
+      expect(mockPush).toHaveBeenCalledWith({
+        path: '/map',
+        query: {
+          stationId: '123',
+          stationLat: '52.52',
+          stationLng: '13.405',
+          stationName: 'Alexanderplatz'
+        }
+      });
+    });
+
+    it('should handle station without name', () =>
+    {
+      const station = {
+        id: 456,
+        latitude: 48.137,
+        longitude: 11.575
+      };
+
+      const { navigateToStation } = useMapNavigation();
+      navigateToStation(station);
+
+      expect(mockPush).toHaveBeenCalledWith({
+        path: '/map',
+        query: {
+          stationId: '456',
+          stationLat: '48.137',
+          stationLng: '11.575',
+          stationName: undefined
+        }
+      });
+    });
+  });
 });
 

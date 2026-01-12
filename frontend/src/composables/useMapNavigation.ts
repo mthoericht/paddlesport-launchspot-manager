@@ -1,16 +1,23 @@
 import { useRouter } from 'vue-router';
 import type { LaunchPoint } from '../types';
 
-export function useMapNavigation() 
+export interface MapNavigationPoint {
+  id: number;
+  latitude: number;
+  longitude: number;
+  name?: string;
+}
+
+export function useMapNavigation()
 {
   const router = useRouter();
 
-  function openDetail(point: LaunchPoint): void 
+  function openDetail(point: LaunchPoint): void
   {
     router.push(`/launch-point/${point.id}`);
   }
 
-  function addPointAtLocation(lat: number, lng: number, zoom: number): void 
+  function addPointAtLocation(lat: number, lng: number, zoom: number): void
   {
     router.push({
       path: '/launch-point/new',
@@ -22,7 +29,7 @@ export function useMapNavigation()
     });
   }
 
-  function addPointWithCurrentView(centerLat: number, centerLng: number, zoom: number): void 
+  function addPointWithCurrentView(centerLat: number, centerLng: number, zoom: number): void
   {
     router.push({
       path: '/launch-point/new',
@@ -30,6 +37,37 @@ export function useMapNavigation()
         centerLat: centerLat.toFixed(6),
         centerLng: centerLng.toFixed(6),
         zoom: zoom.toString()
+      }
+    });
+  }
+
+  /**
+   * Navigate to map and highlight a LaunchPoint
+   */
+  function navigateToPoint(point: MapNavigationPoint): void
+  {
+    router.push({
+      path: '/map',
+      query: {
+        highlight: point.id.toString(),
+        lat: point.latitude.toString(),
+        lng: point.longitude.toString()
+      }
+    });
+  }
+
+  /**
+   * Navigate to map and highlight a public transport station
+   */
+  function navigateToStation(station: MapNavigationPoint): void
+  {
+    router.push({
+      path: '/map',
+      query: {
+        stationId: station.id.toString(),
+        stationLat: station.latitude.toString(),
+        stationLng: station.longitude.toString(),
+        stationName: station.name
       }
     });
   }
@@ -44,11 +82,11 @@ export function useMapNavigation()
   {
     const destination = `${lat},${lng}`;
     const displayName = name || `${lat},${lng}`;
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
                   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     const isAndroid = /Android/.test(navigator.userAgent);
     const isMobile = isIOS || isAndroid;
-    
+
     if (isMobile)
     {
       // Mobile: Use geo: URL scheme (opens default navigation app)
@@ -67,7 +105,8 @@ export function useMapNavigation()
     openDetail,
     addPointAtLocation,
     addPointWithCurrentView,
+    navigateToPoint,
+    navigateToStation,
     openNavigation
   };
 }
-

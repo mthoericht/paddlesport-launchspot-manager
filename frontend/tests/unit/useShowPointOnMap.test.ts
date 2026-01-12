@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ref, type Ref } from 'vue';
 import { useShowPointOnMap } from '@/composables/useShowPointOnMap';
 import type { LaunchPoint } from '@/types';
-import type { Map as LeafletMap } from 'leaflet';
+import type { Map as LeafletMap, Marker as LeafletMarker } from 'leaflet';
 
 describe('useShowPointOnMap', () =>
 {
@@ -11,6 +11,7 @@ describe('useShowPointOnMap', () =>
   let highlightedPointId: Ref<number | null>;
   let showListView: Ref<boolean>;
   let isMobile: Ref<boolean>;
+  let stationMarkerRefs: Ref<Record<number, { leafletObject?: LeafletMarker } | null>>;
 
   beforeEach(() =>
   {
@@ -51,6 +52,7 @@ describe('useShowPointOnMap', () =>
     highlightedPointId = ref<number | null>(null);
     showListView = ref<boolean>(false);
     isMobile = ref<boolean>(false);
+    stationMarkerRefs = ref<Record<number, { leafletObject?: LeafletMarker } | null>>({});
   });
 
   afterEach(() =>
@@ -422,6 +424,151 @@ describe('useShowPointOnMap', () =>
 
       // Should not throw
       expect(() => vi.advanceTimersByTime(1000)).not.toThrow();
+    });
+  });
+
+  describe('showStationOnMap', () =>
+  {
+    const mockStation = {
+      id: 42,
+      latitude: 52.5218,
+      longitude: 13.4114
+    };
+
+    it('should center map on station with correct coordinates and zoom', () =>
+    {
+      const { showStationOnMap } = useShowPointOnMap({
+        mapRef,
+        highlightedPointId,
+        showListView,
+        isMobile,
+        stationMarkerRefs
+      });
+
+      showStationOnMap(mockStation);
+
+      expect(mockMap.setView).toHaveBeenCalledWith(
+        [mockStation.latitude, mockStation.longitude],
+        16,
+        {
+          animate: true,
+          duration: 0.5
+        }
+      );
+    });
+
+    it('should hide list view on mobile when showing station', () =>
+    {
+      isMobile.value = true;
+      showListView.value = true;
+
+      const { showStationOnMap } = useShowPointOnMap({
+        mapRef,
+        highlightedPointId,
+        showListView,
+        isMobile,
+        stationMarkerRefs
+      });
+
+      showStationOnMap(mockStation);
+
+      expect(showListView.value).toBe(false);
+    });
+
+    it('should not hide list view on desktop when showing station', () =>
+    {
+      isMobile.value = false;
+      showListView.value = true;
+
+      const { showStationOnMap } = useShowPointOnMap({
+        mapRef,
+        highlightedPointId,
+        showListView,
+        isMobile,
+        stationMarkerRefs
+      });
+
+      showStationOnMap(mockStation);
+
+      expect(showListView.value).toBe(true);
+    });
+
+    it('should open popup when station marker ref is available', () =>
+    {
+      const mockOpenPopup = vi.fn();
+      stationMarkerRefs.value = {
+        42: {
+          leafletObject: {
+            openPopup: mockOpenPopup
+          } as unknown as LeafletMarker
+        }
+      };
+
+      const { showStationOnMap } = useShowPointOnMap({
+        mapRef,
+        highlightedPointId,
+        showListView,
+        isMobile,
+        stationMarkerRefs
+      });
+
+      showStationOnMap(mockStation);
+
+      // Fast-forward past the setTimeout
+      vi.advanceTimersByTime(400);
+
+      expect(mockOpenPopup).toHaveBeenCalled();
+    });
+
+    it('should not throw when station marker ref is not available', () =>
+    {
+      stationMarkerRefs.value = {};
+
+      const { showStationOnMap } = useShowPointOnMap({
+        mapRef,
+        highlightedPointId,
+        showListView,
+        isMobile,
+        stationMarkerRefs
+      });
+
+      expect(() =>
+      {
+        showStationOnMap(mockStation);
+        vi.advanceTimersByTime(400);
+      }).not.toThrow();
+    });
+
+    it('should not throw when stationMarkerRefs is undefined', () =>
+    {
+      const { showStationOnMap } = useShowPointOnMap({
+        mapRef,
+        highlightedPointId,
+        showListView,
+        isMobile
+        // stationMarkerRefs not provided
+      });
+
+      expect(() =>
+      {
+        showStationOnMap(mockStation);
+        vi.advanceTimersByTime(400);
+      }).not.toThrow();
+    });
+
+    it('should not throw if mapRef is null', () =>
+    {
+      mapRef.value = null;
+
+      const { showStationOnMap } = useShowPointOnMap({
+        mapRef,
+        highlightedPointId,
+        showListView,
+        isMobile,
+        stationMarkerRefs
+      });
+
+      expect(() => showStationOnMap(mockStation)).not.toThrow();
     });
   });
 });

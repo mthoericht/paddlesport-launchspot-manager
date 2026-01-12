@@ -4,11 +4,12 @@ import { useRoute } from 'vue-router';
 import { LMap, LTileLayer, LMarker, LPopup, LIcon, LCircle } from '@vue-leaflet/vue-leaflet';
 import { useLaunchPointsStore } from '../stores/launchPoints';
 import { usePublicTransportStore } from '../stores/publicTransport';
-import { useMapViewInteractions, useCategories, useShowPointOnMap, useGeolocation } from '../composables';
+import { useMapViewInteractions, useCategories, useShowPointOnMap, useGeolocation, useNearbyStations } from '../composables';
+import type { NearbyStation } from '../composables';
 import FilterPanel from '../components/FilterPanel.vue';
 import AppHeader from '../components/AppHeader.vue';
 import LaunchPointListView from '../components/LaunchPointListView.vue';
-import type { LaunchPoint, PublicTransportPoint, PublicTransportType } from '../types';
+import type { LaunchPoint, PublicTransportType } from '../types';
 
 // Stores
 const launchPointsStore = useLaunchPointsStore();
@@ -20,6 +21,26 @@ const mapRef = ref<any>(null);
 const highlightedPointId = ref<number | null>(null);
 const isMobile = ref(window.innerWidth <= 768);
 const showListView = ref(!isMobile.value); // Auf Mobile standardmäßig ausgeblendet
+const stationMarkerRefs = ref<Record<number, any>>({});
+
+// Nearby stations state
+const selectedPointId = ref<number | null>(null);
+const nearbyStations = ref<NearbyStation[]>([]);
+
+// Nearby stations composable
+const { findNearbyStations } = useNearbyStations(() => publicTransportStore.publicTransportPoints);
+
+function handlePopupOpen(point: { id: number; latitude: number; longitude: number })
+{
+  selectedPointId.value = point.id;
+  nearbyStations.value = findNearbyStations(point.latitude, point.longitude);
+}
+
+function handlePopupClose()
+{
+  selectedPointId.value = null;
+  nearbyStations.value = [];
+}
 
 // Watch for window resize to update mobile state
 function checkMobile() {
@@ -117,11 +138,12 @@ function getTransportTypeLabel(type: PublicTransportType): string
 }
 
 // Use show point on map composable
-const { showPointOnMap } = useShowPointOnMap({
+const { showPointOnMap, showStationOnMap } = useShowPointOnMap({
   mapRef,
   highlightedPointId,
   showListView,
-  isMobile
+  isMobile,
+  stationMarkerRefs
 });
 
 // Use geolocation composable
@@ -198,6 +220,39 @@ function handleHighlightFromQuery() {
   const lat = route.query.lat;
   const lng = route.query.lng;
   
+  // Handle station highlight from DetailView
+  const stationLat = route.query.stationLat;
+  const stationLng = route.query.stationLng;
+  const stationId = route.query.stationId;
+  
+  if (stationLat && stationLng && stationId) {
+    const station = {
+      id: Number(stationId),
+      latitude: parseFloat(stationLat as string),
+      longitude: parseFloat(stationLng as string)
+    };
+    
+    // Check if marker refs are already available
+    if (stationMarkerRefs.value[station.id]) {
+      showStationOnMap(station);
+    } else {
+      // Wait for stations to load and markers to render
+      const unwatch = watch(
+        () => publicTransportStore.publicTransportPoints,
+        () => {
+          nextTick(() => {
+            if (stationMarkerRefs.value[station.id]) {
+              showStationOnMap(station);
+              unwatch();
+            }
+          });
+        },
+        { immediate: true }
+      );
+    }
+    return;
+  }
+  
   if (highlightId && lat && lng) {
     // Auf Mobile: Liste ausblenden, wenn von Detailansicht navigiert wird
     if (isMobile.value) {
@@ -271,7 +326,7 @@ onMounted(async () =>
     
     // Handle highlight from query parameters (e.g., from detail view)
     // This takes precedence over restore and will override the initial view
-    if (route.query.highlight)
+    if (route.query.highlight || route.query.stationId)
     {
       handleHighlightFromQuery();
     }
@@ -345,6 +400,8 @@ onUnmounted(() =>
           v-for="point in launchPointsStore.launchPoints" 
           :key="point.id"
           :lat-lng="[point.latitude, point.longitude]"
+          @popupopen="handlePopupOpen(point)"
+          @popupclose="handlePopupClose"
         >
           <LIcon 
             :icon-url="getCategoryIcon(point.categories)"
@@ -352,7 +409,7 @@ onUnmounted(() =>
             :icon-anchor="[14, 37]"
             :popup-anchor="[0, -37]"
           />
-          <LPopup>
+          <LPopup :options="{ maxWidth: 320, minWidth: 280 }">
             <div class="popup-content">
               <h3>{{ point.name }}</h3>
               <div class="popup-categories">
@@ -366,6 +423,53 @@ onUnmounted(() =>
                 </span>
               </div>
               <p class="popup-creator">von {{ point.creator_username }}</p>
+              
+              <!-- Nearby Public Transport Stations -->
+              <div v-if="selectedPointId === point.id && nearbyStations.length > 0" class="popup-nearby-stations">
+                <h4>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/>
+                    <path d="M9 18v-6a3 3 0 016 0v6"/>
+                    <circle cx="12" cy="10" r="1"/>
+                  </svg>
+                  ÖPNV in der Nähe
+                  <span class="distance-hint">(Luftlinie, max 2km)</span>
+                </h4>
+                <ul class="nearby-stations-list">
+                  <li v-for="station in nearbyStations" :key="station.id" class="nearby-station-item">
+                    <div class="station-info">
+                      <span class="station-name">{{ station.name }}</span>
+                      <div class="station-types">
+                        <span 
+                          v-for="type in station.types" 
+                          :key="type"
+                          class="transport-type-tag"
+                          :class="`transport-type-${type}`"
+                        >
+                          {{ getTransportTypeLabel(type) }}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="station-actions">
+                      <span class="station-distance">{{ station.distanceMeters }}m</span>
+                      <button 
+                        class="station-map-btn"
+                        @click="showStationOnMap(station)"
+                        title="Auf Karte anzeigen"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                          <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <div v-else-if="selectedPointId === point.id && nearbyStations.length === 0" class="popup-no-stations">
+                <span>Keine ÖPNV-Stationen im Umkreis von 2km</span>
+              </div>
+              
               <div class="popup-actions">
                 <button @click="openDetail(point)" class="popup-btn">Details</button>
                 <button @click="openNavigation(point.latitude, point.longitude)" class="popup-btn popup-btn-nav" title="Route starten">
@@ -382,6 +486,7 @@ onUnmounted(() =>
         <LMarker 
           v-for="station in publicTransportStore.publicTransportPoints" 
           :key="`pt-${station.id}`"
+          :ref="(el: any) => { if (el && station.id) stationMarkerRefs[station.id] = el }"
           :lat-lng="[station.latitude, station.longitude]"
         >
           <LIcon 
@@ -837,6 +942,133 @@ onUnmounted(() =>
 
 .transport-type-ubahn {
   background-color: #003399;
+}
+
+/* Nearby Stations in Popup */
+.popup-nearby-stations {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.popup-nearby-stations h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #475569;
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.popup-nearby-stations h4 svg {
+  color: #0066CC;
+}
+
+.popup-nearby-stations .distance-hint {
+  font-weight: 400;
+  font-size: 0.625rem;
+  color: #94a3b8;
+  text-transform: none;
+}
+
+.nearby-stations-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.nearby-station-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.375rem 0.5rem;
+  background: #f8fafc;
+  border-radius: 0.375rem;
+  margin-bottom: 0.375rem;
+  gap: 0.5rem;
+}
+
+.nearby-station-item:last-child {
+  margin-bottom: 0;
+}
+
+.station-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.station-info .station-name {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #1e293b;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.station-info .station-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.nearby-station-item .station-distance {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #0066CC;
+  background: #e0f2fe;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  flex-shrink: 0;
+}
+
+.popup-no-stations {
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  background: #f1f5f9;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  color: #64748b;
+  text-align: center;
+}
+
+.station-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-shrink: 0;
+}
+
+.station-map-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.25rem;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.station-map-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
+}
+
+.station-map-btn svg {
+  width: 0.75rem;
+  height: 0.75rem;
 }
 
 .fab {

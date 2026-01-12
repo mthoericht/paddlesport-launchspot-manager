@@ -1,15 +1,19 @@
 import { ref, computed, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter, type LocationQuery } from 'vue-router';
 import type { LeafletMouseEvent } from 'leaflet';
 import { useLaunchPointsStore } from '../stores/launchPoints';
-import type { Category, LaunchPointFormData } from '../types';
+import type { LaunchPointFormData } from '../types';
 
 type LatLngTuple = [number, number];
 
+/** Default latitude (center of Germany) */
 const DEFAULT_LAT = 51.1657;
+/** Default longitude (center of Germany) */
 const DEFAULT_LNG = 10.4515;
+/** Default zoom level for initial map view */
 const DEFAULT_ZOOM = 6;
 
+/** Initial form values derived from URL query parameters */
 interface InitialValues {
   latitude: number;
   longitude: number;
@@ -17,9 +21,30 @@ interface InitialValues {
   hasMarker: boolean;
 }
 
-function getInitialValuesFromQuery(query: Record<string, string | undefined>): InitialValues 
+/**
+ * Extracts a single string value from a LocationQuery parameter
+ * @param value - Query parameter value (can be string, array, or null/undefined)
+ * @returns String value or undefined
+ */
+function getQueryValue(value: LocationQuery[string] | undefined): string | undefined
 {
-  const { lat, lng, centerLat, centerLng, zoom: queryZoom } = query;
+  if (value === undefined || value === null) return undefined;
+  if (Array.isArray(value)) return value[0] ?? undefined;
+  return value;
+}
+
+/**
+ * Parses URL query parameters to determine initial map position and marker state
+ * @param query - Vue Router LocationQuery object
+ * @returns Initial values for form and map
+ */
+function getInitialValuesFromQuery(query: LocationQuery): InitialValues 
+{
+  const lat = getQueryValue(query.lat);
+  const lng = getQueryValue(query.lng);
+  const centerLat = getQueryValue(query.centerLat);
+  const centerLng = getQueryValue(query.centerLng);
+  const queryZoom = getQueryValue(query.zoom);
   
   if (lat && lng) 
   {
@@ -50,6 +75,11 @@ function getInitialValuesFromQuery(query: Record<string, string | undefined>): I
   };
 }
 
+/**
+ * Composable for managing the launch point create/edit form
+ * Handles form state, validation, map interactions, and submission
+ * @returns Form state, computed properties, and action methods
+ */
 export function useLaunchPointForm() 
 {
   const route = useRoute();
@@ -89,6 +119,10 @@ export function useLaunchPointForm()
   });
   const localError = ref('');
 
+  /**
+   * Toggles a category selection on/off
+   * @param categoryId - ID of the category to toggle
+   */
   function toggleCategory(categoryId: number): void 
   {
     const index = form.value.categories.indexOf(categoryId);
@@ -102,6 +136,10 @@ export function useLaunchPointForm()
     }
   }
 
+  /**
+   * Handles map click events to update marker position
+   * @param e - Leaflet mouse event with coordinates
+   */
   function handleMapClick(e: LeafletMouseEvent): void 
   {
     const { lat, lng } = e.latlng;
@@ -110,6 +148,10 @@ export function useLaunchPointForm()
     markerPosition.value = [lat, lng];
   }
 
+  /**
+   * Adds a new public transport station to the form (max 5)
+   * @returns True if station was added successfully
+   */
   function addStation(): boolean 
   {
     if (!newStation.value.name.trim() || !newStation.value.distance_meters || newStation.value.distance_meters <= 0) 
@@ -129,11 +171,19 @@ export function useLaunchPointForm()
     return true;
   }
 
+  /**
+   * Removes a public transport station from the form
+   * @param index - Index of the station to remove
+   */
   function removeStation(index: number): void 
   {
     form.value.public_transport_stations.splice(index, 1);
   }
 
+  /**
+   * Validates and submits the form (create or update)
+   * @returns True if submission was successful
+   */
   async function handleSubmit(): Promise<boolean> 
   {
     localError.value = '';
@@ -195,11 +245,13 @@ export function useLaunchPointForm()
     return false;
   }
 
+  /** Navigates back to previous page */
   function goBack(): void 
   {
     router.back();
   }
 
+  /** Loads existing launch point data when in edit mode */
   async function loadExistingPoint(): Promise<void> 
   {
     if (isEdit.value) 

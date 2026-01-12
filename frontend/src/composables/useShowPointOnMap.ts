@@ -2,16 +2,23 @@ import type { Ref } from 'vue';
 import type { LaunchPoint } from '../types';
 import type { Map as LeafletMap, Layer as LeafletLayer, Marker as LeafletMarker } from 'leaflet';
 
+export interface MapPoint {
+  id: number;
+  latitude: number;
+  longitude: number;
+}
+
 interface UseShowPointOnMapOptions {
   mapRef: Ref<{ leafletObject?: LeafletMap } | null>;
   highlightedPointId: Ref<number | null>;
   showListView: Ref<boolean>;
   isMobile: Ref<boolean>;
+  stationMarkerRefs?: Ref<Record<number, { leafletObject?: LeafletMarker } | null>>;
 }
 
 export function useShowPointOnMap(options: UseShowPointOnMapOptions) 
 {
-  const { mapRef, highlightedPointId, showListView, isMobile } = options;
+  const { mapRef, highlightedPointId, showListView, isMobile, stationMarkerRefs } = options;
 
   function showPointOnMap(point: LaunchPoint) 
   {
@@ -188,9 +195,40 @@ export function useShowPointOnMap(options: UseShowPointOnMapOptions)
     }
   }
 
+  function showStationOnMap(station: MapPoint): void
+  {
+    if (isMobile.value) 
+    {
+      showListView.value = false;
+    }
+    
+    if (mapRef.value?.leafletObject) 
+    {
+      const map = mapRef.value.leafletObject;
+      map.setView([station.latitude, station.longitude], 16, {
+        animate: true,
+        duration: 0.5
+      });
+      
+      // Open station popup after animation
+      setTimeout(() => 
+      {
+        if (stationMarkerRefs?.value) 
+        {
+          const markerRef = stationMarkerRefs.value[station.id];
+          if (markerRef?.leafletObject) 
+          {
+            (markerRef.leafletObject as LeafletMarker).openPopup();
+          }
+        }
+      }, 300);
+    }
+  }
+
   return {
     showPointOnMap,
-    centerAndShowPoint
+    centerAndShowPoint,
+    showStationOnMap
   };
 }
 

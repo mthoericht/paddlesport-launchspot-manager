@@ -1,29 +1,47 @@
 <script setup lang="ts">
-import { onMounted, computed } from 'vue';
+import { onMounted, computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useLaunchPointsStore } from '../stores/launchPoints';
+import { usePublicTransportStore } from '../stores/publicTransport';
 import { useAuthStore } from '../stores/auth';
-import { useCategories, useMapNavigation } from '../composables';
+import { useCategories, useMapNavigation, useNearbyStations } from '../composables';
+import type { NearbyStation } from '../composables';
+import type { PublicTransportType } from '../types';
 
 const route = useRoute();
 const router = useRouter();
 const launchPointsStore = useLaunchPointsStore();
+const publicTransportStore = usePublicTransportStore();
 const authStore = useAuthStore();
 const { categoryColors, fetchCategories } = useCategories();
-const { openNavigation } = useMapNavigation();
+const { openNavigation, navigateToPoint, navigateToStation } = useMapNavigation();
+const { findNearbyStations } = useNearbyStations(() => publicTransportStore.publicTransportPoints);
+
+const nearbyStations = ref<NearbyStation[]>([]);
+
+watch(() => launchPointsStore.selectedPoint, (point) => {
+  if (point) {
+    nearbyStations.value = findNearbyStations(point.latitude, point.longitude);
+  }
+}, { immediate: true });
+
+function getTransportTypeLabel(type: PublicTransportType): string {
+  const labels: Record<PublicTransportType, string> = {
+    train: 'Bahn',
+    tram: 'Tram',
+    sbahn: 'S-Bahn',
+    ubahn: 'U-Bahn'
+  };
+  return labels[type] || type;
+}
 
 function showOnMap() {
   if (!launchPointsStore.selectedPoint) return;
-  
-  // Navigate to map with highlight parameter
-  router.push({
-    path: '/map',
-    query: {
-      highlight: launchPointsStore.selectedPoint.id.toString(),
-      lat: launchPointsStore.selectedPoint.latitude.toString(),
-      lng: launchPointsStore.selectedPoint.longitude.toString()
-    }
-  });
+  navigateToPoint(launchPointsStore.selectedPoint);
+}
+
+function showStationOnMap(station: NearbyStation) {
+  navigateToStation(station);
 }
 
 const canEdit = computed(() => {
@@ -53,8 +71,9 @@ function editPoint() {
 
 onMounted(async () => {
   await fetchCategories();
+  await publicTransportStore.fetchPublicTransportPoints();
   const id = Number(route.params.id);
-  launchPointsStore.fetchLaunchPoint(id);
+  await launchPointsStore.fetchLaunchPoint(id);
 });
 </script>
 
@@ -170,14 +189,48 @@ onMounted(async () => {
           <p>{{ launchPointsStore.selectedPoint.food_supply }}</p>
         </div>
         
-        <div class="info-section" v-if="launchPointsStore.selectedPoint.public_transport_stations?.length">
-          <h3>ÖPNV-Stationen in der Nähe</h3>
-          <ul class="stations-list">
-            <li v-for="station in launchPointsStore.selectedPoint.public_transport_stations" :key="station.id">
-              <span class="station-name">{{ station.name }}</span>
-              <span class="station-distance">{{ station.distance_meters }}m</span>
+        <div class="info-section nearby-transport-section">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+              <rect x="4" y="4" width="16" height="16" rx="2"/>
+              <path d="M9 18v-6a3 3 0 016 0v6"/>
+              <circle cx="12" cy="10" r="1"/>
+            </svg>
+            ÖPNV in der Nähe
+            <span class="distance-hint">(Luftlinie, max 2km)</span>
+          </h3>
+          <ul v-if="nearbyStations.length > 0" class="nearby-stations-list">
+            <li v-for="station in nearbyStations" :key="station.id" class="nearby-station-item">
+              <div class="station-info">
+                <span class="station-name">{{ station.name }}</span>
+                <div class="station-types">
+                  <span 
+                    v-for="type in station.types" 
+                    :key="type"
+                    class="transport-type-tag"
+                    :class="`transport-type-${type}`"
+                  >
+                    {{ getTransportTypeLabel(type) }}
+                  </span>
+                </div>
+                <span v-if="station.lines" class="station-lines">Linie: {{ station.lines }}</span>
+              </div>
+              <div class="station-actions">
+                <span class="station-distance">{{ station.distanceMeters }}m</span>
+                <button 
+                  class="station-map-btn"
+                  @click="showStationOnMap(station)"
+                  title="Auf Karte anzeigen"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                </button>
+              </div>
             </li>
           </ul>
+          <p v-else class="no-stations">Keine ÖPNV-Stationen im Umkreis von 2km gefunden.</p>
         </div>
       </div>
     </main>
@@ -454,6 +507,144 @@ onMounted(async () => {
   background: var(--bg-hover);
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
+}
+
+/* Nearby Transport Section */
+.nearby-transport-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nearby-transport-section h3 svg {
+  color: #0066CC;
+}
+
+.nearby-transport-section .distance-hint {
+  font-weight: 400;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.nearby-stations-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nearby-station-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.75rem 1rem;
+  background: var(--bg-secondary);
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  gap: 1rem;
+}
+
+.nearby-station-item:last-child {
+  margin-bottom: 0;
+}
+
+.station-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.station-info .station-name {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.375rem;
+}
+
+.station-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.transport-type-tag {
+  font-size: 0.625rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  color: white;
+  font-weight: 500;
+}
+
+.transport-type-train {
+  background-color: #0066CC;
+}
+
+.transport-type-tram {
+  background-color: #FF6600;
+}
+
+.transport-type-sbahn {
+  background-color: #00A550;
+}
+
+.transport-type-ubahn {
+  background-color: #003399;
+}
+
+.station-lines {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.nearby-station-item .station-distance {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0066CC;
+  background: #e0f2fe;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  flex-shrink: 0;
+}
+
+.no-stations {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+.station-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.station-map-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.375rem;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.station-map-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+}
+
+.station-map-btn svg {
+  width: 1rem;
+  height: 1rem;
 }
 
 .loading, .error {

@@ -53,6 +53,12 @@ A full-stack web application for managing launch points for kayaking, canoeing, 
 - **Line information**: Shows all lines serving each station
 - **Popup details**: Station name, lines, and transport types displayed in popup
 - **Color-coded icons**: Different icons for different transport types
+- **Nearby stations analysis**: When clicking on a launch point, nearby public transport stations (within 2km air distance) are automatically calculated and displayed
+  - Maximum 8 closest stations shown
+  - Distance displayed in meters (air distance)
+  - Transport type badges (train, tram, S-Bahn, U-Bahn)
+  - "Show on map" button to navigate directly to station
+  - Available in both map popup and detail view
 
 ### 🔍 Filters
 - All points, My points, Official points, By user
@@ -82,8 +88,9 @@ A full-stack web application for managing launch points for kayaking, canoeing, 
 The frontend uses Vue 3 Composition API with custom composables for reusable logic:
 
 - **`useMapState`** - Map center, zoom, and view management
-- **`useMapNavigation`** - Navigation to detail pages and external navigation apps
-- **`useShowPointOnMap`** - Center map on point, open popup, handle highlighting
+- **`useMapNavigation`** - Navigation to detail pages, external navigation apps, and map navigation for points/stations
+- **`useShowPointOnMap`** - Center map on point/station, open popup, handle highlighting
+- **`useNearbyStations`** - Calculate nearby public transport stations using Haversine formula (air distance)
 - **`useMapViewInteractions`** - Map click handlers, context menu, search, map view persistence
 - **`useCategories`** - Category fetching and icon/color management
 - **`useAddressSearch`** - Address geocoding with Nominatim
@@ -239,8 +246,9 @@ The project uses **Vitest** with a multi-layered testing strategy:
 
 - **Unit Tests** (`frontend/tests/unit/`): Test composables in isolation
   - `useMapState.test.ts` - Map state management
-  - `useMapNavigation.test.ts` - Navigation functionality
-  - `useShowPointOnMap.test.ts` - "Show on map" feature with highlighting
+  - `useMapNavigation.test.ts` - Navigation functionality (points, stations, external navigation)
+  - `useShowPointOnMap.test.ts` - "Show on map" feature with highlighting and station popup handling
+  - `useNearbyStations.test.ts` - Nearby stations calculation with Haversine formula
   - `useCategories.test.ts` - Category management
   - `useGeolocation.test.ts` - GPS position tracking and error handling
 - **Frontend Integration** (`frontend/tests/integration/`): Test Pinia stores with mocked API
@@ -264,6 +272,7 @@ The test suite covers:
 - ✅ Authentication and authorization
 - ✅ Launch point CRUD operations
 - ✅ Public transport stations retrieval
+- ✅ Nearby stations calculation (Haversine distance)
 - ✅ Mobile vs. desktop behavior
 - ✅ GPS position tracking and error handling
 
