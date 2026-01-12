@@ -4,11 +4,11 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Path to the raw PDF data JSON file (default: tables-export.json in external-data-preset)
+// Path to the raw PDF data JSON file (default: launchpoint-tables-export.json in external-data-preset)
 const args = process.argv.slice(2);
 const rawDataPath = args.length > 0
   ? (path.isAbsolute(args[0]) ? args[0] : path.join(__dirname, '..', args[0]))
-  : path.join(__dirname, 'external-data-preset', 'tables-export.json');
+  : path.join(__dirname, 'external-data-preset', 'launchpoint-tables-export.json');
 
 // Load raw PDF data from JSON file
 interface RawPdfEntry {
@@ -32,9 +32,9 @@ if (!fs.existsSync(rawDataPath))
   console.error(`❌ Error: Raw data file not found at ${rawDataPath}`);
   if (args.length === 0)
   {
-    console.error('Using default path: scripts/external-data-preset/tables-export.json');
+    console.error('Using default path: scripts/external-data-preset/launchpoint-tables-export.json');
     console.error('💡 Tip: You can specify a custom input file:');
-    console.error('   npm run parse:tables-export <input.json>');
+    console.error('   npm run parse:tables-launchpoints-export <input.json>');
   }
   else
   {
@@ -45,9 +45,9 @@ if (!fs.existsSync(rawDataPath))
 
 if (args.length === 0)
 {
-  console.log('ℹ️  Using default input file: scripts/external-data-preset/tables-export.json');
+  console.log('ℹ️  Using default input file: scripts/external-data-preset/launchpoint-tables-export.json');
   console.log('💡 Tip: You can specify a custom input file:');
-  console.log('   npm run parse:tables-export <input.json>');
+  console.log('   npm run parse:tables-launchpoints-export <input.json>');
   console.log('');
 }
 
@@ -290,8 +290,8 @@ async function main()
   
   // Write results to JSON file (in the same directory as input file)
   const inputDir = path.dirname(rawDataPath);
-  // Use default output name: tables-launchpoints.json
-  const outputPath = path.join(inputDir, 'tables-launchpoints.json');
+  // Use default output name: launchpoints-import-data.json
+  const outputPath = path.join(inputDir, 'launchpoints-import-data.json');
   fs.writeFileSync(outputPath, JSON.stringify(results, null, 2), 'utf-8');
   
   console.log(`\n✅ Results written to: ${outputPath}`);

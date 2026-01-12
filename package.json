@@ -19,15 +19,18 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "db:push": "prisma db push",
+    "db:push:force": "prisma db push --force-reset --accept-data-loss",
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
     "db:seed": "tsx prisma/seed.ts",
     "db:reset": "tsx prisma/reset-and-restore.ts",
-    "db:delete-all-launchpoints": "tsx scripts/delete-all-launchpoints.ts",
+    "db:delete-all-points": "tsx scripts/delete-all-points.ts",
     "db:setup": "npm run db:generate && npm run db:push && npm run db:seed",
     "csv:to-json": "tsx scripts/csv-to-json.ts",
-    "parse:tables-export": "tsx scripts/parse-tables-export.ts",
-    "import:external-launchpoints": "tsx scripts/import-external-launchpoints.ts"
+    "parse:tables-launchpoints-export": "tsx scripts/parse-tables-launchpoints-export.ts",
+    "parse:tables-public-transport-export": "tsx scripts/parse-tables-public-transport-export.ts",
+    "import:external-launchpoints": "tsx scripts/import-external-launchpoints.ts",
+    "import:publictransportStations": "tsx scripts/import-external-public-transport.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.15.15",

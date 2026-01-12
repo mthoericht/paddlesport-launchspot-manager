@@ -77,8 +77,16 @@ function parseCSV(csvContent: string): string[][]
   return lines;
 }
 
+interface PublicTransportStationData {
+  name: string;
+  latitude: number;
+  longitude: number;
+  types: string[];
+  lines: string[];
+}
+
 /**
- * Convert CSV to JSON format matching the expected structure
+ * Convert CSV to JSON format for public transport stations
  */
 function csvToJson(csvPath: string, outputPath: string): void 
 {
@@ -101,43 +109,28 @@ function csvToJson(csvPath: string, outputPath: string): void
   const headers = lines[0].map(h => h.trim().toLowerCase());
   console.log(`✓ Found headers: ${headers.join(', ')}`);
   
-  // Map common header variations to expected field names
-  const headerMap: Record<string, string> = {
-    'betreiber': 'betreiber',
-    'anleger': 'anleger',
-    'strasse': 'strasse',
-    'straße': 'strasse',
-    'street': 'strasse',
-    'plz': 'plz',
-    'postalcode': 'plz',
-    'postleitzahl': 'plz',
-    'ort': 'ort',
-    'city': 'ort',
-    'stadt': 'ort',
-    'gewaesser': 'gewaesser',
-    'gewässer': 'gewaesser',
-    'water': 'gewaesser',
-    'km': 'km',
-    'kilometer': 'km',
-    'gastliegeplaetze': 'gastliegeplaetze',
-    'gastliegeplätze': 'gastliegeplaetze',
-    'internet': 'internet',
-    'website': 'internet',
-    'telefon': 'telefon',
-    'phone': 'telefon',
-    'tel': 'telefon'
-  };
+  // Validate headers
+  const requiredHeaders = ['name', 'latitude', 'longitude', 'types', 'lines'];
+  const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
   
-  // Normalize headers
-  const normalizedHeaders = headers.map(h => 
+  if (missingHeaders.length > 0) 
   {
-    const key = Object.keys(headerMap).find(k => h.includes(k.toLowerCase()));
-    return key ? headerMap[key] : h;
-  });
+    console.error(`❌ Error: Missing required headers: ${missingHeaders.join(', ')}`);
+    console.error(`   Found headers: ${headers.join(', ')}`);
+    process.exit(1);
+  }
+  
+  // Get column indices
+  const nameIndex = headers.indexOf('name');
+  const latIndex = headers.indexOf('latitude');
+  const lonIndex = headers.indexOf('longitude');
+  const typesIndex = headers.indexOf('types');
+  const linesIndex = headers.indexOf('lines');
   
   // Convert rows to objects
-  const jsonData: any[] = [];
+  const jsonData: PublicTransportStationData[] = [];
   let skippedRows = 0;
+  let errorRows = 0;
   
   for (let i = 1; i < lines.length; i++) 
   {
@@ -150,16 +143,69 @@ function csvToJson(csvPath: string, outputPath: string): void
       continue;
     }
     
-    const entry: any = {};
-    normalizedHeaders.forEach((header, index) => 
+    try 
     {
-      entry[header] = row[index] || '';
-    });
-    
-    jsonData.push(entry);
+      const name = row[nameIndex]?.trim() || '';
+      const latitude = parseFloat(row[latIndex]?.trim() || '');
+      const longitude = parseFloat(row[lonIndex]?.trim() || '');
+      const typesStr = row[typesIndex]?.trim() || '';
+      const linesStr = row[linesIndex]?.trim() || '';
+      
+      // Validate required fields
+      if (!name || isNaN(latitude) || isNaN(longitude)) 
+      {
+        console.warn(`⚠️  Skipping row ${i + 1}: Missing required fields (name, latitude, longitude)`);
+        errorRows++;
+        continue;
+      }
+      
+      // Parse types (comma-separated, remove quotes)
+      const types = typesStr
+        .replace(/^"|"$/g, '') // Remove surrounding quotes
+        .split(',')
+        .map(t => t.trim())
+        .filter(t => t.length > 0);
+      
+      // Parse lines (comma-separated, remove quotes)
+      const lines = linesStr
+        .replace(/^"|"$/g, '') // Remove surrounding quotes
+        .split(',')
+        .map(l => l.trim())
+        .filter(l => l.length > 0);
+      
+      // Validate types (must be one of: train, tram, sbahn, ubahn)
+      const validTypes = ['train', 'tram', 'sbahn', 'ubahn'];
+      const invalidTypes = types.filter(t => !validTypes.includes(t));
+      
+      if (invalidTypes.length > 0) 
+      {
+        console.warn(`⚠️  Row ${i + 1} (${name}): Invalid types: ${invalidTypes.join(', ')}. Valid types: ${validTypes.join(', ')}`);
+      }
+      
+      jsonData.push({
+        name,
+        latitude,
+        longitude,
+        types: types.filter(t => validTypes.includes(t)), // Only include valid types
+        lines
+      });
+    }
+    catch (error) 
+    {
+      console.warn(`⚠️  Error parsing row ${i + 1}:`, error);
+      errorRows++;
+    }
   }
   
-  console.log(`✓ Processed ${jsonData.length} entries (skipped ${skippedRows} empty rows)`);
+  console.log(`✓ Processed ${jsonData.length} entries`);
+  if (skippedRows > 0) 
+  {
+    console.log(`  ○ Skipped ${skippedRows} empty rows`);
+  }
+  if (errorRows > 0) 
+  {
+    console.log(`  ✗ ${errorRows} rows with errors`);
+  }
   
   // Write JSON file
   fs.writeFileSync(outputPath, JSON.stringify(jsonData, null, 2), 'utf-8');
@@ -170,9 +216,9 @@ function csvToJson(csvPath: string, outputPath: string): void
 // Main execution
 const args = process.argv.slice(2);
 
-// Default paths: use launchpoint-tables-export.csv in external-data-preset directory
-const defaultInputPath = path.join(__dirname, 'external-data-preset', 'launchpoint-tables-export.csv');
-const defaultOutputPath = path.join(__dirname, 'external-data-preset', 'launchpoint-tables-export.json');
+// Default paths: use berlin-public-transport.csv in external-data-preset directory
+const defaultInputPath = path.join(__dirname, 'external-data-preset', 'berlin-public-transport.csv');
+const defaultOutputPath = path.join(__dirname, 'external-data-preset', 'berlin-public-transport.json');
 
 let inputPath: string;
 let outputPath: string;
@@ -187,7 +233,7 @@ if (args.length === 0)
   console.log(`   Output: ${outputPath}`);
   console.log('');
   console.log('💡 Tip: You can specify custom input and output paths:');
-  console.log('   npm run csv:to-json <input.csv> [output.json]');
+  console.log('   npm run parse:tables-public-transport-export <input.csv> [output.json]');
   console.log('');
 }
 else 
@@ -203,4 +249,3 @@ else
 }
 
 csvToJson(inputPath, outputPath);
-

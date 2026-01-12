@@ -110,9 +110,10 @@ export function useCategories()
       const categories: CategoryInfo[] = await response.json();
       allCategories.value = categories;
     }
-    catch (err: any) 
+    catch (err: unknown) 
     {
-      error.value = err.message;
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      error.value = errorMessage;
       // Fallback to default categories if fetch fails
       allCategories.value = [
         { id: 1, name_en: 'kajak', name_de: 'Kajak' },

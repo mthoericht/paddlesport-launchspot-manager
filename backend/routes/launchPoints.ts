@@ -1,8 +1,31 @@
 import { Router, Response } from 'express';
 import prisma from '../prisma.js';
 import { authenticateToken, AuthRequest } from '../middleware/auth.js';
+import type { Prisma } from '@prisma/client';
+import type {
+  PointData,
+  CategoryData,
+  StationData,
+  LaunchPointWithRelations,
+  LaunchPointCreateData,
+  LaunchPointDelegate
+} from '../types/point.js';
 
 const router = Router();
+
+type LaunchPointWhereInput = Prisma.LaunchPointWhereInput;
+
+type PublicTransportStationInput = {
+  name: string;
+  distance_meters: number;
+};
+
+type TransactionClient = Omit<Prisma.TransactionClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$extends'> & {
+  point: {
+    update: (args: { where: { id: number }; data: { name: string; latitude: number; longitude: number } }) => Promise<PointData>;
+  };
+  launchPoint: LaunchPointDelegate;
+};
 
 // Get all launch points with filters
 router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => 
@@ -12,7 +35,7 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) =>
     const { filter, username, categories } = req.query;
     
     // Build where clause
-    const where: any = {};
+    const where: LaunchPointWhereInput = {};
 
     if (filter === 'mine') 
     {
@@ -37,9 +60,10 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) =>
       };
     }
 
-    const launchPoints = await prisma.launchPoint.findMany({
+    const launchPoints: LaunchPointWithRelations[] = await prisma.launchPoint.findMany({
       where,
       include: {
+        point: true,
         createdBy: {
           select: { username: true }
         },
@@ -58,11 +82,11 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) =>
     });
 
     // Transform to expected format
-    const result = launchPoints.map(lp => ({
+    const result = launchPoints.map((lp) => ({
       id: lp.id,
-      name: lp.name,
-      latitude: lp.latitude,
-      longitude: lp.longitude,
+      name: lp.point.name,
+      latitude: lp.point.latitude,
+      longitude: lp.point.longitude,
       is_official: lp.isOfficial,
       hints: lp.hints,
       opening_hours: lp.openingHours,
@@ -72,9 +96,9 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) =>
       created_by: lp.createdById,
       creator_username: lp.createdBy.username,
       created_at: lp.createdAt.toISOString(),
-      categories: lp.categories.map(c => c.category.name_de),
-      category_ids: lp.categories.map(c => c.categoryId),
-      public_transport_stations: lp.stations.map(s => ({
+      categories: lp.categories.map((c) => c.category.name_de),
+      category_ids: lp.categories.map((c) => c.categoryId),
+      public_transport_stations: lp.stations.map((s) => ({
         id: s.id,
         name: s.name,
         distance_meters: s.distanceMeters
@@ -120,9 +144,10 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
   {
     const id = parseInt(req.params.id);
     
-    const launchPoint = await prisma.launchPoint.findUnique({
+    const launchPoint: LaunchPointWithRelations | null = await prisma.launchPoint.findUnique({
       where: { id },
       include: {
+        point: true,
         createdBy: {
           select: { username: true }
         },
@@ -146,9 +171,9 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
 
     res.json({
       id: launchPoint.id,
-      name: launchPoint.name,
-      latitude: launchPoint.latitude,
-      longitude: launchPoint.longitude,
+      name: launchPoint.point.name,
+      latitude: launchPoint.point.latitude,
+      longitude: launchPoint.point.longitude,
       is_official: launchPoint.isOfficial,
       hints: launchPoint.hints,
       opening_hours: launchPoint.openingHours,
@@ -158,9 +183,9 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
       created_by: launchPoint.createdById,
       creator_username: launchPoint.createdBy.username,
       created_at: launchPoint.createdAt.toISOString(),
-      categories: launchPoint.categories.map(c => c.category.name_de),
-      category_ids: launchPoint.categories.map(c => c.categoryId),
-      public_transport_stations: launchPoint.stations.map(s => ({
+      categories: launchPoint.categories.map((c) => c.category.name_de),
+      category_ids: launchPoint.categories.map((c) => c.categoryId),
+      public_transport_stations: launchPoint.stations.map((s) => ({
         id: s.id,
         name: s.name,
         distance_meters: s.distanceMeters
@@ -283,22 +308,29 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) =>
           });
         }
 
+        // Create LaunchPoint with nested Point creation
         launchPoint = await prisma.launchPoint.create({
           data: {
-            name,
-            latitude,
-            longitude,
+            point: {
+              create: {
+                name,
+                latitude,
+                longitude
+              }
+            },
             hints: hints || null,
             openingHours: opening_hours || '24h',
             parkingOptions: parking_options || null,
             nearbyWaters: nearby_waters || null,
             foodSupply: food_supply || null,
-            createdById: userId,
+            createdBy: {
+              connect: { id: userId }
+            },
             categories: {
               create: validCategoryIds.map((categoryId: number) => ({ categoryId }))
             },
             stations: {
-              create: (public_transport_stations || []).slice(0, 5).map((s: any) => ({
+              create: ((public_transport_stations as PublicTransportStationInput[]) || []).slice(0, 5).map((s) => ({
                 name: s.name,
                 distanceMeters: s.distance_meters
               }))
@@ -307,11 +339,12 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) =>
         });
         break; // Success, exit retry loop
       }
-      catch (error: any)
+      catch (error: unknown)
       {
         retries--;
-        const isTimeout = error?.message?.includes('timeout') || error?.code === 'P1008';
-        const isForeignKeyError = error?.code === 'P2003' || error?.message?.includes('Foreign key constraint');
+        const prismaError = error as { message?: string; code?: string };
+        const isTimeout = prismaError?.message?.includes('timeout') || prismaError?.code === 'P1008';
+        const isForeignKeyError = prismaError?.code === 'P2003' || prismaError?.message?.includes('Foreign key constraint');
         
         if (retries === 0 || (!isTimeout && !isForeignKeyError))
         {
@@ -390,16 +423,34 @@ router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
       return res.status(403).json({ error: 'Keine Berechtigung zum Bearbeiten.' });
     }
 
+    // Get the launch point to access its point relation
+    const existingLaunchPoint: LaunchPointWithRelations | null = await prisma.launchPoint.findUnique({
+      where: { id },
+      include: { point: true }
+    });
+
+    if (!existingLaunchPoint) 
+    {
+      return res.status(404).json({ error: 'Einsetzpunkt nicht gefunden.' });
+    }
+
     // Update in transaction with timeout
     await prisma.$transaction(async (tx) => 
     {
-      // Update main data
-      await tx.launchPoint.update({
-        where: { id },
+      // Update Point data
+      await (tx as TransactionClient).point.update({
+        where: { id: existingLaunchPoint.point.id },
         data: {
           name,
           latitude,
-          longitude,
+          longitude
+        }
+      });
+
+      // Update LaunchPoint data
+      await tx.launchPoint.update({
+        where: { id },
+        data: {
           hints: hints || null,
           openingHours: opening_hours || '24h',
           parkingOptions: parking_options || null,
@@ -412,7 +463,7 @@ router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
       if (categories) 
       {
         const categoryIds = Array.isArray(categories) ? categories : [categories];
-        const validCategoryIds = categoryIds.map((id: any) => parseInt(id));
+        const validCategoryIds = categoryIds.map((id: string | number) => typeof id === 'number' ? id : parseInt(String(id), 10));
         
         // Validate category IDs exist
         const existingCategories = await tx.category.findMany({
@@ -435,7 +486,7 @@ router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
       {
         await tx.publicTransportStation.deleteMany({ where: { launchPointId: id } });
         await tx.publicTransportStation.createMany({
-          data: public_transport_stations.slice(0, 5).map((s: any) => ({
+          data: (public_transport_stations as PublicTransportStationInput[]).slice(0, 5).map((s) => ({
             launchPointId: id,
             name: s.name,
             distanceMeters: s.distance_meters
@@ -476,7 +527,24 @@ router.delete('/:id', authenticateToken, async (req: AuthRequest, res: Response)
       return res.status(403).json({ error: 'Keine Berechtigung zum Löschen.' });
     }
 
+    // Get point relation before deleting
+    const launchPointWithPoint: LaunchPointWithRelations | null = await prisma.launchPoint.findUnique({
+      where: { id },
+      include: { point: true }
+    });
+
+    // Delete launch point (this will cascade delete related categories and stations)
     await prisma.launchPoint.delete({ where: { id } });
+
+    // Delete the associated point if it exists
+    if (launchPointWithPoint?.point) 
+    {
+      await prisma.point.delete({ where: { id: launchPointWithPoint.point.id } })
+        .catch(() =>
+        {
+          // Point might already be deleted or not exist, ignore error
+        });
+    }
 
     res.json({ message: 'Einsetzpunkt gelöscht.' });
   }

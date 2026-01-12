@@ -32,9 +32,10 @@ async function main()
   {
     await prisma.$queryRaw`SELECT 1 FROM Category LIMIT 1`;
   }
-  catch (error: any)
+  catch (error: unknown)
   {
-    if (error.message?.includes('no such table') || error.message?.includes('Category'))
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage.includes('no such table') || errorMessage.includes('Category'))
     {
       console.error('\n❌ Error: Category table does not exist!');
       console.error('Please run the following commands first:');

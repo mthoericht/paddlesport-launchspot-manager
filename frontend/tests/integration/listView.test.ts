@@ -71,8 +71,8 @@ describe('List View Integration', () =>
       await store.fetchLaunchPoints();
 
       expect(store.launchPoints).toHaveLength(2);
-      expect(store.launchPoints[0].name).toBe('Test Point 1');
-      expect(store.launchPoints[1].name).toBe('Test Point 2');
+      expect(store.launchPoints[0]?.name).toBe('Test Point 1');
+      expect(store.launchPoints[1]?.name).toBe('Test Point 2');
     });
 
     it('should filter points for list view', async () =>
@@ -107,7 +107,7 @@ describe('List View Integration', () =>
       await store.fetchLaunchPoints();
 
       expect(store.launchPoints).toHaveLength(1);
-      expect(store.launchPoints[0].name).toBe('My Point');
+      expect(store.launchPoints[0]?.name).toBe('My Point');
     });
 
     it('should provide all required fields for list view display', async () =>
@@ -141,6 +141,10 @@ describe('List View Integration', () =>
       await store.fetchLaunchPoints();
 
       const point = store.launchPoints[0];
+      
+      // Verify point exists
+      expect(point).toBeDefined();
+      if (!point) return;
       
       // Verify all fields needed for list view
       expect(point).toHaveProperty('id');
@@ -194,6 +198,10 @@ describe('List View Integration', () =>
 
       const point = store.launchPoints[0];
       
+      // Verify point exists
+      expect(point).toBeDefined();
+      if (!point) return;
+      
       // Should handle null values gracefully
       expect(point.hints).toBeNull();
       expect(point.parking_options).toBeNull();
@@ -229,7 +237,7 @@ describe('List View Integration', () =>
       const store = useLaunchPointsStore();
       await store.fetchLaunchPoints();
 
-      expect(store.launchPoints[0].categories).toEqual([]);
+      expect(store.launchPoints[0]?.categories).toEqual([]);
     });
   });
 });

@@ -17,7 +17,7 @@ interface InitialValues {
   hasMarker: boolean;
 }
 
-function getInitialValuesFromQuery(query: any): InitialValues 
+function getInitialValuesFromQuery(query: Record<string, string | undefined>): InitialValues 
 {
   const { lat, lng, centerLat, centerLng, zoom: queryZoom } = query;
   

@@ -1,0 +1,278 @@
+name,latitude,longitude,types,lines
+Adlershof,52.4350,13.5450,"sbahn,tram","S45,S46,S47,S8,S85,M17,M21"
+Afrikanische Straße,52.5100,13.3500,ubahn,U6
+Ahrensfelde,52.4900,13.4800,tram,M6
+Alexanderplatz,52.5218,13.4114,"sbahn,ubahn","S3,S5,S7,S9,U2,U5,U8"
+Allee der Kosmonauten,52.5150,13.4550,tram,M2
+Alt-Mariendorf,52.4400,13.3800,ubahn,U6
+Alt-Tegel,52.5900,13.2800,ubahn,U6
+Alt-Tempelhof,52.4653,13.3806,ubahn,U6
+Am Friedrichshain,52.5300,13.4400,tram,M4
+Am Kupfergraben,52.5200,13.4000,tram,"M1,M12"
+Am Stern,52.5050,13.3800,ubahn,U9
+Amrumer Straße,52.5400,13.3700,ubahn,U9
+Anhalter Bahnhof,52.5000,13.3800,sbahn,"S1,S2,S25,S26"
+Attilastraße,52.4200,13.3700,sbahn,S2
+Augsburger Straße,52.4992,13.3381,ubahn,U3
+Baumschulenweg,52.4650,13.4900,"sbahn,tram","M17,M21,S45,S46,S47,S8,S85"
+Bayerischer Platz,52.4753,13.3906,ubahn,"U4,U7"
+Behrenstraße,52.5150,13.3800,tram,M1
+Bellevue,52.5150,13.3500,sbahn,"S3,S5,S7,S9"
+Berlin Hauptbahnhof,52.5250,13.3694,"train,sbahn","ICE,IC,RE,S3,S5,S7,S9"
+Berlin Ostkreuz,52.5025,13.4692,"train,sbahn","RE,RB,S3,S41,S42,S5,S7,S75,S8,S85,S9"
+Berlin Südkreuz,52.4750,13.3650,"train,sbahn","ICE,IC,S2,S25,S26,S41,S42,S45,S46,S47"
+Berlin-Schönefeld Flughafen,52.3800,13.5200,train,"RE,RB"
+Berliner Straße,52.4850,13.3250,ubahn,U9
+Bernau,52.6797,13.5858,"sbahn,train","RE,S2"
+Bernau-Friedenstal,52.6684,13.5647,sbahn,S2
+Beusselstraße,52.5400,13.3200,sbahn,"S41,S42"
+Biesdorf,52.5131,13.5531,"tram,ubahn","M6,U5"
+Biesdorf-Süd,52.5161,13.5100,ubahn,U5
+Birkenstraße,52.5350,13.3500,ubahn,U9
+Birkenstein,52.5000,13.6350,sbahn,S5
+Birkenwerder,52.6350,13.4900,sbahn,"S1,S2,S25,S26"
+Bismarckstraße,52.5105,13.3139,ubahn,"U2,U7"
+Blankenburg,52.5975,13.4286,sbahn,S2
+Blankenfelde,52.3361,13.4103,"sbahn,tram","M6,S2"
+Blaschkoallee,52.4650,13.4450,ubahn,U7
+Blockdammweg,52.4850,13.5150,tram,"M5,M6"
+Boddinstraße,52.4561,13.4441,ubahn,U8
+Boddinstraße,52.4931,13.3861,ubahn,U6
+Borgsdorf,52.6450,13.5000,sbahn,"S1,S2,S25,S26"
+Bornholmer Straße,52.5550,13.4100,"sbahn,tram,ubahn","M1,M10,S1,S2,S25,S26,U8"
+Borsigwerke,52.5400,13.3200,ubahn,U6
+Botanischer Garten,52.4480,13.3073,"sbahn,ubahn","S1,S25,S26,U9"
+Brandenburger Tor,52.5163,13.3777,"sbahn,tram","M1,M12,S1,S2,S25,S26"
+Britz-Süd,52.4550,13.4550,ubahn,U7
+Brunnenstraße,52.5450,13.3950,tram,"M1,M8"
+Buch,52.6361,13.4961,"sbahn,tram","M6,S2"
+Buckow,52.4000,13.3900,sbahn,S2
+Bundestag,52.5186,13.3752,ubahn,U5
+Bundesplatz,52.4800,13.3200,ubahn,U9
+Bülowstraße,52.4992,13.3631,ubahn,U2
+Charlottenburg,52.5050,13.3000,"train,sbahn","RE,S3,S5,S7,S9"
+Cottbusser Platz,52.5400,13.6081,"tram,ubahn","M6,U5"
+Danziger Straße,52.5550,13.4150,tram,M1
+Dimitroffstraße,52.5350,13.4350,tram,M2
+Deutsche Oper,52.5125,13.3144,ubahn,U2
+Eberswalder Straße,52.5411,13.4050,"tram,ubahn","M1,M10,U2"
+Eisenacher Straße,52.4803,13.3956,ubahn,U7
+Elsterwerdaer Platz,52.5181,13.5381,ubahn,U5
+Ernst-Reuter-Platz,52.5100,13.3200,ubahn,"U2,U9"
+Erkner,52.4294,13.7511,sbahn,S3
+Falkenberg,52.5600,13.5200,tram,M6
+Frankfurter Allee,52.5142,13.4750,"sbahn,tram,ubahn","M10,M5,M6,M8,S41,S42,S8,S85,U5"
+Französische Straße,52.5150,13.3850,ubahn,U6
+Feuerbachstraße,52.4525,13.3325,sbahn,"S1,S25,S26"
+Fredersdorf,52.5150,13.7300,sbahn,S5
+Friedenau,52.4653,13.3806,ubahn,U9
+Friedrich-Wilhelm-Platz,52.4750,13.3150,ubahn,U9
+Friedrichshagen,52.4574,13.6233,sbahn,S3
+Friedrichsfelde,52.5069,13.5200,"tram,ubahn","M17,M27,U5"
+Friedrichsfelde Ost,52.5100,13.5200,sbahn,S5
+Friedrichstraße,52.5200,13.3872,"sbahn,train,tram,ubahn","IC,ICE,M1,M12,S1,S2,S25,S5,S7,S75,U6"
+Frohnau,52.6150,13.4700,sbahn,"S1,S2,S25,S26"
+Gedenkstätte Berliner Mauer,52.5414,13.3903,tram,M10
+Gehrenseestraße,52.5550,13.5250,tram,M6
+Genshagener Heide,52.3800,13.2300,sbahn,S2
+Georgenstraße,52.5180,13.3980,tram,M1
+Gesundbrunnen,52.5489,13.3889,"sbahn,train,tram,ubahn","M1,M10,M8,RE,S1,S2,S25,S26,U8"
+Gleisdreieck,52.4992,13.3731,ubahn,"U1,U2,U3"
+Gneisenaustraße,52.4900,13.4100,ubahn,U7
+Greifswalder Straße,52.5400,13.4300,"tram,ubahn","M13,M4,U2"
+Griebnitzsee,52.3949,13.1285,sbahn,S7
+Grenzallee,52.4700,13.4400,ubahn,U7
+Grünau,52.4100,13.5700,"sbahn,tram","S46,S47,M37,M68"
+Görlitzer Bahnhof,52.4992,13.4444,ubahn,"U1,U3"
+Güntzelstraße,52.4900,13.3300,ubahn,U9
+Hackescher Markt,52.5222,13.4022,"sbahn,tram,ubahn","M1,M4,M5,M6,S3,S5,S7,S9,U5,U8"
+Hegermühle,52.5700,13.8500,sbahn,S5
+Hallesches Tor,52.4992,13.3931,"tram,ubahn","M1,M41,M48,M6,U1,U3,U6"
+Hansaplatz,52.5150,13.3700,ubahn,U9
+Hauptbahnhof,52.5250,13.3694,"sbahn,train","IC,ICE,RE,S3,S5,S7,S9"
+Hausvogteiplatz,52.5178,13.3900,ubahn,U2
+Heerstraße,52.5200,13.2500,sbahn,"S3,S9"
+Heinrich-Heine-Straße,52.5122,13.4144,"tram,ubahn","M2,M8,U8"
+Hellersdorf,52.5400,13.6081,"tram,ubahn","M6,U5"
+Hermannplatz,52.4831,13.4250,"tram,ubahn","M41,M44,U7,U8"
+Hirschgarten,52.4570,13.6000,sbahn,S3
+Hermannstraße,52.4681,13.4381,"sbahn,tram,ubahn","M41,M44,S41,S42,S45,S46,S47,U8"
+Hermsdorf,52.6050,13.4600,sbahn,"S1,S2,S25,S26"
+Herzbergstraße,52.5100,13.4950,tram,"M5,M6,M8"
+Hennigsdorf,52.6374,13.2061,sbahn,S25
+Hohen Neuendorf,52.6250,13.4800,sbahn,"S1,S2,S25,S26"
+Hohenschönhausen,52.5450,13.5081,"tram,ubahn","M5,M6,U5"
+Hoppegarten,52.5050,13.6020,sbahn,S5
+Holzhauser Straße,52.5300,13.3300,ubahn,U6
+Humboldthain,52.5450,13.3850,sbahn,"S1,S2,S25,S26"
+Hönow,52.5481,13.4481,"tram,ubahn","M6,U5"
+Indira-Gandhi-Straße,52.5200,13.4500,tram,M2
+Innsbrucker Platz,52.4703,13.3856,"sbahn,ubahn","S41,S42,S45,S46,S47,U4"
+Jannowitzbrücke,52.5142,13.4178,"sbahn,ubahn","S3,S5,S7,S9,U8"
+Julius-Leber-Brücke,52.4844,13.3572,sbahn,"S1,S2,S25,S26"
+Johannisthaler Chaussee,52.4500,13.4600,ubahn,U7
+Jungfernheide,52.5300,13.3000,"sbahn,ubahn","S41,S42,U7"
+Kaiserdamm,52.5200,13.2900,ubahn,U2
+Kaiserin-Augusta-Straße,52.4603,13.3756,ubahn,U6
+Karlshorst,52.4805,13.5273,sbahn,S3
+Karl-Marx-Straße,52.4781,13.4311,"tram,ubahn","M41,M44,U7"
+Karow,52.6089,13.4803,"sbahn,tram","M6,S2"
+Kaulsdorf,52.5031,13.5850,"tram,ubahn","M6,U5"
+Kaulsdorf-Nord,52.5100,13.5700,ubahn,U5
+Kienberg,52.5281,13.5081,ubahn,U5
+Königs Wusterhausen,52.2967,13.6317,sbahn,S46
+Kleistpark,52.4853,13.4006,ubahn,U7
+Klosterstraße,52.5156,13.4117,ubahn,U2
+Kochstraße,52.5100,13.3840,"tram,ubahn","M1,M12,U6"
+Kottbusser Tor,52.4992,13.4181,"tram,ubahn","M29,M8,U1,U3,U8"
+Krumme Lanke,52.4400,13.2400,ubahn,U3
+Kurfürstenstraße,52.5000,13.3572,ubahn,U1
+Kurfürstendamm,52.5042,13.3331,ubahn,"U1,U9"
+Kurt-Schumacher-Platz,52.5600,13.3000,ubahn,U6
+Köpenick,52.4550,13.5800,"sbahn,tram","S3,S9,M27,M37,M68"
+Köpenick Müggelheimer Straße,52.4500,13.5750,tram,"M27,M37,M68"
+Lehnitz,52.6550,13.5100,sbahn,"S1,S2,S25,S26"
+Leinestraße,52.4611,13.4411,ubahn,U8
+Leopoldplatz,52.5450,13.3600,ubahn,"U6,U9"
+Lichtenberg,52.5131,13.4903,"sbahn,train,tram,ubahn","M13,M17,M21,M5,M6,M8,RE,S5,S7,S75,U5"
+Lichtenrade,52.3861,13.4003,"sbahn,tram","M17,S2"
+Lichterfelde Ost,52.4300,13.3200,sbahn,"S1,S25,S26"
+Lichterfelde Süd,52.4200,13.3100,sbahn,"S1,S25,S26"
+Lichterfelde West,52.4389,13.3083,sbahn,"S1,S25,S26"
+Lipschitzallee,52.4450,13.4650,ubahn,U7
+Louis-Lewin-Straße,52.5431,13.4631,ubahn,U5
+Ludwigsfelde,52.3600,13.2000,"sbahn,train","RE,S2"
+Mahlow,52.3200,13.1400,sbahn,S2
+Mahlsdorf,52.5081,13.6181,"sbahn,tram,ubahn","M6,S5,U5"
+Marienfelde,52.4100,13.3800,sbahn,S2
+Marzahn,52.5050,13.4650,tram,M6
+Mehringdamm,52.4992,13.4031,ubahn,"U6,U7"
+Mehrower Allee,52.4950,13.4750,tram,M6
+Mendelssohn-Bartholdy-Park,52.4953,13.4106,ubahn,"U1,U3"
+Mexikoplatz,52.4517,13.2411,sbahn,"S1,S25,S26"
+Messe Nord/ICC,52.5000,13.2700,"sbahn,ubahn","S41,S42,U2"
+Mohrenstraße,52.5122,13.3811,ubahn,U2
+Mollstraße,52.5300,13.4400,tram,M2
+Moritzplatz,52.4992,13.4144,"tram,ubahn","M29,M8,U8"
+Märkisches Museum,52.5142,13.4081,ubahn,U2
+Magdalenenstraße,52.5150,13.4600,ubahn,U5
+Möckernbrücke,52.4992,13.3831,ubahn,"U1,U7"
+Museumsinsel,52.5194,13.3986,ubahn,U5
+Naturkundemuseum,52.5300,13.3800,ubahn,U6
+Neukölln,52.4750,13.4342,"sbahn,tram,ubahn","M41,M44,S41,S42,S45,S46,S47,U7"
+Nollendorfplatz,52.4992,13.3531,ubahn,"U1,U2,U3,U4"
+Nordbahnhof,52.5300,13.4100,"sbahn,tram","M10,S1,S2,S25,S26"
+Nikolassee,52.4333,13.1900,sbahn,"S1,S25,S26"
+Nöldnerplatz,52.4950,13.5050,tram,"M5,M6,M8"
+Olympiastadion,52.5150,13.2400,sbahn,"S3,S9"
+Olympia-Stadion,52.5169,13.2500,ubahn,U2
+Onkel Toms Hütte,52.4500,13.2500,ubahn,U3
+Oranienburg,52.6650,13.5200,"sbahn,train","RE,S1,S2,S25,S26"
+Oranienburger Straße,52.5250,13.3900,"sbahn,ubahn","S1,S2,S25,S26,U6"
+Oranienburger Tor,52.5250,13.3900,ubahn,U6
+Oranienplatz,52.5000,13.4200,tram,M8
+Osdorfer Straße,52.4194,13.3145,sbahn,"S1,S25,S26"
+Ostbahnhof,52.5103,13.4347,"sbahn,train,ubahn","IC,ICE,RE,S3,S5,S7,S9,U5"
+Ostkreuz,52.5025,13.4692,"sbahn,train,tram","M10,M5,M6,M8,RE,S3,S41,S42,S5,S7,S75,S8,S85,S9"
+Otisstraße,52.5200,13.3400,ubahn,U6
+Pankow,52.5694,13.4014,"sbahn,tram,ubahn","M1,M27,S2,S8,U2"
+Pankow-Heinersdorf,52.5736,13.4058,sbahn,S2
+Pankow Kirche,52.5670,13.4030,tram,M1
+Paradestraße,52.4881,13.3861,ubahn,U6
+Parchimer Allee,52.4600,13.4500,ubahn,U7
+Pichelsberg,52.5100,13.2200,sbahn,"S3,S9"
+Platz der Luftbrücke,52.4831,13.3861,ubahn,U6
+Plänterwald,52.4750,13.4700,"sbahn,tram","M17,M21,S45,S46,S47,S8,S85"
+Potsdamer Platz,52.5096,13.3766,"sbahn,ubahn","S1,S2,S25,S26,U2"
+Potsdam Babelsberg,52.3913,13.0921,sbahn,S7
+Potsdam Hauptbahnhof,52.3911,13.0669,"sbahn,train","S1,S7,RE"
+Prenzlauer Allee,52.5350,13.4400,"tram,ubahn","M10,M2,U2"
+Prenzlauer Allee,52.5450,13.4200,"sbahn,tram,ubahn","M1,M10,S41,S42,U2"
+Petershagen Nord,52.5200,13.7700,sbahn,S5
+Priesterweg,52.4300,13.3600,sbahn,S2
+Prinzenstraße,52.4970,13.3950,tram,M1
+Rahnsdorf,52.4500,13.7000,sbahn,S3
+Rangsdorf,52.3400,13.1700,"sbahn,train","RE,S2"
+Raoul-Wallenberg-Straße,52.5000,13.4700,tram,M6
+Rathaus Neukölln,52.4811,13.4281,ubahn,U7
+Rathaus Schöneberg,52.4800,13.3500,ubahn,U4
+Rathaus Spandau,52.5361,13.2000,"sbahn,train,ubahn","RE,S3,S9,U7"
+Rathaus Steglitz,52.4503,13.3656,"sbahn,ubahn","S1,S25,S26,U9"
+Rehberge,52.5000,13.3600,ubahn,U6
+Rosa-Luxemburg-Platz,52.5281,13.4144,ubahn,U2
+Rotes Rathaus,52.5186,13.4083,ubahn,U5
+Rosenthaler Platz,52.5281,13.4014,"tram,ubahn","M1,M8,U8"
+Rudow,52.4300,13.4800,ubahn,U7
+Ruhleben,52.5200,13.2400,ubahn,U2
+Röntgental,52.6492,13.5144,sbahn,S2
+Rummelsburg,52.5000,13.5000,tram,"M5,M6,M8"
+Samariterstraße,52.5168,13.4450,ubahn,U5
+Savignyplatz,52.5050,13.3150,sbahn,"S3,S5,S7,S9"
+Scharnweberstraße,52.5500,13.3100,ubahn,U6
+Schillingstraße,52.5190,13.4170,ubahn,U5
+Schlesisches Tor,52.4992,13.4500,ubahn,"U1,U3"
+Schloßstraße,52.4553,13.3706,ubahn,"U6,U9"
+Schöneberg,52.4800,13.3500,sbahn,"S1,S25,S26"
+Schönefeld,52.3800,13.5200,train,"RE,RB"
+Schöneweide,52.4550,13.5100,"sbahn,tram","M17,M21,S45,S46,S47,S8,S85"
+Schlachtensee,52.4481,13.2150,sbahn,"S1,S25,S26"
+Schönhauser Allee,52.5492,13.4106,"sbahn,tram,ubahn","M1,M10,S1,S2,S25,S26,U2"
+Schönholz,52.5750,13.4300,"sbahn,tram","M1,S1,S2,S25,S26"
+Schönleinstraße,52.4511,13.4471,"tram,ubahn","M8,U8"
+Seestraße,52.5500,13.3500,ubahn,U6
+Senefelderplatz,52.5331,13.4086,ubahn,U2
+Sonnenallee,52.4700,13.4300,"sbahn,tram","M41,M44,S41,S42,S45,S46,S47"
+Sophie-Charlotte-Platz,52.5100,13.3000,ubahn,U2
+Spandau,52.5361,13.2000,"train,sbahn,ubahn","ICE,IC,RE,S3,S9,U7"
+Spichernstraße,52.4942,13.3331,ubahn,"U3,U9"
+Spittelmark,52.5122,13.4044,ubahn,"U2,U8"
+Springpfuhl,52.5100,13.4600,tram,M2
+Strausberg,52.5800,13.8800,sbahn,S5
+Strausberg Nord,52.5903,13.9085,sbahn,S5
+Strausberg Stadt,52.5850,13.8900,sbahn,S5
+Strausberger Platz,52.5181,13.4308,ubahn,U5
+Stadtmitte,52.5150,13.3856,ubahn,"U2,U6"
+Stresow,52.5400,13.2100,sbahn,"S3,S9"
+Südkreuz,52.4750,13.3650,"sbahn,train","IC,ICE,S2,S25,S26,S41,S42,S45,S46,S47"
+Sundgauer Straße,52.4550,13.2833,sbahn,"S1,S25,S26"
+Südstern,52.4850,13.4150,ubahn,U7
+Tegel,52.5700,13.2900,ubahn,U6
+Teltow Stadt,52.4000,13.2700,sbahn,"S1,S25,S26"
+Tempelhof,52.4703,13.3856,"tram,ubahn","M17,U6"
+Theodor-Heuss-Platz,52.5100,13.2800,ubahn,U2
+Tiergarten,52.5100,13.3500,sbahn,"S3,S5,S7,S9"
+Tierpark,52.4978,13.5319,"tram,ubahn","M17,U5"
+Treptower Park,52.4850,13.4500,sbahn,"S41,S42,S8,S85"
+Treskowallee,52.4900,13.5100,tram,"M5,M6,M8"
+Turmstraße,52.5250,13.3600,ubahn,U9
+Uhlandstraße,52.5042,13.3281,ubahn,U1
+Unter den Linden,52.5169,13.3889,"tram,ubahn","M1,M12,U5,U6"
+Vinetastraße,52.5572,13.4156,ubahn,U2
+Waidmannslust,52.5950,13.4500,"sbahn,tram,ubahn","M1,M10,M13,M17,M21,M27,M37,M50,M68,M85,S1,S2,S25,S26,U6,U8,U9"
+Wannsee,52.4211,13.1806,sbahn,"S1,S7"
+Walther-Schreiber-Platz,52.4603,13.3756,ubahn,U9
+Warschauer Straße,52.5058,13.4494,"sbahn,tram,ubahn","M10,M5,M6,M8,S3,S5,S7,S9,U1,U3"
+Wartenberg,52.5700,13.5150,"tram,ubahn","M6,U5"
+Wedding,52.5600,13.3600,"sbahn,ubahn","S41,S42,U6"
+Weberwiese,52.5168,13.4450,ubahn,U5
+Weidenweg,52.5250,13.4450,tram,M2
+Weinmeisterstraße,52.5253,13.4014,ubahn,U8
+Wendenschloß,52.4250,13.5830,tram,"M27,M68"
+Westhafen,52.5500,13.3400,sbahn,"S41,S42"
+Westkreuz,52.5000,13.2800,"sbahn,train","RE,S3,S41,S42,S45,S46,S47,S5,S7,S9"
+Wilhelmshagen,52.4386,13.7222,sbahn,S3
+Wilhelmsruh,52.5850,13.4400,"sbahn,tram","M1,S1,S2,S25,S26"
+Wilhelmstraße,52.5130,13.3820,tram,M1
+Wittenau,52.5950,13.4500,sbahn,"S1,S2,S25,S26"
+Wittenbergplatz,52.4992,13.3431,ubahn,"U1,U2,U3"
+Wollankstraße,52.5650,13.4200,"sbahn,tram","M1,M27,S1,S2,S25,S26"
+Wuhlheide,52.4690,13.5250,sbahn,S3
+Wuhletal,52.5231,13.5231,"sbahn,ubahn","S5,U5"
+Wutzkyallee,52.4400,13.4700,ubahn,U7
+Yorckstraße,52.4903,13.4056,"sbahn,ubahn","S1,S2,S25,S26,U7"
+Zingster Straße,52.5500,13.5300,tram,M6
+Zehlendorf,52.4583,13.2600,sbahn,"S1,S25,S26"
+Zepernick,52.6598,13.5342,sbahn,S2
+Zionskirchplatz,52.5350,13.4050,tram,M1
+Zoologischer Garten,52.5075,13.3325,"sbahn,train,ubahn","IC,ICE,S3,S5,S7,S9,U2,U9"
+Zwickauer Damm,52.4350,13.4750,ubahn,U7

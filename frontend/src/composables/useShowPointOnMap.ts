@@ -1,6 +1,6 @@
-import { ref, type Ref } from 'vue';
+import type { Ref } from 'vue';
 import type { LaunchPoint } from '../types';
-import type { Map as LeafletMap } from 'leaflet';
+import type { Map as LeafletMap, Layer as LeafletLayer, Marker as LeafletMarker } from 'leaflet';
 
 interface UseShowPointOnMapOptions {
   mapRef: Ref<{ leafletObject?: LeafletMap } | null>;
@@ -73,26 +73,27 @@ export function useShowPointOnMap(options: UseShowPointOnMapOptions)
         if (popupOpened) return true;
         
         let markerFound = false;
-        map.eachLayer((layer: any) => 
+        map.eachLayer((layer: LeafletLayer) => 
         {
           // Check if layer is a marker by checking for getLatLng method
-          if (layer && typeof layer.getLatLng === 'function') 
+          if (layer && typeof (layer as LeafletMarker).getLatLng === 'function') 
           {
-            const latlng = layer.getLatLng();
+            const marker = layer as LeafletMarker;
+            const latlng = marker.getLatLng();
             // Use a slightly larger tolerance for coordinate matching
             if (Math.abs(latlng.lat - point.latitude) < 0.0005 && 
                 Math.abs(latlng.lng - point.longitude) < 0.0005) 
             {
               // Check if marker is actually rendered in the DOM
-              const markerElement = layer.getElement?.();
+              const markerElement = marker.getElement?.();
               if (markerElement && markerElement.offsetParent !== null) 
               {
                 // Check if popup is already open
-                const isPopupOpen = layer.isPopupOpen?.();
+                const isPopupOpen = marker.isPopupOpen?.();
                 if (!isPopupOpen) 
                 {
                   // Marker is visible, open popup only if not already open
-                  layer.openPopup();
+                  marker.openPopup();
                   popupOpened = true;
                   markerFound = true;
                 }

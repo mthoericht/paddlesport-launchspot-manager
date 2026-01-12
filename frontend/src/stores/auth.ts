@@ -41,9 +41,10 @@ export const useAuthStore = defineStore('auth', () =>
       
       return true;
     }
-    catch (err: any) 
+    catch (err: unknown) 
     {
-      error.value = err.message;
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      error.value = errorMessage;
       return false;
     }
     finally 
@@ -78,9 +79,10 @@ export const useAuthStore = defineStore('auth', () =>
       
       return true;
     }
-    catch (err: any) 
+    catch (err: unknown) 
     {
-      error.value = err.message;
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      error.value = errorMessage;
       return false;
     }
     finally 

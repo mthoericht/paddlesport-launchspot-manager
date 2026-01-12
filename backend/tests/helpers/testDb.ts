@@ -184,22 +184,28 @@ export async function cleanupTestData(): Promise<void>
     }
 
     // Step 6: Also clean up any orphaned TEST_ launch points (safety net)
-    // Safety: Only delete launch points with TEST_ prefix in name
+    // Safety: Only delete launch points with TEST_ prefix in point name
     const orphanedPoints = await retryOperation(async () => 
     {
       return await prisma.launchPoint.findMany({
         where: {
-          name: {
-            startsWith: 'TEST_'
+          point: {
+            name: {
+              startsWith: 'TEST_'
+            }
           }
         },
-        select: { id: true, name: true }
+        include: {
+          point: {
+            select: { id: true, name: true }
+          }
+        }
       });
     });
     
     // Additional safety check: Verify all found points actually have TEST_ prefix
-    const verifiedOrphanedPoints = orphanedPoints.filter(point => 
-      point.name && point.name.startsWith('TEST_')
+    const verifiedOrphanedPoints = orphanedPoints.filter(lp => 
+      lp.point && lp.point.name && lp.point.name.startsWith('TEST_')
     );
     
     if (verifiedOrphanedPoints.length !== orphanedPoints.length)
@@ -246,6 +252,84 @@ export async function cleanupTestData(): Promise<void>
           where: {
             id: {
               in: orphanedIds
+            }
+          }
+        });
+      });
+    }
+
+    // Step 7: Clean up TEST_ public transport points
+    const testPublicTransportPoints = await retryOperation(async () => 
+    {
+      return await prisma.publicTransportPoint.findMany({
+        where: {
+          point: {
+            name: {
+              startsWith: 'TEST_'
+            }
+          }
+        },
+        include: {
+          point: {
+            select: { id: true, name: true }
+          }
+        }
+      });
+    });
+
+    // Additional safety check: Verify all found points actually have TEST_ prefix
+    const verifiedTestPTPs = testPublicTransportPoints.filter(ptp => 
+      ptp.point && ptp.point.name && ptp.point.name.startsWith('TEST_')
+    );
+
+    if (verifiedTestPTPs.length !== testPublicTransportPoints.length)
+    {
+      console.warn('Warning: Some public transport points found did not match TEST_ prefix filter. Skipping cleanup for safety.');
+      return;
+    }
+
+    if (verifiedTestPTPs.length > 0)
+    {
+      const ptpIds = verifiedTestPTPs.map(ptp => ptp.id);
+      const pointIds = verifiedTestPTPs.map(ptp => ptp.pointId);
+
+      // Delete types first
+      await retryOperation(async () => 
+      {
+        await prisma.publicTransportPointType.deleteMany({
+          where: {
+            publicTransportPointId: {
+              in: ptpIds
+            }
+          }
+        });
+      });
+
+      // Small delay between operations
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // Delete public transport points
+      await retryOperation(async () => 
+      {
+        await prisma.publicTransportPoint.deleteMany({
+          where: {
+            id: {
+              in: ptpIds
+            }
+          }
+        });
+      });
+
+      // Small delay before deleting points
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // Delete associated points
+      await retryOperation(async () => 
+      {
+        await prisma.point.deleteMany({
+          where: {
+            id: {
+              in: pointIds
             }
           }
         });
@@ -360,11 +444,18 @@ export async function createTestLaunchPoint(data: {
   // Use retry for launch point creation to handle potential locks
   const launchPoint = await retryOperation(async () => 
   {
-    return await prisma.launchPoint.create({
+    // Create Point first
+    const point = await prisma.point.create({
       data: {
         name,
         latitude: data.latitude || 52.5200,
-        longitude: data.longitude || 13.4050,
+        longitude: data.longitude || 13.4050
+      }
+    });
+
+    return await prisma.launchPoint.create({
+      data: {
+        pointId: point.id,
         createdById: data.createdById,
         categories: {
           create: categoryIds.map(categoryId => ({
@@ -373,6 +464,7 @@ export async function createTestLaunchPoint(data: {
         }
       },
       include: {
+        point: true,
         categories: {
           include: {
             category: true
@@ -384,4 +476,59 @@ export async function createTestLaunchPoint(data: {
   });
 
   return launchPoint;
+}
+
+/**
+ * Creates a test public transport point with TEST_ prefix
+ */
+export async function createTestPublicTransportPoint(data: {
+  name?: string;
+  latitude?: number;
+  longitude?: number;
+  types?: Array<'train' | 'tram' | 'sbahn' | 'ubahn'>;
+  lines?: string;
+})
+{
+  const timestamp = Date.now();
+  const random = Math.floor(Math.random() * 10000);
+  const name = data.name?.startsWith('TEST_') 
+    ? data.name 
+    : `TEST_${data.name || `Station_${timestamp}_${random}`}`;
+
+  const types = data.types || ['sbahn'];
+  const lines = data.lines ?? 'S1,S2';
+
+  // Use retry for public transport point creation to handle potential locks
+  const publicTransportPoint = await retryOperation(async () => 
+  {
+    // Create Point first
+    const point = await prisma.point.create({
+      data: {
+        name,
+        latitude: data.latitude || 52.5200,
+        longitude: data.longitude || 13.4050
+      }
+    });
+
+    // Create PublicTransportPoint
+    const ptp = await prisma.publicTransportPoint.create({
+      data: {
+        pointId: point.id,
+        lines,
+        types: {
+          create: types.map(type => ({
+            type
+          }))
+        }
+      },
+      include: {
+        point: true,
+        types: true
+      }
+    });
+
+    return ptp;
+  });
+
+  return publicTransportPoint;
 }

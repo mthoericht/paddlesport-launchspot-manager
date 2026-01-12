@@ -16,11 +16,19 @@ model User {
   launchPoints LaunchPoint[]
 }
 
+model Point {
+  id        Int                  @id @default(autoincrement())
+  name      String
+  latitude  Float
+  longitude Float
+  launchPoint LaunchPoint?
+  publicTransportPoint PublicTransportPoint?
+}
+
 model LaunchPoint {
   id             Int                      @id @default(autoincrement())
-  name           String
-  latitude       Float
-  longitude      Float
+  point          Point                    @relation(fields: [pointId], references: [id], onDelete: Cascade)
+  pointId        Int                      @unique
   isOfficial     Boolean                  @default(false)
   hints          String?
   openingHours   String                   @default("24h")
@@ -32,6 +40,31 @@ model LaunchPoint {
   createdById    Int
   categories     LaunchPointCategory[]
   stations       PublicTransportStation[]
+}
+
+enum PublicTransportType {
+  train
+  tram
+  sbahn
+  ubahn
+}
+
+model PublicTransportPoint {
+  id        Int                          @id @default(autoincrement())
+  point     Point                        @relation(fields: [pointId], references: [id], onDelete: Cascade)
+  pointId   Int                          @unique
+  lines     String?
+  createdAt DateTime                     @default(now())
+  types     PublicTransportPointType[]
+}
+
+model PublicTransportPointType {
+  id                      Int                  @id @default(autoincrement())
+  publicTransportPoint    PublicTransportPoint @relation(fields: [publicTransportPointId], references: [id], onDelete: Cascade)
+  publicTransportPointId  Int
+  type                    PublicTransportType
+
+  @@unique([publicTransportPointId, type])
 }
 
 model Category {

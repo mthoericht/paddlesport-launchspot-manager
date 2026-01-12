@@ -67,9 +67,10 @@ export const useLaunchPointsStore = defineStore('launchPoints', () =>
       
       launchPoints.value = await response.json();
     }
-    catch (err: any) 
+    catch (err: unknown) 
     {
-      error.value = err.message;
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      error.value = errorMessage;
     }
     finally 
     {
@@ -96,9 +97,10 @@ export const useLaunchPointsStore = defineStore('launchPoints', () =>
       selectedPoint.value = await response.json();
       return selectedPoint.value;
     }
-    catch (err: any) 
+    catch (err: unknown) 
     {
-      error.value = err.message;
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      error.value = errorMessage;
       return null;
     }
     finally 
@@ -130,9 +132,10 @@ export const useLaunchPointsStore = defineStore('launchPoints', () =>
       await fetchLaunchPoints();
       return result.id;
     }
-    catch (err: any) 
+    catch (err: unknown) 
     {
-      error.value = err.message;
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      error.value = errorMessage;
       return null;
     }
     finally 
@@ -164,9 +167,10 @@ export const useLaunchPointsStore = defineStore('launchPoints', () =>
       await fetchLaunchPoints();
       return true;
     }
-    catch (err: any) 
+    catch (err: unknown) 
     {
-      error.value = err.message;
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      error.value = errorMessage;
       return false;
     }
     finally 
@@ -197,9 +201,10 @@ export const useLaunchPointsStore = defineStore('launchPoints', () =>
       await fetchLaunchPoints();
       return true;
     }
-    catch (err: any) 
+    catch (err: unknown) 
     {
-      error.value = err.message;
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      error.value = errorMessage;
       return false;
     }
     finally 

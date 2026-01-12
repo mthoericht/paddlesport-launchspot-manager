@@ -96,9 +96,10 @@ describe('LaunchPointsStore Integration', () =>
       });
 
       const store = useLaunchPointsStore();
-      store.toggleCategory('Kajak');
+      const categoryId = 1; // Use category ID (number) instead of name
+      store.toggleCategory(categoryId);
 
-      expect(store.filter.categories).toContain('Kajak');
+      expect(store.filter.categories).toContain(categoryId);
       expect(fetch).toHaveBeenCalled();
     });
   });

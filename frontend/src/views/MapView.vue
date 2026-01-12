@@ -3,14 +3,16 @@ import { onMounted, onUnmounted, ref, watch, onBeforeUnmount, nextTick, computed
 import { useRoute } from 'vue-router';
 import { LMap, LTileLayer, LMarker, LPopup, LIcon, LCircle } from '@vue-leaflet/vue-leaflet';
 import { useLaunchPointsStore } from '../stores/launchPoints';
+import { usePublicTransportStore } from '../stores/publicTransport';
 import { useMapViewInteractions, useCategories, useShowPointOnMap, useGeolocation } from '../composables';
 import FilterPanel from '../components/FilterPanel.vue';
 import AppHeader from '../components/AppHeader.vue';
 import LaunchPointListView from '../components/LaunchPointListView.vue';
-import type { LaunchPoint } from '../types';
+import type { LaunchPoint, PublicTransportPoint, PublicTransportType } from '../types';
 
 // Stores
 const launchPointsStore = useLaunchPointsStore();
+const publicTransportStore = usePublicTransportStore();
 const route = useRoute();
 
 // Local refs
@@ -79,6 +81,40 @@ const {
 } = useMapViewInteractions({ mapRef });
 
 const { categoryColors, getCategoryIcon, fetchCategories } = useCategories();
+
+// Public transport helper functions
+function getPublicTransportIcon(types: PublicTransportType[]): string
+{
+  // Choose icon color based on primary type
+  const typeColors: Record<PublicTransportType, string> = {
+    train: '#0066CC',
+    tram: '#FF6600',
+    sbahn: '#00A550',
+    ubahn: '#003399'
+  };
+  
+  const primaryType = types[0] || 'train';
+  const color = typeColors[primaryType] || '#666666';
+  
+  const svg = `
+    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="10" fill="${color}" stroke="white" stroke-width="2"/>
+      <path d="M8 8h8v8h-8z" fill="white"/>
+    </svg>
+  `;
+  return 'data:image/svg+xml;base64,' + btoa(svg);
+}
+
+function getTransportTypeLabel(type: PublicTransportType): string
+{
+  const labels: Record<PublicTransportType, string> = {
+    train: 'Bahn',
+    tram: 'Tram',
+    sbahn: 'S-Bahn',
+    ubahn: 'U-Bahn'
+  };
+  return labels[type] || type;
+}
 
 // Use show point on map composable
 const { showPointOnMap } = useShowPointOnMap({
@@ -216,6 +252,7 @@ onMounted(async () =>
 {
   await fetchCategories();
   await launchPointsStore.fetchLaunchPoints();
+  await publicTransportStore.fetchPublicTransportPoints();
   setupInteractions();
   
   // Start watching position for GPS marker
@@ -336,6 +373,43 @@ onUnmounted(() =>
                     <polygon points="3 11 22 2 13 21 11 13 3 11"/>
                   </svg>
                 </button>
+              </div>
+            </div>
+          </LPopup>
+        </LMarker>
+        
+        <!-- Public Transport Station Markers -->
+        <LMarker 
+          v-for="station in publicTransportStore.publicTransportPoints" 
+          :key="`pt-${station.id}`"
+          :lat-lng="[station.latitude, station.longitude]"
+        >
+          <LIcon 
+            :icon-url="getPublicTransportIcon(station.types)"
+            :icon-size="[24, 24]"
+            :icon-anchor="[12, 12]"
+            :popup-anchor="[0, -12]"
+          />
+          <LPopup>
+            <div class="popup-content public-transport-popup">
+              <h3>{{ station.name }}</h3>
+              <div class="popup-transport-info">
+                <div v-if="station.lines" class="popup-lines">
+                  <strong>Linie:</strong> {{ station.lines }}
+                </div>
+                <div v-if="station.types.length > 0" class="popup-types">
+                  <strong>Zugarten:</strong>
+                  <div class="transport-types">
+                    <span 
+                      v-for="type in station.types" 
+                      :key="type" 
+                      class="transport-type-tag"
+                      :class="`transport-type-${type}`"
+                    >
+                      {{ getTransportTypeLabel(type) }}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </LPopup>
@@ -701,6 +775,68 @@ onUnmounted(() =>
 .popup-btn-nav svg {
   width: 1rem;
   height: 1rem;
+}
+
+/* Public Transport Popup Styles */
+.public-transport-popup {
+  min-width: 200px;
+}
+
+.popup-transport-info {
+  margin-top: 0.5rem;
+}
+
+.popup-lines {
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  color: #1e293b;
+}
+
+.popup-lines strong {
+  color: #475569;
+  margin-right: 0.25rem;
+}
+
+.popup-types {
+  font-size: 0.875rem;
+  color: #1e293b;
+}
+
+.popup-types strong {
+  color: #475569;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.transport-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+}
+
+.transport-type-tag {
+  font-size: 0.625rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  color: white;
+  font-weight: 500;
+}
+
+.transport-type-train {
+  background-color: #0066CC;
+}
+
+.transport-type-tram {
+  background-color: #FF6600;
+}
+
+.transport-type-sbahn {
+  background-color: #00A550;
+}
+
+.transport-type-ubahn {
+  background-color: #003399;
 }
 
 .fab {

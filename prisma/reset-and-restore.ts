@@ -21,17 +21,128 @@ async function main()
 
   try 
   {
+    // Check if Point table exists (new schema) or if LaunchPoint has old columns
+    const tables = await prisma.$queryRaw<Array<{ name: string }>>`
+      SELECT name FROM sqlite_master WHERE type='table' AND name='Point'
+    `;
+    
+    const hasPointTable = tables.length > 0;
+    
+    // Check LaunchPoint columns
+    const launchPointColumns = await prisma.$queryRaw<Array<{ name: string }>>`
+      SELECT name FROM pragma_table_info('LaunchPoint')
+    `;
+    
+    const hasOldSchema = launchPointColumns.some(col => 
+      ['name', 'latitude', 'longitude'].includes(col.name)
+    );
+    
     // Backup all tables
     const users = await prisma.user.findMany();
-    const launchPoints = await prisma.launchPoint.findMany({
-      include: {
-        categories: {
-          include: { category: true }
-        },
-        stations: true
-      }
-    });
     const categories = await prisma.category.findMany();
+    
+    type LaunchPointBackup = {
+      id: number;
+      isOfficial: boolean;
+      hints: string | null;
+      openingHours: string;
+      parkingOptions: string | null;
+      nearbyWaters: string | null;
+      foodSupply: string | null;
+      createdAt: Date;
+      createdById: number;
+      point: {
+        name: string;
+        latitude: number;
+        longitude: number;
+      };
+      categories: Array<{
+        categoryId: number;
+        category?: { id: number; name_en: string; name_de: string };
+      }>;
+      stations: Array<{
+        name: string;
+        distanceMeters: number;
+      }>;
+    };
+    
+    let launchPoints: LaunchPointBackup[];
+    
+    if (hasPointTable)
+    {
+      // New schema - use relations
+      launchPoints = await prisma.launchPoint.findMany({
+        include: {
+          point: true,
+          categories: {
+            include: { category: true }
+          },
+          stations: true
+        }
+      });
+    }
+    else if (hasOldSchema)
+    {
+      // Old schema - read directly from LaunchPoint columns
+      console.log('  ℹ️  Detected old schema (LaunchPoint with name/latitude/longitude)');
+      console.log('     Will migrate to new Point-based schema during restore\n');
+      
+      launchPoints = await prisma.$queryRaw<Array<{
+        id: number;
+        name: string;
+        latitude: number;
+        longitude: number;
+        isOfficial: boolean;
+        hints: string | null;
+        openingHours: string;
+        parkingOptions: string | null;
+        nearbyWaters: string | null;
+        foodSupply: string | null;
+        createdAt: Date;
+        createdById: number;
+      }>>`
+        SELECT id, name, latitude, longitude, isOfficial, hints, openingHours, 
+               parkingOptions, nearbyWaters, foodSupply, createdAt, createdById
+        FROM LaunchPoint
+      `;
+      
+      // Get categories and stations separately
+      const categoriesData = await prisma.$queryRaw<Array<{
+        launchPointId: number;
+        categoryId: number;
+      }>>`
+        SELECT launchPointId, categoryId FROM LaunchPointCategory
+      `;
+      
+      const stationsData = await prisma.$queryRaw<Array<{
+        launchPointId: number;
+        name: string;
+        distanceMeters: number;
+      }>>`
+        SELECT launchPointId, name, distanceMeters FROM PublicTransportStation
+      `;
+      
+      // Attach categories and stations to launch points
+      launchPoints = launchPoints.map(lp => ({
+        ...lp,
+        point: {
+          name: lp.name,
+          latitude: lp.latitude,
+          longitude: lp.longitude
+        },
+        categories: categoriesData
+          .filter(c => c.launchPointId === lp.id)
+          .map(c => ({ categoryId: c.categoryId })),
+        stations: stationsData
+          .filter(s => s.launchPointId === lp.id)
+          .map(s => ({ name: s.name, distanceMeters: s.distanceMeters }))
+      }));
+    }
+    else
+    {
+      // No LaunchPoint table or empty
+      launchPoints = [];
+    }
 
     console.log(`  ✓ Backed up ${users.length} users`);
     console.log(`  ✓ Backed up ${launchPoints.length} launch points`);
@@ -67,17 +178,32 @@ async function main()
     // Restore launch points with relationships
     for (const lp of launchPoints) 
     {
-      const { categories: lpCategories, stations, ...lpData } = lp;
-      const created = await prisma.launchPoint.create({
+      const { categories: lpCategories, stations, point, ...lpData } = lp;
+      
+      // Create Point first
+      const createdPoint = await prisma.point.create({
         data: {
-          ...lpData,
+          name: point.name,
+          latitude: point.latitude,
+          longitude: point.longitude
+        }
+      });
+      
+      // Extract only the fields that exist in the new schema
+      const { id, name, latitude, longitude, ...launchPointFields } = lpData;
+      
+      // Then create LaunchPoint
+      await prisma.launchPoint.create({
+        data: {
+          ...launchPointFields,
+          pointId: createdPoint.id,
           categories: {
-            create: lpCategories.map(lpc => ({
-              categoryId: lpc.categoryId
+            create: (lpCategories || []).map((lpc: any) => ({
+              categoryId: lpc.categoryId || lpc.category?.id || lpc.categoryId
             }))
           },
           stations: {
-            create: stations.map(s => ({
+            create: (stations || []).map((s: any) => ({
               name: s.name,
               distanceMeters: s.distanceMeters
             }))

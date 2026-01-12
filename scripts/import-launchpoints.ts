@@ -7,12 +7,12 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dbPath = path.join(__dirname, '..', 'data', 'database.sqlite');
 
-// Default path: tables-launchpoints.json in external-data-preset directory
-// (matches the output from parse:tables-export when using default input)
+// Default path: launchpoints-import-data.json in external-data-preset directory
+// (matches the output from parse:tables-launchpoints-export when using default input)
 const args = process.argv.slice(2);
 const jsonPath = args.length > 0
   ? (path.isAbsolute(args[0]) ? args[0] : path.join(__dirname, '..', args[0]))
-  : path.join(__dirname, 'external-data-preset', 'tables-launchpoints.json');
+  : path.join(__dirname, 'external-data-preset', 'launchpoints-import-data.json');
 
 const adapter = new PrismaLibSql({
   url: `file:${dbPath}`
@@ -54,7 +54,7 @@ async function main()
 
   if (args.length === 0)
   {
-    console.log('ℹ️  Using default input file: scripts/external-data-preset/tables-launchpoints.json');
+    console.log('ℹ️  Using default input file: scripts/external-data-preset/launchpoints-import-data.json');
     console.log('💡 Tip: You can specify a custom input file:');
     console.log('   npm run import:external-launchpoints <input.json>');
     console.log('');
@@ -66,8 +66,8 @@ async function main()
     console.error(`❌ Error: JSON file not found at ${jsonPath}`);
     if (args.length === 0)
     {
-      console.error('Using default path: scripts/external-data-preset/tables-launchpoints.json');
-      console.error('Please run the parse:tables-export script first to generate the JSON file.');
+      console.error('Using default path: scripts/external-data-preset/launchpoints-import-data.json');
+      console.error('Please run the parse:tables-launchpoints-export script first to generate the JSON file.');
       console.error('💡 Tip: You can specify a custom input file:');
       console.error('   npm run import:external-launchpoints <input.json>');
     }
@@ -122,13 +122,18 @@ async function main()
     where: {
       createdById: importedUser.id
     },
-    select: {
-      id: true,
-      name: true,
-      latitude: true,
-      longitude: true
+    include: {
+      point: true
     }
   });
+
+  // Transform to format expected by isDuplicate function
+  const existingPointsForCheck = existingImportedPoints.map(lp => ({
+    id: lp.id,
+    name: lp.point.name,
+    latitude: lp.point.latitude,
+    longitude: lp.point.longitude
+  }));
 
   console.log(`Found ${existingImportedPoints.length} existing imported launch points in database\n`);
 
@@ -188,7 +193,7 @@ async function main()
     try
     {
       // Check for duplicates
-      const duplicateCheck = isDuplicate(entry, existingImportedPoints);
+      const duplicateCheck = isDuplicate(entry, existingPointsForCheck);
 
       if (duplicateCheck.isDuplicate)
       {
@@ -201,12 +206,18 @@ async function main()
         continue;
       }
 
-      // Create launch point with categories
-      const launchPoint = await prisma.launchPoint.create({
+      // Create Point first, then LaunchPoint
+      const point = await prisma.point.create({
         data: {
           name: entry.name,
           latitude: entry.latitude,
-          longitude: entry.longitude,
+          longitude: entry.longitude
+        }
+      });
+
+      const launchPoint = await prisma.launchPoint.create({
+        data: {
+          pointId: point.id,
           isOfficial: true, // All imported points are official
           hints: entry.hints,
           openingHours: entry.openingHours,
@@ -220,15 +231,18 @@ async function main()
               { categoryId: supCategory.id }
             ]
           }
+        },
+        include: {
+          point: true
         }
       });
 
       // Add to existing points list to check against future entries in this import
-      existingImportedPoints.push({
+      existingPointsForCheck.push({
         id: launchPoint.id,
-        name: launchPoint.name,
-        latitude: launchPoint.latitude,
-        longitude: launchPoint.longitude
+        name: launchPoint.point.name,
+        latitude: launchPoint.point.latitude,
+        longitude: launchPoint.point.longitude
       });
 
       console.log(`[${i + 1}/${jsonData.length}] ✓ Imported: ${entry.name} (ID: ${launchPoint.id})`);

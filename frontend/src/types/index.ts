@@ -19,11 +19,21 @@ export interface CategoryInfo {
   name_de: string;
 }
 
-export interface LaunchPoint {
+/**
+ * Base interface for all point types (location data)
+ * This represents the common location properties shared by all point types
+ */
+export interface Point {
   id: number;
   name: string;
   latitude: number;
   longitude: number;
+}
+
+/**
+ * LaunchPoint extends Point with launch-specific properties
+ */
+export interface LaunchPoint extends Point {
   is_official: boolean;
   hints: string | null;
   opening_hours: string;
@@ -57,5 +67,15 @@ export interface FilterState {
   type: FilterType;
   username?: string;
   categories: number[];
+}
+
+export type PublicTransportType = 'train' | 'tram' | 'sbahn' | 'ubahn';
+
+/**
+ * PublicTransportPoint extends Point with transport-specific properties
+ */
+export interface PublicTransportPoint extends Point {
+  lines: string;
+  types: PublicTransportType[];
 }
 
