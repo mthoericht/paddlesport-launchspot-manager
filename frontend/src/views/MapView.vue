@@ -23,6 +23,7 @@ const highlightedPointId = ref<number | null>(null);
 const isMobile = ref(window.innerWidth <= 768);
 const showListView = ref(!isMobile.value); // Auf Mobile standardmäßig ausgeblendet
 const stationMarkerRefs = ref<Record<number, any>>({});
+const gpsMarkerRef = ref<any>(null);
 
 // Nearby stations state
 const selectedPointId = ref<number | null>(null);
@@ -139,12 +140,13 @@ function getTransportTypeLabel(type: PublicTransportType): string
 }
 
 // Use show point on map composable
-const { showPointOnMap, showStationOnMap } = useShowPointOnMap({
+const { showPointOnMap, showStationOnMap, showGpsPosition } = useShowPointOnMap({
   mapRef,
   highlightedPointId,
   showListView,
   isMobile,
-  stationMarkerRefs
+  stationMarkerRefs,
+  gpsMarkerRef
 });
 
 // Use geolocation composable
@@ -162,18 +164,21 @@ const gpsIconUrl = computed(() =>
   return 'data:image/svg+xml;base64,' + btoa(svg);
 });
 
-// Function to center map on current position
+// Function to center map on current position and open popup
 function centerOnCurrentPosition(): void
 {
-  if (currentPosition.value && mapRef.value?.leafletObject)
+  if (currentPosition.value)
   {
-    mapRef.value.leafletObject.setView([currentPosition.value.lat, currentPosition.value.lng], 15);
+    showGpsPosition(currentPosition.value.lat, currentPosition.value.lng, 15);
   }
   else
   {
     getCurrentPosition().then(() =>
     {
-      centerOnCurrentPosition();
+      if (currentPosition.value)
+      {
+        showGpsPosition(currentPosition.value.lat, currentPosition.value.lng, 15);
+      }
     }).catch(() =>
     {
       // Error handling is done in the composable
@@ -534,6 +539,7 @@ onUnmounted(() =>
           <LMarker 
             :lat-lng="[currentPosition.lat, currentPosition.lng]"
             :key="'gps-marker'"
+            :ref="(el: any) => { gpsMarkerRef = el }"
           >
             <LIcon 
               :icon-url="gpsIconUrl"

@@ -73,12 +73,12 @@ describe('useNearbyStations', () =>
         const previous = result[i - 1];
         if (current && previous)
         {
-          expect(current.distanceKm).toBeGreaterThanOrEqual(previous.distanceKm);
+          expect(current.distanceMeters).toBeGreaterThanOrEqual(previous.distanceMeters);
         }
       }
     });
 
-    it('should include distanceKm and distanceMeters in result', () =>
+    it('should include distanceMeters in result', () =>
     {
       const { findNearbyStations } = useNearbyStations(() => mockStations);
       
@@ -87,9 +87,7 @@ describe('useNearbyStations', () =>
       expect(result.length).toBeGreaterThan(0);
       result.forEach(station =>
       {
-        expect(station).toHaveProperty('distanceKm');
         expect(station).toHaveProperty('distanceMeters');
-        expect(typeof station.distanceKm).toBe('number');
         expect(typeof station.distanceMeters).toBe('number');
       });
     });
@@ -171,7 +169,6 @@ describe('useNearbyStations', () =>
       const result = findNearbyStations(52.5200, 13.4050);
       const stationA = result.find(s => s.name === 'Station A');
       
-      expect(stationA?.distanceKm).toBeLessThan(0.01);
       expect(stationA?.distanceMeters).toBeLessThan(10);
     });
   });

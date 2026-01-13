@@ -1,6 +1,9 @@
 import { ref } from 'vue';
 import type { LeafletEvent, Map as LeafletMap, LatLngBoundsExpression, FitBoundsOptions } from 'leaflet';
 
+/**
+ * Latitude/longitude tuple for map coordinates
+ */
 type LatLngTuple = [number, number];
 
 // Default: Deutschland Mitte

@@ -23,6 +23,9 @@ const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error']
 });
 
+/**
+ * Launch point data structure for import
+ */
 interface LaunchPointData {
   name: string;
   latitude: number;

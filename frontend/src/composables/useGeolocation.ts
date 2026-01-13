@@ -1,5 +1,8 @@
 import { ref, onUnmounted } from 'vue';
 
+/**
+ * Geolocation position with accuracy
+ */
 interface GeolocationPosition {
   lat: number;
   lng: number;
@@ -13,6 +16,10 @@ export function useGeolocation()
   const isLocating = ref(false);
   let watchId: number | null = null;
 
+  /**
+   * Gets the current geolocation position once
+   * @returns Promise that resolves with the current position
+   */
   function getCurrentPosition(): Promise<GeolocationPosition> 
   {
     return new Promise((resolve, reject) => 
@@ -68,6 +75,10 @@ export function useGeolocation()
     });
   }
 
+  /**
+   * Starts watching the geolocation position and updates it automatically
+   * Does nothing if already watching
+   */
   function watchPosition(): void 
   {
     if (!navigator.geolocation) 
@@ -123,6 +134,9 @@ export function useGeolocation()
     );
   }
 
+  /**
+   * Stops watching the geolocation position
+   */
   function stopWatching(): void 
   {
     if (watchId !== null) 

@@ -1,6 +1,9 @@
 import { useRouter } from 'vue-router';
 import type { LaunchPoint } from '../types';
 
+/**
+ * Point for map navigation (launch point or station)
+ */
 export interface MapNavigationPoint {
   id: number;
   latitude: number;

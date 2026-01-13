@@ -77,6 +77,9 @@ function parseCSV(csvContent: string): string[][]
   return lines;
 }
 
+/**
+ * Public transport station data structure
+ */
 interface PublicTransportStationData {
   name: string;
   latitude: number;

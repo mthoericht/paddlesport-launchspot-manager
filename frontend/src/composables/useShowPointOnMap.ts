@@ -2,23 +2,86 @@ import type { Ref } from 'vue';
 import type { LaunchPoint } from '../types';
 import type { Map as LeafletMap, Layer as LeafletLayer, Marker as LeafletMarker } from 'leaflet';
 
+/**
+ * Geographic point with coordinates
+ */
 export interface MapPoint {
   id: number;
   latitude: number;
   longitude: number;
 }
 
+/**
+ * Options for useShowPointOnMap composable
+ */
 interface UseShowPointOnMapOptions {
   mapRef: Ref<{ leafletObject?: LeafletMap } | null>;
   highlightedPointId: Ref<number | null>;
   showListView: Ref<boolean>;
   isMobile: Ref<boolean>;
   stationMarkerRefs?: Ref<Record<number, { leafletObject?: LeafletMarker } | null>>;
+  gpsMarkerRef?: Ref<{ leafletObject?: LeafletMarker } | null>;
 }
 
 export function useShowPointOnMap(options: UseShowPointOnMapOptions) 
 {
-  const { mapRef, highlightedPointId, showListView, isMobile, stationMarkerRefs } = options;
+  const { mapRef, highlightedPointId, showListView, isMobile, stationMarkerRefs, gpsMarkerRef } = options;
+
+  /**
+   * Generic function to center map and open marker popup
+   * @param lat - Latitude
+   * @param lng - Longitude
+   * @param zoom - Zoom level
+   * @param markerRef - Optional marker ref to open popup directly
+   * @param findMarkerByCoordinates - Optional function to find marker by coordinates if no ref provided
+   */
+  function centerAndShowMarker(
+    lat: number,
+    lng: number,
+    zoom: number,
+    markerRef?: { leafletObject?: LeafletMarker } | null,
+    findMarkerByCoordinates?: (lat: number, lng: number) => LeafletMarker | null
+  ): void
+  {
+    if (!mapRef.value?.leafletObject) return;
+    
+    const map = mapRef.value.leafletObject;
+    
+    // Force map to invalidate size in case layout changed
+    map.invalidateSize();
+    
+    // Wait for size recalculation to complete before centering
+    requestAnimationFrame(() =>
+    {
+      // Center map on position after size is recalculated
+      map.setView([lat, lng], zoom, {
+        animate: true,
+        duration: 0.5
+      });
+      
+      // Open popup after animation completes
+      const openPopup = (): void =>
+      {
+        if (markerRef?.leafletObject)
+        {
+          // Direct marker ref available
+          (markerRef.leafletObject as LeafletMarker).openPopup();
+        }
+        else if (findMarkerByCoordinates)
+        {
+          // Find marker by coordinates
+          const marker = findMarkerByCoordinates(lat, lng);
+          if (marker)
+          {
+            marker.openPopup();
+          }
+        }
+      };
+      
+      // Wait for animation to complete (500ms duration + small buffer)
+      setTimeout(openPopup, 550);
+    });
+  }
 
   function showPointOnMap(point: LaunchPoint) 
   {
@@ -52,147 +115,37 @@ export function useShowPointOnMap(options: UseShowPointOnMapOptions)
 
   function centerAndShowPoint(point: LaunchPoint) 
   {
-    // Center map on point with higher zoom to ensure visibility
-    if (mapRef.value?.leafletObject) 
+    // Function to find marker by coordinates (for Launch Points without direct refs)
+    const findMarkerByCoordinates = (lat: number, lng: number): LeafletMarker | null =>
     {
+      if (!mapRef.value?.leafletObject) return null;
+      
       const map = mapRef.value.leafletObject;
+      let foundMarker: LeafletMarker | null = null;
       
-      // Force map to invalidate size in case layout changed
-      setTimeout(() => 
+      map.eachLayer((layer: LeafletLayer) =>
       {
-        map.invalidateSize();
-      }, 50);
-      
-      // Center map on point
-      map.setView([point.latitude, point.longitude], 16, {
-        animate: true,
-        duration: 0.5
-      });
-      
-      // Track if popup has been opened to prevent reopening
-      let popupOpened = false;
-      let retryTimeout: ReturnType<typeof setTimeout> | null = null;
-      
-      // Function to find and open popup for the marker
-      const findAndOpenPopup = (): boolean => 
-      {
-        // Don't try to open if already opened
-        if (popupOpened) return true;
-        
-        let markerFound = false;
-        map.eachLayer((layer: LeafletLayer) => 
+        if (foundMarker) return; // Already found
+        if (layer && typeof (layer as LeafletMarker).getLatLng === 'function')
         {
-          // Check if layer is a marker by checking for getLatLng method
-          if (layer && typeof (layer as LeafletMarker).getLatLng === 'function') 
+          const marker = layer as LeafletMarker;
+          const latlng = marker.getLatLng();
+          // Use a slightly larger tolerance for coordinate matching
+          if (Math.abs(latlng.lat - lat) < 0.0005 && Math.abs(latlng.lng - lng) < 0.0005)
           {
-            const marker = layer as LeafletMarker;
-            const latlng = marker.getLatLng();
-            // Use a slightly larger tolerance for coordinate matching
-            if (Math.abs(latlng.lat - point.latitude) < 0.0005 && 
-                Math.abs(latlng.lng - point.longitude) < 0.0005) 
+            const markerElement = marker.getElement?.();
+            if (markerElement && markerElement.offsetParent !== null)
             {
-              // Check if marker is actually rendered in the DOM
-              const markerElement = marker.getElement?.();
-              if (markerElement && markerElement.offsetParent !== null) 
-              {
-                // Check if popup is already open
-                const isPopupOpen = marker.isPopupOpen?.();
-                if (!isPopupOpen) 
-                {
-                  // Marker is visible, open popup only if not already open
-                  marker.openPopup();
-                  popupOpened = true;
-                  markerFound = true;
-                }
-                else 
-                {
-                  // Popup is already open
-                  popupOpened = true;
-                  markerFound = true;
-                }
-              }
+              foundMarker = marker;
             }
           }
-        });
-        return markerFound;
-      };
-      
-      // Cleanup function to clear retry timeouts
-      const cleanup = () => 
-      {
-        if (retryTimeout) 
-        {
-          clearTimeout(retryTimeout);
-          retryTimeout = null;
-        }
-      };
-      
-      // Wait for map animation to complete, then try to open popup
-      const openPopupAfterMove = () => 
-      {
-        // Don't proceed if popup already opened
-        if (popupOpened) return;
-        
-        // Wait a bit to ensure markers are fully rendered
-        retryTimeout = setTimeout(() => 
-        {
-          let markerFound = findAndOpenPopup();
-          
-          // If marker not found or not visible, retry with exponential backoff
-          if (!markerFound && !popupOpened) 
-          {
-            const retry = (attempt: number) => 
-            {
-              // Stop if popup already opened or max retries reached
-              if (popupOpened || attempt > 5) 
-              {
-                cleanup();
-                return;
-              }
-              
-              retryTimeout = setTimeout(() => 
-              {
-                markerFound = findAndOpenPopup();
-                if (!markerFound && !popupOpened) 
-                {
-                  retry(attempt + 1);
-                }
-                else 
-                {
-                  cleanup();
-                }
-              }, 200 * attempt); // Increasing delay: 200ms, 400ms, 600ms, etc.
-            };
-            retry(1);
-          }
-          else 
-          {
-            cleanup();
-          }
-        }, 500); // Wait for animation to complete
-      };
-      
-      // Listen for moveend event to ensure map has finished moving
-      map.once('moveend', openPopupAfterMove);
-      
-      // Also listen for zoomend in case zoom changes
-      map.once('zoomend', () => 
-      {
-        if (!popupOpened) 
-        {
-          setTimeout(openPopupAfterMove, 200);
         }
       });
       
-      // Fallback: if events don't fire, still try to open popup
-      retryTimeout = setTimeout(() => 
-      {
-        if (!popupOpened) 
-        {
-          openPopupAfterMove();
-        }
-      }, 1000);
-    }
+      return foundMarker;
+    };
+    
+    centerAndShowMarker(point.latitude, point.longitude, 16, undefined, findMarkerByCoordinates);
   }
 
   function showStationOnMap(station: MapPoint): void
@@ -202,33 +155,26 @@ export function useShowPointOnMap(options: UseShowPointOnMapOptions)
       showListView.value = false;
     }
     
-    if (mapRef.value?.leafletObject) 
-    {
-      const map = mapRef.value.leafletObject;
-      map.setView([station.latitude, station.longitude], 16, {
-        animate: true,
-        duration: 0.5
-      });
-      
-      // Open station popup after animation
-      setTimeout(() => 
-      {
-        if (stationMarkerRefs?.value) 
-        {
-          const markerRef = stationMarkerRefs.value[station.id];
-          if (markerRef?.leafletObject) 
-          {
-            (markerRef.leafletObject as LeafletMarker).openPopup();
-          }
-        }
-      }, 300);
-    }
+    const markerRef = stationMarkerRefs?.value?.[station.id];
+    centerAndShowMarker(station.latitude, station.longitude, 16, markerRef);
+  }
+
+  /**
+   * Centers map on GPS position and opens GPS marker popup
+   * @param lat - Latitude of GPS position
+   * @param lng - Longitude of GPS position
+   * @param zoom - Zoom level (default: 15)
+   */
+  function showGpsPosition(lat: number, lng: number, zoom: number = 15): void
+  {
+    centerAndShowMarker(lat, lng, zoom, gpsMarkerRef?.value);
   }
 
   return {
     showPointOnMap,
     centerAndShowPoint,
-    showStationOnMap
+    showStationOnMap,
+    showGpsPosition
   };
 }
 

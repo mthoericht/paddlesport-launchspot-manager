@@ -36,6 +36,9 @@ export interface CategoryInfo
 // Public Transport Types
 // ============================================================================
 
+/**
+ * Public transport type identifier
+ */
 export type PublicTransportType = 'train' | 'tram' | 'sbahn' | 'ubahn';
 
 /**
@@ -151,8 +154,14 @@ export interface ErrorResponse
 // Filter Types
 // ============================================================================
 
+/**
+ * Filter type for launch points
+ */
 export type FilterType = 'all' | 'mine' | 'official' | 'user';
 
+/**
+ * Filter state for launch point filtering
+ */
 export interface FilterState 
 {
   type: FilterType;

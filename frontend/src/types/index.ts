@@ -18,6 +18,9 @@ export type {
 
 // Frontend-specific types (not part of the API contract)
 
+/**
+ * Category name as string
+ */
 export type Category = string;
 
 /**

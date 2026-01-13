@@ -22,6 +22,32 @@ function toRad(deg: number): number
  * @param lon1 - Longitude of the first point
  * @param lat2 - Latitude of the second point
  * @param lon2 - Longitude of the second point
+ * @returns Distance in meters (air distance)
+ */
+function calculateDistanceMeters(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number
+{
+  const R = 6371000; // Earth's radius in meters
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c);
+}
+
+/**
+ * Calculates the distance between two geographic points using the Haversine formula
+ * @param lat1 - Latitude of the first point
+ * @param lon1 - Longitude of the first point
+ * @param lat2 - Latitude of the second point
+ * @param lon2 - Longitude of the second point
  * @returns Distance in kilometers (air distance)
  */
 function calculateDistanceKm(
@@ -31,23 +57,13 @@ function calculateDistanceKm(
   lon2: number
 ): number
 {
-  const R = 6371; // Earth's radius in km
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
+  return calculateDistanceMeters(lat1, lon1, lat2, lon2) / 1000;
 }
 
 /**
  * Extends PublicTransportPoint with calculated distance information
  */
 export interface NearbyStation extends PublicTransportPoint {
-  /** Distance from the reference point in kilometers */
-  distanceKm: number;
   /** Distance from the reference point in meters (rounded) */
   distanceMeters: number;
 }
@@ -75,17 +91,15 @@ export function useNearbyStations(allStations: () => PublicTransportPoint[])
   ): NearbyStation[]
   {
     const stations = allStations();
+    const maxDistanceMeters = maxDistanceKm * 1000;
     
     const stationsWithDistance = stations
       .map(station => ({
         ...station,
-        distanceKm: calculateDistanceKm(latitude, longitude, station.latitude, station.longitude),
-        distanceMeters: Math.round(
-          calculateDistanceKm(latitude, longitude, station.latitude, station.longitude) * 1000
-        )
+        distanceMeters: calculateDistanceMeters(latitude, longitude, station.latitude, station.longitude)
       }))
-      .filter(station => station.distanceKm <= maxDistanceKm)
-      .sort((a, b) => a.distanceKm - b.distanceKm)
+      .filter(station => station.distanceMeters <= maxDistanceMeters)
+      .sort((a, b) => a.distanceMeters - b.distanceMeters)
       .slice(0, maxStations);
 
     return stationsWithDistance;

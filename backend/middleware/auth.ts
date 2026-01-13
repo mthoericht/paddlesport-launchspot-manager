@@ -3,6 +3,9 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'paddlesport-secret-key-2024';
 
+/**
+ * Express request with authenticated user information
+ */
 export interface AuthRequest extends Request {
   user?: {
     id: number;

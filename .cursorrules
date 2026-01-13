@@ -1,0 +1,14 @@
+# Cursor Rules
+
+## Important: Always check AGENTS.md
+
+**ALWAYS read and follow the guidelines in `AGENTS.md` before making any changes or answering questions about this codebase.**
+
+The `AGENTS.md` file contains:
+- Project architecture and structure
+- Code style guidelines
+- Available commands and scripts
+- Testing conventions
+- TypeScript and Vue.js best practices
+
+Before starting any task, review `AGENTS.md` to ensure your changes align with the project's conventions and architecture.

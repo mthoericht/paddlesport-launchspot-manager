@@ -1,11 +1,17 @@
 import { ref } from 'vue';
 import type { LeafletMouseEvent } from 'leaflet';
 
+/**
+ * Screen position coordinates
+ */
 interface Position {
   x: number;
   y: number;
 }
 
+/**
+ * Geographic coordinates (latitude/longitude)
+ */
 interface LatLng {
   lat: number;
   lng: number;
@@ -16,9 +22,9 @@ export function useContextMenu()
   const showContextMenu = ref(false);
   const contextMenuPosition = ref<Position>({ x: 0, y: 0 });
   const contextMenuLatLng = ref<LatLng>({ lat: 0, lng: 0 });
-  let pendingTimeout: ReturnType<typeof setTimeout> | null = null;
-  let pendingPosition: Position | null = null;
-  let pendingLatLng: LatLng | null = null;
+  let pendingPopupTimeout: ReturnType<typeof setTimeout> | null = null;
+  let pendingPopupPosition: Position | null = null;
+  let pendingPopupLatLng: LatLng | null = null;
   let menuOpenedByMouseDown = false; // Flag to track if menu was opened by mousedown
   let menuOpenTime = 0; // Timestamp when menu was opened
 
@@ -44,12 +50,12 @@ export function useContextMenu()
 
   function cancelPendingMenu(): void 
   {
-    if (pendingTimeout)
+    if (pendingPopupTimeout)
     {
-      clearTimeout(pendingTimeout);
-      pendingTimeout = null;
-      pendingPosition = null;
-      pendingLatLng = null;
+      clearTimeout(pendingPopupTimeout);
+      pendingPopupTimeout = null;
+      pendingPopupPosition = null;
+      pendingPopupLatLng = null;
     }
   }
 
@@ -81,19 +87,19 @@ export function useContextMenu()
     cancelPendingMenu();
     
     // Save position for later
-    pendingPosition = { x, y };
-    pendingLatLng = { lat, lng };
+    pendingPopupPosition = { x, y };
+    pendingPopupLatLng = { lat, lng };
     
     // 500ms delay for left-click/touch events
-    pendingTimeout = setTimeout(() =>
+    pendingPopupTimeout = setTimeout(() =>
     {
-      if (pendingPosition && pendingLatLng)
+      if (pendingPopupPosition && pendingPopupLatLng)
       {
-        openContextMenu(pendingPosition, pendingLatLng, true); // true = opened by mousedown
+        openContextMenu(pendingPopupPosition, pendingPopupLatLng, true); // true = opened by mousedown
       }
-      pendingTimeout = null;
-      pendingPosition = null;
-      pendingLatLng = null;
+      pendingPopupTimeout = null;
+      pendingPopupPosition = null;
+      pendingPopupLatLng = null;
     }, 500);
     
     return true;

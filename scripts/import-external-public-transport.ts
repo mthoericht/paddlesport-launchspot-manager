@@ -22,6 +22,9 @@ const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error']
 });
 
+/**
+ * Public transport station data structure for import
+ */
 interface PublicTransportStationData {
   name: string;
   latitude: number;

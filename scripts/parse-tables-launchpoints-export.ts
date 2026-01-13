@@ -11,6 +11,9 @@ const rawDataPath = args.length > 0
   : path.join(__dirname, 'external-data-preset', 'launchpoint-tables-export.json');
 
 // Load raw PDF data from JSON file
+/**
+ * Raw PDF entry data structure
+ */
 interface RawPdfEntry {
   betreiber: string;
   anleger: string;
@@ -63,6 +66,9 @@ catch (error: any)
   process.exit(1);
 }
 
+/**
+ * Geocoding result with coordinates
+ */
 interface GeocodeResult {
   lat: number;
   lon: number;

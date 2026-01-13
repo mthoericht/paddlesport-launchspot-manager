@@ -4,6 +4,9 @@ import type { LeafletMouseEvent } from 'leaflet';
 import { useLaunchPointsStore } from '../stores/launchPoints';
 import type { LaunchPointFormData } from '../types';
 
+/**
+ * Latitude/longitude tuple for map coordinates
+ */
 type LatLngTuple = [number, number];
 
 /** Default latitude (center of Germany) */
@@ -13,7 +16,9 @@ const DEFAULT_LNG = 10.4515;
 /** Default zoom level for initial map view */
 const DEFAULT_ZOOM = 6;
 
-/** Initial form values derived from URL query parameters */
+/**
+ * Initial form values derived from URL query parameters
+ */
 interface InitialValues {
   latitude: number;
   longitude: number;

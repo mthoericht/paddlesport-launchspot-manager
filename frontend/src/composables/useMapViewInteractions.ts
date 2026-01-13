@@ -6,6 +6,9 @@ import { useMapState } from './useMapState';
 import { useMapNavigation } from './useMapNavigation';
 import { useAddressSearch } from './useAddressSearch';
 
+/**
+ * Options for useMapViewInteractions composable
+ */
 interface UseMapViewInteractionsOptions {
   mapRef: Ref<InstanceType<typeof import('@vue-leaflet/vue-leaflet').LMap> | null>;
 }
