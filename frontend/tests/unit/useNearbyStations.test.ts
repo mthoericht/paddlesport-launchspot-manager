@@ -69,7 +69,12 @@ describe('useNearbyStations', () =>
       // Verify sorted by distance (ascending)
       for (let i = 1; i < result.length; i++)
       {
-        expect(result[i].distanceKm).toBeGreaterThanOrEqual(result[i - 1].distanceKm);
+        const current = result[i];
+        const previous = result[i - 1];
+        if (current && previous)
+        {
+          expect(current.distanceKm).toBeGreaterThanOrEqual(previous.distanceKm);
+        }
       }
     });
 

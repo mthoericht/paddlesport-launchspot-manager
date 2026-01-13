@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch, onBeforeUnmount, nextTick, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { LMap, LTileLayer, LMarker, LPopup, LIcon, LCircle } from '@vue-leaflet/vue-leaflet';
 import { useLaunchPointsStore } from '../stores/launchPoints';
 import { usePublicTransportStore } from '../stores/publicTransport';
@@ -15,6 +15,7 @@ import type { LaunchPoint, PublicTransportType } from '../types';
 const launchPointsStore = useLaunchPointsStore();
 const publicTransportStore = usePublicTransportStore();
 const route = useRoute();
+const router = useRouter();
 
 // Local refs
 const mapRef = ref<any>(null);
@@ -215,6 +216,10 @@ function addPointAtCurrentPosition(): void
   }
 }
 
+function clearHighlightQueryParams() {
+  router.replace({ path: route.path, query: {} });
+}
+
 function handleHighlightFromQuery() {
   const highlightId = route.query.highlight;
   const lat = route.query.lat;
@@ -235,6 +240,7 @@ function handleHighlightFromQuery() {
     // Check if marker refs are already available
     if (stationMarkerRefs.value[station.id]) {
       showStationOnMap(station);
+      clearHighlightQueryParams();
     } else {
       // Wait for stations to load and markers to render
       const unwatch = watch(
@@ -243,6 +249,7 @@ function handleHighlightFromQuery() {
           nextTick(() => {
             if (stationMarkerRefs.value[station.id]) {
               showStationOnMap(station);
+              clearHighlightQueryParams();
               unwatch();
             }
           });
@@ -264,6 +271,7 @@ function handleHighlightFromQuery() {
     
     if (point) {
       showPointOnMap(point);
+      clearHighlightQueryParams();
     } else if (mapRef.value?.leafletObject) {
       // Point not loaded yet, center map and wait for points to load
       mapRef.value.leafletObject.setView([parseFloat(lat as string), parseFloat(lng as string)], 15);
@@ -273,6 +281,7 @@ function handleHighlightFromQuery() {
         const foundPoint = points.find(p => p.id === pointId);
         if (foundPoint) {
           showPointOnMap(foundPoint);
+          clearHighlightQueryParams();
           unwatch();
         }
       }, { immediate: true });

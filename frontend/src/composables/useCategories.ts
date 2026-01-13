@@ -25,19 +25,23 @@ const COLOR_PALETTE = [
   '#84cc16', // lime
 ];
 
+// Default fallback color
+const FALLBACK_COLOR = '#f59e0b';
+
 // Generate a color for a category based on its name
-function generateCategoryColor(categoryName: string): string 
+function generateCategoryColor(categoryName: string | undefined): string 
 {
   // Handle undefined or empty category name
   if (!categoryName || typeof categoryName !== 'string') 
   {
-    return COLOR_PALETTE[0]; // Return first color as fallback
+    return COLOR_PALETTE[0] ?? FALLBACK_COLOR;
   }
   
   // Use default color if available
-  if (DEFAULT_CATEGORY_COLORS[categoryName]) 
+  const defaultColor = DEFAULT_CATEGORY_COLORS[categoryName];
+  if (defaultColor) 
   {
-    return DEFAULT_CATEGORY_COLORS[categoryName];
+    return defaultColor;
   }
   
   // Generate a consistent color based on category name hash
@@ -47,7 +51,7 @@ function generateCategoryColor(categoryName: string): string
     hash = categoryName.charCodeAt(i) + ((hash << 5) - hash);
   }
   const index = Math.abs(hash) % COLOR_PALETTE.length;
-  return COLOR_PALETTE[index];
+  return COLOR_PALETTE[index] ?? FALLBACK_COLOR;
 }
 
 export function useCategories() 

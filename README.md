@@ -117,6 +117,22 @@ The frontend uses Vue 3 Composition API with custom composables for reusable log
   - Shared type definitions in `backend/types/point.ts`
   - No `as any` or `as unknown` assertions in production code
 
+### Shared Types
+
+The project uses a **shared types architecture** to ensure type consistency between frontend and backend (Data Transfer Objects):
+
+```
+shared/
+└── types/
+    ├── api.ts      # LaunchPoint, PublicTransportPoint, CategoryInfo, etc.
+    └── index.ts    # Re-exports
+```
+
+- **Shared types** define the API contract between frontend and backend
+- **Mapper functions** in `backend/mappers/` transform Prisma models to API types
+- Frontend and backend import the same types directly
+- All API responses conform to the shared type definitions
+
 ### Database
 - **SQLite** with Prisma ORM
 - **Point-based architecture**: Base `Point` model with shared location data (name, latitude, longitude)

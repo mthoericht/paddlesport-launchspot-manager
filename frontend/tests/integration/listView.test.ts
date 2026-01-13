@@ -36,6 +36,7 @@ describe('List View Integration', () =>
           nearby_waters: 'River Spree',
           food_supply: 'Restaurant nearby',
           categories: ['Kajak'],
+          category_ids: [1],
           public_transport_stations: [],
           created_by: 1,
           creator_username: 'testuser',
@@ -53,6 +54,7 @@ describe('List View Integration', () =>
           nearby_waters: null,
           food_supply: null,
           categories: ['SUP', 'Schwimmen'],
+          category_ids: [2, 3],
           public_transport_stations: [
             { id: 1, name: 'Station 1', distance_meters: 100 }
           ],
@@ -90,6 +92,7 @@ describe('List View Integration', () =>
           nearby_waters: null,
           food_supply: null,
           categories: ['Kajak'],
+          category_ids: [1],
           public_transport_stations: [],
           created_by: 1,
           creator_username: 'testuser',
@@ -124,6 +127,7 @@ describe('List View Integration', () =>
         nearby_waters: 'River',
         food_supply: 'Food',
         categories: ['Kajak', 'SUP'],
+        category_ids: [1, 2],
         public_transport_stations: [
           { id: 1, name: 'Station', distance_meters: 200 }
         ],
@@ -182,6 +186,7 @@ describe('List View Integration', () =>
         nearby_waters: null,
         food_supply: null,
         categories: ['Kajak'],
+        category_ids: [1],
         public_transport_stations: [],
         created_by: 1,
         creator_username: 'testuser',
@@ -223,6 +228,7 @@ describe('List View Integration', () =>
         nearby_waters: null,
         food_supply: null,
         categories: [],
+        category_ids: [],
         public_transport_stations: [],
         created_by: 1,
         creator_username: 'testuser',

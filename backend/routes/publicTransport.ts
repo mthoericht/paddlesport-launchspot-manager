@@ -1,9 +1,7 @@
 import { Router } from 'express';
 import prisma from '../prisma.js';
-import type {
-  PublicTransportPointWithRelations,
-  PublicTransportPointTypeRelation
-} from '../types/point.js';
+import type { PublicTransportPointWithRelations } from '../types/point.js';
+import { toPublicTransportPointDtoList } from '../mappers/index.js';
 
 const router = Router();
 
@@ -22,17 +20,8 @@ router.get('/', async (req, res) =>
       }
     });
 
-    // Transform to API format (flatten point data)
-    const result = publicTransportPoints.map(ptp => ({
-      id: ptp.id,
-      name: ptp.point.name,
-      latitude: ptp.point.latitude,
-      longitude: ptp.point.longitude,
-      lines: ptp.lines || '',
-      types: ptp.types.map((t: PublicTransportPointTypeRelation) => t.type)
-    }));
-
-    res.json(result);
+    // Transform to DTO format using mapper
+    res.json(toPublicTransportPointDtoList(publicTransportPoints));
   }
   catch (error: unknown)
   {

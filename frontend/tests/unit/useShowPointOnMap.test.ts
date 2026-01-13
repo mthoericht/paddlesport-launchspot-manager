@@ -73,6 +73,7 @@ describe('useShowPointOnMap', () =>
     nearby_waters: null,
     food_supply: null,
     categories: ['Kajak'],
+    category_ids: [1],
     public_transport_stations: [],
     created_by: 1,
     creator_username: 'testuser',

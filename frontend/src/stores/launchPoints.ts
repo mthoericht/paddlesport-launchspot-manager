@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { LaunchPoint, LaunchPointFormData, FilterState, Category } from '../types';
+import type { LaunchPoint, LaunchPointFormData, FilterState } from '../types';
 import { useAuthStore } from './auth';
 import { API_BASE_URL } from '../config/api';
 

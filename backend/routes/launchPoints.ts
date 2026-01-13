@@ -4,21 +4,17 @@ import { authenticateToken, AuthRequest } from '../middleware/auth.js';
 import type { Prisma } from '@prisma/client';
 import type {
   PointData,
-  CategoryData,
-  StationData,
   LaunchPointWithRelations,
-  LaunchPointCreateData,
   LaunchPointDelegate
 } from '../types/point.js';
+import { toLaunchPointDto, toLaunchPointDtoList, toCategoryDto } from '../mappers/index.js';
+import type { PublicTransportStationDto } from '../../shared/types/api.js';
 
 const router = Router();
 
 type LaunchPointWhereInput = Prisma.LaunchPointWhereInput;
 
-type PublicTransportStationInput = {
-  name: string;
-  distance_meters: number;
-};
+type PublicTransportStationInput = PublicTransportStationDto;
 
 type TransactionClient = Omit<Prisma.TransactionClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$extends'> & {
   point: {
@@ -81,31 +77,8 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response) =>
       orderBy: { createdAt: 'desc' }
     });
 
-    // Transform to expected format
-    const result = launchPoints.map((lp) => ({
-      id: lp.id,
-      name: lp.point.name,
-      latitude: lp.point.latitude,
-      longitude: lp.point.longitude,
-      is_official: lp.isOfficial,
-      hints: lp.hints,
-      opening_hours: lp.openingHours,
-      parking_options: lp.parkingOptions,
-      nearby_waters: lp.nearbyWaters,
-      food_supply: lp.foodSupply,
-      created_by: lp.createdById,
-      creator_username: lp.createdBy.username,
-      created_at: lp.createdAt.toISOString(),
-      categories: lp.categories.map((c) => c.category.name_de),
-      category_ids: lp.categories.map((c) => c.categoryId),
-      public_transport_stations: lp.stations.map((s) => ({
-        id: s.id,
-        name: s.name,
-        distance_meters: s.distanceMeters
-      }))
-    }));
-
-    res.json(result);
+    // Transform to DTO format using mapper
+    res.json(toLaunchPointDtoList(launchPoints));
   }
   catch (error) 
   {
@@ -123,12 +96,7 @@ router.get('/categories', authenticateToken, async (req: AuthRequest, res: Respo
       orderBy: { name_de: 'asc' }
     });
 
-    const categoryList = categories.map(c => ({
-      id: c.id,
-      name_en: c.name_en,
-      name_de: c.name_de
-    }));
-    res.json(categoryList);
+    res.json(categories.map(toCategoryDto));
   }
   catch (error) 
   {
@@ -169,28 +137,7 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
       return res.status(404).json({ error: 'Einsetzpunkt nicht gefunden.' });
     }
 
-    res.json({
-      id: launchPoint.id,
-      name: launchPoint.point.name,
-      latitude: launchPoint.point.latitude,
-      longitude: launchPoint.point.longitude,
-      is_official: launchPoint.isOfficial,
-      hints: launchPoint.hints,
-      opening_hours: launchPoint.openingHours,
-      parking_options: launchPoint.parkingOptions,
-      nearby_waters: launchPoint.nearbyWaters,
-      food_supply: launchPoint.foodSupply,
-      created_by: launchPoint.createdById,
-      creator_username: launchPoint.createdBy.username,
-      created_at: launchPoint.createdAt.toISOString(),
-      categories: launchPoint.categories.map((c) => c.category.name_de),
-      category_ids: launchPoint.categories.map((c) => c.categoryId),
-      public_transport_stations: launchPoint.stations.map((s) => ({
-        id: s.id,
-        name: s.name,
-        distance_meters: s.distanceMeters
-      }))
-    });
+    res.json(toLaunchPointDto(launchPoint));
   }
   catch (error) 
   {
