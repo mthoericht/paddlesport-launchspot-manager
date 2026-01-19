@@ -8,13 +8,11 @@ import type {
   LaunchPointDelegate
 } from '../types/point.js';
 import { toLaunchPointDto, toLaunchPointDtoList, toCategoryDto } from '../mappers/index.js';
-import type { PublicTransportStationDto } from '../../shared/types/api.js';
+import type { PublicTransportStation } from '../../shared/types/api.js';
 
 const router = Router();
 
 type LaunchPointWhereInput = Prisma.LaunchPointWhereInput;
-
-type PublicTransportStationInput = PublicTransportStationDto;
 
 type TransactionClient = Omit<Prisma.TransactionClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$extends'> & {
   point: {
@@ -277,7 +275,7 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) =>
               create: validCategoryIds.map((categoryId: number) => ({ categoryId }))
             },
             stations: {
-              create: ((public_transport_stations as PublicTransportStationInput[]) || []).slice(0, 5).map((s) => ({
+              create: ((public_transport_stations as PublicTransportStation[]) || []).slice(0, 5).map((s) => ({
                 name: s.name,
                 distanceMeters: s.distance_meters
               }))
@@ -371,7 +369,7 @@ router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
     }
 
     // Get the launch point to access its point relation
-    const existingLaunchPoint: LaunchPointWithRelations | null = await prisma.launchPoint.findUnique({
+    const existingLaunchPoint = await prisma.launchPoint.findUnique({
       where: { id },
       include: { point: true }
     });
@@ -433,7 +431,7 @@ router.put('/:id', authenticateToken, async (req: AuthRequest, res: Response) =>
       {
         await tx.publicTransportStation.deleteMany({ where: { launchPointId: id } });
         await tx.publicTransportStation.createMany({
-          data: (public_transport_stations as PublicTransportStationInput[]).slice(0, 5).map((s) => ({
+          data: (public_transport_stations as PublicTransportStation[]).slice(0, 5).map((s) => ({
             launchPointId: id,
             name: s.name,
             distanceMeters: s.distance_meters
@@ -475,7 +473,7 @@ router.delete('/:id', authenticateToken, async (req: AuthRequest, res: Response)
     }
 
     // Get point relation before deleting
-    const launchPointWithPoint: LaunchPointWithRelations | null = await prisma.launchPoint.findUnique({
+    const launchPointWithPoint = await prisma.launchPoint.findUnique({
       where: { id },
       include: { point: true }
     });
