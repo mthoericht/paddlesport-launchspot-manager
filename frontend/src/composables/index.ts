@@ -14,5 +14,5 @@ export { useGeolocation } from './useGeolocation';
 export { useNearbyStations } from './useNearbyStations';
 export type { NearbyStation } from './useNearbyStations';
 export { useWalkingRoute } from './useWalkingRoute';
-export type { WalkingRouteState } from './useWalkingRoute';
+
 

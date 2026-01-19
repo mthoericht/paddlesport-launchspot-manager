@@ -1,14 +1,9 @@
-import { ref, type Ref } from 'vue';
+import { ref } from 'vue';
 
-export interface WalkingRouteState
-{
-  route: Ref<[number, number][]>;
-  distance: Ref<number>;
-  duration: Ref<number>;
-  isLoading: Ref<boolean>;
-  error: Ref<string | null>;
-}
-
+/**
+ * OSRM routing API response structure
+ * @see https://project-osrm.org/docs/v5.24.0/api/#responses
+ */
 interface OSRMResponse
 {
   code: string;
@@ -23,8 +18,9 @@ interface OSRMResponse
 }
 
 /**
- * Composable for fetching walking routes from OSRM routing API
- * @returns Reactive state and functions for managing walking routes
+ * Composable for fetching pedestrian routes from the OSRM routing API.
+ * Uses OpenStreetMap Germany routing service. Coordinates are converted
+ * from OSRM's [lng, lat] to Leaflet's [lat, lng] format.
  */
 export function useWalkingRoute()
 {
@@ -35,11 +31,9 @@ export function useWalkingRoute()
   const error = ref<string | null>(null);
 
   /**
-   * Fetches a walking route between two points using the OSRM API
-   * @param fromLat - Latitude of the starting point
-   * @param fromLng - Longitude of the starting point
-   * @param toLat - Latitude of the destination point
-   * @param toLng - Longitude of the destination point
+   * Fetches a walking route between two points.
+   * On success: populates route, distance, duration.
+   * On failure: sets error and resets route data.
    */
   async function fetchWalkingRoute(
     fromLat: number,
@@ -88,9 +82,7 @@ export function useWalkingRoute()
     }
   }
 
-  /**
-   * Clears the current route and resets all state
-   */
+  /** Clears the current route and resets all state to initial values */
   function clearRoute(): void
   {
     route.value = [];
