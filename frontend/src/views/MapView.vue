@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch, onBeforeUnmount, nextTick, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { LMap, LTileLayer, LMarker, LPopup, LIcon, LCircle } from '@vue-leaflet/vue-leaflet';
+import { LMap, LTileLayer, LMarker, LPopup, LIcon, LCircle, LPolyline } from '@vue-leaflet/vue-leaflet';
 import { useLaunchPointsStore } from '../stores/launchPoints';
 import { usePublicTransportStore } from '../stores/publicTransport';
-import { useMapViewInteractions, useCategories, useShowPointOnMap, useGeolocation, useNearbyStations } from '../composables';
+import { useMapViewInteractions, useCategories, useShowPointOnMap, useGeolocation, useNearbyStations, useWalkingRoute } from '../composables';
 import type { NearbyStation } from '../composables';
+import type { LaunchPoint as LaunchPointType } from '../types';
 import FilterPanel from '../components/FilterPanel.vue';
 import AppHeader from '../components/AppHeader.vue';
 import LaunchPointListView from '../components/LaunchPointListView.vue';
@@ -31,6 +32,55 @@ const nearbyStations = ref<NearbyStation[]>([]);
 
 // Nearby stations composable
 const { findNearbyStations } = useNearbyStations(() => publicTransportStore.publicTransportPoints);
+
+// Walking route composable
+const { 
+  route: walkingRoute, 
+  distance: walkingDistance, 
+  duration: walkingDuration, 
+  isLoading: walkingRouteLoading, 
+  fetchWalkingRoute, 
+  clearRoute: clearWalkingRoute 
+} = useWalkingRoute();
+
+// Store reference to current launchpoint for walking route
+const walkingRouteTarget = ref<{ stationName: string; pointName: string; lat: number; lng: number } | null>(null);
+
+// Show walking route from station to launch point
+function showWalkingRoute(station: NearbyStation, point: LaunchPointType): void
+{
+  walkingRouteTarget.value = { stationName: station.name, pointName: point.name, lat: point.latitude, lng: point.longitude };
+  fetchWalkingRoute(station.latitude, station.longitude, point.latitude, point.longitude);
+  
+  // Close the launchpoint popup
+  if (mapRef.value?.leafletObject)
+  {
+    mapRef.value.leafletObject.closePopup();
+  }
+}
+
+// Format distance for display
+function formatWalkingDistance(meters: number): string
+{
+  if (meters >= 1000)
+  {
+    return `${(meters / 1000).toFixed(1)} km`;
+  }
+  return `${Math.round(meters)} m`;
+}
+
+// Format duration for display
+function formatWalkingDuration(seconds: number): string
+{
+  const minutes = Math.round(seconds / 60);
+  if (minutes >= 60)
+  {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return `${hours} Std. ${remainingMinutes} Min.`;
+  }
+  return `${minutes} Min.`;
+}
 
 function handlePopupOpen(point: { id: number; latitude: number; longitude: number })
 {
@@ -476,6 +526,19 @@ onUnmounted(() =>
                           <circle cx="12" cy="10" r="3"/>
                         </svg>
                       </button>
+                      <button 
+                        class="station-map-btn station-walk-btn"
+                        @click="showWalkingRoute(station, point)"
+                        title="Fußweg anzeigen"
+                        :disabled="walkingRouteLoading"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="4" r="2"/>
+                          <path d="M15 22v-4l-3-3 2-4 3 3h3"/>
+                          <path d="M9 14l-3 8"/>
+                          <path d="M12 11V9"/>
+                        </svg>
+                      </button>
                     </div>
                   </li>
                 </ul>
@@ -567,6 +630,46 @@ onUnmounted(() =>
             :weight="1"
           />
         </template>
+        
+        <!-- Walking Route Polyline -->
+        <LPolyline
+          v-if="walkingRoute.length > 0"
+          :lat-lngs="walkingRoute"
+          color="#2563eb"
+          :weight="4"
+          :opacity="0.8"
+          dash-array="8, 8"
+          :no-clip="true"
+        />
+        
+        <!-- Walking Route Info Marker at destination -->
+        <LMarker
+          v-if="walkingRoute.length > 0 && walkingRouteTarget"
+          :lat-lng="[walkingRouteTarget.lat, walkingRouteTarget.lng]"
+          :z-index-offset="1000"
+        >
+          <LPopup :options="{ autoClose: false, closeOnClick: false }">
+            <div class="popup-content walking-route-popup">
+              <h4>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <circle cx="12" cy="4" r="2"/>
+                  <path d="M15 22v-4l-3-3 2-4 3 3h3"/>
+                  <path d="M9 14l-3 8"/>
+                  <path d="M12 11V9"/>
+                </svg>
+                Fußweg
+              </h4>
+              <p class="walking-route-target">{{ walkingRouteTarget.stationName }} → {{ walkingRouteTarget.pointName }}</p>
+              <div class="walking-route-info">
+                <span class="walking-distance">{{ formatWalkingDistance(walkingDistance) }}</span>
+                <span class="walking-duration">~{{ formatWalkingDuration(walkingDuration) }}</span>
+              </div>
+              <button class="popup-btn walking-route-close" @click="clearWalkingRoute(); walkingRouteTarget = null;">
+                Route schließen
+              </button>
+            </div>
+          </LPopup>
+        </LMarker>
       </LMap>
       
       <!-- GPS Location Button -->
@@ -1084,6 +1187,85 @@ onUnmounted(() =>
 .station-map-btn svg {
   width: 0.75rem;
   height: 0.75rem;
+}
+
+.station-walk-btn {
+  background: linear-gradient(135deg, #059669, #10b981);
+}
+
+.station-walk-btn:hover {
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
+}
+
+.station-walk-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+/* Walking Route Popup */
+.walking-route-popup {
+  min-width: 180px;
+}
+
+.walking-route-popup h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.25rem 0;
+}
+
+.walking-route-popup h4 svg {
+  color: #059669;
+}
+
+.walking-route-target {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0 0 0.5rem 0;
+}
+
+.walking-route-info {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.walking-distance {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #2563eb;
+  background: #dbeafe;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.walking-duration {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #059669;
+  background: #d1fae5;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.walking-route-close {
+  width: 100%;
+  font-size: 0.75rem;
+  padding: 0.375rem 0.5rem;
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.walking-route-close:hover {
+  background: #e2e8f0;
+  color: #1e293b;
 }
 
 .fab {
