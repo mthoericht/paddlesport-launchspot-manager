@@ -1,12 +1,14 @@
 import { ref, onUnmounted } from 'vue';
 
 /**
- * Geolocation position with accuracy
+ * Geolocation position with accuracy and heading
  */
 interface GeolocationPosition {
   lat: number;
   lng: number;
   accuracy: number;
+  heading: number | null;  // Direction in degrees (0 = North, 90 = East, etc.), null if unavailable
+  speed: number | null;    // Speed in m/s, null if unavailable
 }
 
 export function useGeolocation() 
@@ -39,7 +41,9 @@ export function useGeolocation()
           const pos: GeolocationPosition = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
-            accuracy: position.coords.accuracy || 0
+            accuracy: position.coords.accuracy || 0,
+            heading: position.coords.heading,
+            speed: position.coords.speed
           };
           currentPosition.value = pos;
           isLocating.value = false;
@@ -102,7 +106,9 @@ export function useGeolocation()
         currentPosition.value = {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
-          accuracy: position.coords.accuracy || 0
+          accuracy: position.coords.accuracy || 0,
+          heading: position.coords.heading,
+          speed: position.coords.speed
         };
         isLocating.value = false;
       },

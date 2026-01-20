@@ -54,6 +54,7 @@ body {
   color: var(--text-primary);
   line-height: 1.5;
   min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height - accounts for mobile browser UI */
 }
 
 h1, h2, h3, h4, h5, h6 {

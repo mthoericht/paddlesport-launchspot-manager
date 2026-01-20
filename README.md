@@ -22,6 +22,8 @@ A full-stack web application for managing launch points for kayaking, canoeing, 
   - Automatic position updates
   - "Center on my position" button
   - Add launch point at current GPS position from marker popup
+  - **Heading indicator** - Shows direction arrow when device is moving (requires GPS heading data)
+  - Speed display in km/h when moving
 - **Map view persistence** - Remembers zoom level and position when navigating
   - Preserves view when adding points
   - Restores view when using back button
@@ -117,6 +119,8 @@ The frontend uses Vue 3 Composition API with custom composables for reusable log
 - **`useGeolocation`** - GPS position tracking and management:
   - Continuous position updates via `watchPosition()`
   - One-time position request via `getCurrentPosition()`
+  - **Heading support** - Direction in degrees (0° = North, 90° = East, etc.) when device is moving
+  - **Speed tracking** - Movement speed in m/s (displayed as km/h in UI)
   - Error handling for permission denied, unavailable, and timeout cases
   - Automatic cleanup on component unmount
 - **`useWalkingRoute`** - Walking route calculation via OSRM API:
@@ -316,7 +320,7 @@ The test suite covers:
 - ✅ Public transport stations retrieval
 - ✅ Nearby stations calculation (Haversine distance)
 - ✅ Mobile vs. desktop behavior
-- ✅ GPS position tracking and error handling
+- ✅ GPS position tracking, heading, speed, and error handling
 
 ## 🔐 API Endpoints
 

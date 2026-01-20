@@ -360,6 +360,7 @@ onMounted(async () => {
 <style scoped>
 .detail-view {
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg-primary);
 }
 

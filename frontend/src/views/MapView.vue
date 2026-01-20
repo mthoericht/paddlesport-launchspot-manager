@@ -242,16 +242,55 @@ const { showPointOnMap, showStationOnMap, showGpsPosition } = useShowPointOnMap(
 // Use geolocation composable
 const { currentPosition, isLocating, getCurrentPosition, watchPosition, stopWatching } = useGeolocation();
 
+// Convert heading degrees to compass direction
+function getCompassDirection(heading: number): string
+{
+  const directions = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'] as const;
+  const index = Math.round(heading / 45) % 8;
+  return directions[index] ?? 'N';
+}
+
 // Create GPS marker icon as SVG data URL
+// If heading is available, show a directional arrow
 const gpsIconUrl = computed(() => 
 {
-  const svg = `
-    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="12" cy="12" r="10" fill="#4285F4" stroke="white" stroke-width="2"/>
-      <circle cx="12" cy="12" r="4" fill="white"/>
-    </svg>
-  `;
-  return 'data:image/svg+xml;base64,' + btoa(svg);
+  const heading = currentPosition.value?.heading;
+  const hasHeading = heading !== null && heading !== undefined && !isNaN(heading);
+  
+  if (hasHeading)
+  {
+    // Directional icon with arrow pointing in heading direction
+    // SVG is rotated via transform to point in the correct direction
+    const svg = `
+      <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.3"/>
+          </filter>
+        </defs>
+        <g transform="rotate(${heading}, 16, 16)" filter="url(#shadow)">
+          <!-- Main circle -->
+          <circle cx="16" cy="16" r="10" fill="#4285F4" stroke="white" stroke-width="2"/>
+          <!-- Direction arrow (pointing up, rotated by heading) -->
+          <polygon points="16,6 20,14 16,12 12,14" fill="white"/>
+          <!-- Center dot -->
+          <circle cx="16" cy="17" r="3" fill="white"/>
+        </g>
+      </svg>
+    `;
+    return 'data:image/svg+xml;base64,' + btoa(svg);
+  }
+  else
+  {
+    // Standard icon without direction
+    const svg = `
+      <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" fill="#4285F4" stroke="white" stroke-width="2"/>
+        <circle cx="12" cy="12" r="4" fill="white"/>
+      </svg>
+    `;
+    return 'data:image/svg+xml;base64,' + btoa(svg);
+  }
 });
 
 // Function to center map on current position and open popup
@@ -704,13 +743,19 @@ onUnmounted(() =>
           >
             <LIcon 
               :icon-url="gpsIconUrl"
-              :icon-size="[24, 24]"
-              :icon-anchor="[12, 12]"
+              :icon-size="currentPosition?.heading !== null && currentPosition?.heading !== undefined ? [32, 32] : [24, 24]"
+              :icon-anchor="currentPosition?.heading !== null && currentPosition?.heading !== undefined ? [16, 16] : [12, 12]"
             />
             <LPopup>
               <div class="popup-content">
                 <h3>Meine Position</h3>
                 <p>Genauigkeit: {{ Math.round(currentPosition.accuracy) }}m</p>
+                <p v-if="currentPosition.heading !== null && currentPosition.heading !== undefined">
+                  Richtung: {{ Math.round(currentPosition.heading) }}° {{ getCompassDirection(currentPosition.heading) }}
+                </p>
+                <p v-if="currentPosition.speed !== null && currentPosition.speed !== undefined && currentPosition.speed > 0">
+                  Geschwindigkeit: {{ (currentPosition.speed * 3.6).toFixed(1) }} km/h
+                </p>
                 <div class="popup-actions">
                   <button @click="centerOnCurrentPosition" class="popup-btn">Zentrieren</button>
                   <button @click="addPointAtCurrentPosition" class="popup-btn">Einsetzpunkt hinzufügen</button>
@@ -840,6 +885,7 @@ onUnmounted(() =>
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh; /* Dynamic viewport height - accounts for mobile browser UI */
   background: var(--bg-primary);
 }
 
@@ -1368,7 +1414,7 @@ onUnmounted(() =>
 
 .fab {
   position: absolute;
-  bottom: 1.5rem;
+  bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
   right: 1.5rem;
   width: 3.5rem;
   height: 3.5rem;
@@ -1386,7 +1432,7 @@ onUnmounted(() =>
 }
 
 .fab.gps-fab {
-  bottom: 5.5rem;
+  bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
   background: linear-gradient(135deg, #4285F4, #34A853);
   box-shadow: 0 4px 12px rgba(66, 133, 244, 0.4);
 }
@@ -1433,16 +1479,16 @@ onUnmounted(() =>
   }
   
   .fab {
-    bottom: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
     right: 1rem;
   }
   
   .fab.gps-fab {
-    bottom: 5.5rem;
+    bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
   }
   
   .list-toggle-btn {
-    bottom: 5rem;
+    bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
     left: 1rem;
     width: 2.5rem;
     height: 2.5rem;
