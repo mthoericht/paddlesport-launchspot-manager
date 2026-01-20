@@ -1,30 +1,30 @@
-import type { PublicTransportPoint } from '../types';
+import type { LaunchPoint } from '../types';
 import { findNearby, haversineDistanceMeters, type WithDistance } from '../utils/geo';
 
 const MAX_DISTANCE_METERS = 2000;
-const MAX_STATIONS = 8;
+const MAX_LAUNCHPOINTS = 8;
 
-export type NearbyStation = WithDistance<PublicTransportPoint>;
+export type NearbyLaunchpoint = WithDistance<LaunchPoint>;
 
-export function useNearbyStations(allStations: () => PublicTransportPoint[])
+export function useNearbyLaunchpoints(allLaunchpoints: () => LaunchPoint[])
 {
-  function findNearbyStations(
+  function findNearbyLaunchpoints(
     latitude: number,
     longitude: number,
     maxDistanceMeters: number = MAX_DISTANCE_METERS,
-    maxStations: number = MAX_STATIONS
-  ): NearbyStation[]
+    maxLaunchpoints: number = MAX_LAUNCHPOINTS
+  ): NearbyLaunchpoint[]
   {
     return findNearby(
-      allStations(),
+      allLaunchpoints(),
       { latitude, longitude },
       maxDistanceMeters,
-      maxStations
+      maxLaunchpoints
     );
   }
 
   return {
-    findNearbyStations,
+    findNearbyLaunchpoints,
     calculateDistanceMeters: haversineDistanceMeters
   };
 }

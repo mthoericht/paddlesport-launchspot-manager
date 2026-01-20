@@ -4,8 +4,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { LMap, LTileLayer, LMarker, LPopup, LIcon, LCircle, LPolyline } from '@vue-leaflet/vue-leaflet';
 import { useLaunchPointsStore } from '../stores/launchPoints';
 import { usePublicTransportStore } from '../stores/publicTransport';
-import { useMapViewInteractions, useCategories, useShowPointOnMap, useGeolocation, useNearbyStations, useWalkingRoute } from '../composables';
-import type { NearbyStation } from '../composables';
+import { useMapViewInteractions, useCategories, useShowPointOnMap, useGeolocation, useNearbyStations, useNearbyLaunchpoints, useWalkingRoute } from '../composables';
+import type { NearbyStation, NearbyLaunchpoint } from '../composables';
 import type { LaunchPoint as LaunchPointType } from '../types';
 import FilterPanel from '../components/FilterPanel.vue';
 import AppHeader from '../components/AppHeader.vue';
@@ -30,8 +30,15 @@ const gpsMarkerRef = ref<any>(null);
 const selectedPointId = ref<number | null>(null);
 const nearbyStations = ref<NearbyStation[]>([]);
 
+// Nearby launchpoints state (for public transport popups)
+const selectedStationId = ref<number | null>(null);
+const nearbyLaunchpoints = ref<NearbyLaunchpoint[]>([]);
+
 // Nearby stations composable
 const { findNearbyStations } = useNearbyStations(() => publicTransportStore.publicTransportPoints);
+
+// Nearby launchpoints composable
+const { findNearbyLaunchpoints } = useNearbyLaunchpoints(() => launchPointsStore.launchPoints);
 
 // Walking route composable
 const { 
@@ -53,6 +60,18 @@ function showWalkingRoute(station: NearbyStation, point: LaunchPointType): void
   fetchWalkingRoute(station.latitude, station.longitude, point.latitude, point.longitude);
   
   // Close the launchpoint popup
+  if (mapRef.value?.leafletObject)
+  {
+    mapRef.value.leafletObject.closePopup();
+  }
+}
+
+// Show walking route from public transport station to nearby launchpoint
+function showWalkingRouteToLaunchpoint(station: { name: string; latitude: number; longitude: number }, launchpoint: NearbyLaunchpoint): void
+{
+  walkingRouteTarget.value = { stationName: station.name, pointName: launchpoint.name, lat: launchpoint.latitude, lng: launchpoint.longitude };
+  fetchWalkingRoute(station.latitude, station.longitude, launchpoint.latitude, launchpoint.longitude);
+  
   if (mapRef.value?.leafletObject)
   {
     mapRef.value.leafletObject.closePopup();
@@ -92,6 +111,27 @@ function handlePopupClose()
 {
   selectedPointId.value = null;
   nearbyStations.value = [];
+}
+
+function handleStationPopupOpen(station: { id: number; latitude: number; longitude: number })
+{
+  selectedStationId.value = station.id;
+  nearbyLaunchpoints.value = findNearbyLaunchpoints(station.latitude, station.longitude);
+}
+
+function handleStationPopupClose()
+{
+  selectedStationId.value = null;
+  nearbyLaunchpoints.value = [];
+}
+
+function showLaunchpointOnMap(launchpoint: NearbyLaunchpoint): void
+{
+  if (mapRef.value?.leafletObject)
+  {
+    mapRef.value.leafletObject.setView([launchpoint.latitude, launchpoint.longitude], 16);
+    mapRef.value.leafletObject.closePopup();
+  }
 }
 
 // Watch for window resize to update mobile state
@@ -565,6 +605,8 @@ onUnmounted(() =>
           :key="`pt-${station.id}`"
           :ref="(el: any) => { if (el && station.id) stationMarkerRefs[station.id] = el }"
           :lat-lng="[station.latitude, station.longitude]"
+          @popupopen="handleStationPopupOpen(station)"
+          @popupclose="handleStationPopupClose"
         >
           <LIcon 
             :icon-url="getPublicTransportIcon(station.types)"
@@ -572,7 +614,7 @@ onUnmounted(() =>
             :icon-anchor="[12, 12]"
             :popup-anchor="[0, -12]"
           />
-          <LPopup>
+          <LPopup :options="{ maxWidth: 320, minWidth: 280 }">
             <div class="popup-content public-transport-popup">
               <h3>{{ station.name }}</h3>
               <div class="popup-transport-info">
@@ -592,6 +634,62 @@ onUnmounted(() =>
                     </span>
                   </div>
                 </div>
+              </div>
+              
+              <!-- Nearby Launchpoints -->
+              <div v-if="selectedStationId === station.id && nearbyLaunchpoints.length > 0" class="popup-nearby-stations">
+                <h4>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                    <path d="M12 2L4 7l8 5 8-5-8-5z"/>
+                    <path d="M4 12l8 5 8-5"/>
+                    <path d="M4 17l8 5 8-5"/>
+                  </svg>
+                  Einsatzstellen in der Nähe
+                  <span class="distance-hint">(Luftlinie, max 2km)</span>
+                </h4>
+                <ul class="nearby-stations-list">
+                  <li v-for="lp in nearbyLaunchpoints" :key="lp.id" class="nearby-station-item">
+                    <div class="station-info">
+                      <span class="station-name">{{ lp.name }}</span>
+                    </div>
+                    <div class="station-actions">
+                      <span class="station-distance">{{ lp.distanceMeters }}m</span>
+                      <button 
+                        class="station-map-btn"
+                        @click="showLaunchpointOnMap(lp)"
+                        title="Auf Karte anzeigen"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                          <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                      </button>
+                      <button 
+                        class="station-map-btn station-walk-btn"
+                        @click="showWalkingRouteToLaunchpoint(station, lp)"
+                        title="Fußweg anzeigen"
+                        :disabled="walkingRouteLoading"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="4" r="2"/>
+                          <path d="M15 22v-4l-3-3 2-4 3 3h3"/>
+                          <path d="M9 14l-3 8"/>
+                          <path d="M12 11V9"/>
+                        </svg>
+                      </button>
+                      <button 
+                        class="popup-btn"
+                        @click="openDetail(lp)"
+                        title="Details anzeigen"
+                      >
+                        Details
+                      </button>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <div v-else-if="selectedStationId === station.id && nearbyLaunchpoints.length === 0" class="popup-no-stations">
+                <span>Keine Einsatzstellen im Umkreis von 2km</span>
               </div>
             </div>
           </LPopup>

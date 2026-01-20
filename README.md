@@ -59,6 +59,11 @@ A full-stack web application for managing launch points for kayaking, canoeing, 
   - Transport type badges (train, tram, S-Bahn, U-Bahn)
   - "Show on map" button to navigate directly to station
   - Available in both map popup and detail view
+- **Nearby launch points**: When clicking on a public transport station, nearby launch points (within 2km) are displayed
+  - Maximum 8 closest launch points shown
+  - Distance in meters (air distance)
+  - "Show on map", "Walking route", and "Details" buttons
+  - Helps users find launch points accessible from public transport
 
 ### 🚶 Walking Route
 - **Walking directions**: Display walking route from any nearby public transport station to a launch point
@@ -98,7 +103,8 @@ The frontend uses Vue 3 Composition API with custom composables for reusable log
 - **`useMapState`** - Map center, zoom, and view management
 - **`useMapNavigation`** - Navigation to detail pages, external navigation apps, and map navigation for points/stations
 - **`useShowPointOnMap`** - Center map on point/station, open popup, handle highlighting
-- **`useNearbyStations`** - Calculate nearby public transport stations using Haversine formula (air distance)
+- **`useNearbyStations`** - Calculate nearby public transport stations (uses shared geo utilities)
+- **`useNearbyLaunchpoints`** - Calculate nearby launch points from a station (uses shared geo utilities)
 - **`useMapViewInteractions`** - Map click handlers, context menu, search, map view persistence
 - **`useCategories`** - Category fetching and icon/color management
 - **`useAddressSearch`** - Address geocoding with Nominatim
@@ -118,6 +124,12 @@ The frontend uses Vue 3 Composition API with custom composables for reusable log
   - Returns route geometry, distance (meters), and duration (seconds)
   - Reactive loading and error states
 - **`useLaunchPointForm`** - Form state and validation
+
+### Utilities
+
+- **`utils/geo.ts`** - Shared geographic utilities
+  - `haversineDistanceMeters(a, b)` - Calculate distance between two coordinates using Haversine formula
+  - `findNearby<T>(items, origin, maxDistance, maxResults)` - Generic function to find nearby items with distance
 
 ### Backend
 - **Express.js** REST API server
@@ -276,7 +288,9 @@ The project uses **Vitest** with a multi-layered testing strategy:
   - `useMapState.test.ts` - Map state management
   - `useMapNavigation.test.ts` - Navigation functionality (points, stations, external navigation)
   - `useShowPointOnMap.test.ts` - "Show on map" feature with highlighting and station popup handling
-  - `useNearbyStations.test.ts` - Nearby stations calculation with Haversine formula
+  - `geo.test.ts` - Geographic utilities (Haversine distance, findNearby)
+  - `useNearbyStations.test.ts` - Nearby stations composable
+  - `useNearbyLaunchpoints.test.ts` - Nearby launchpoints composable
   - `useCategories.test.ts` - Category management
   - `useGeolocation.test.ts` - GPS position tracking and error handling
 - **Frontend Integration** (`frontend/tests/integration/`): Test Pinia stores with mocked API

@@ -13,6 +13,8 @@ export type { MapPoint } from './useShowPointOnMap';
 export { useGeolocation } from './useGeolocation';
 export { useNearbyStations } from './useNearbyStations';
 export type { NearbyStation } from './useNearbyStations';
+export { useNearbyLaunchpoints } from './useNearbyLaunchpoints';
+export type { NearbyLaunchpoint } from './useNearbyLaunchpoints';
 export { useWalkingRoute } from './useWalkingRoute';
 
 

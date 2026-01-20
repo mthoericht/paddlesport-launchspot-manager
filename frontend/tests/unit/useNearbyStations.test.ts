@@ -55,7 +55,6 @@ describe('useNearbyStations', () =>
       
       const result = findNearbyStations(52.5200, 13.4050);
       
-      // Station C is far away (~10km) and should not be included
       expect(result.length).toBeLessThan(mockStations.length);
       expect(result.some(s => s.name === 'Station C - Far Away')).toBe(false);
     });
@@ -66,7 +65,6 @@ describe('useNearbyStations', () =>
       
       const result = findNearbyStations(52.5200, 13.4050);
       
-      // Verify sorted by distance (ascending)
       for (let i = 1; i < result.length; i++)
       {
         const current = result[i];
@@ -94,7 +92,6 @@ describe('useNearbyStations', () =>
 
     it('should limit results to maxStations (default 8)', () =>
     {
-      // Create many stations
       const manyStations: PublicTransportPoint[] = Array.from({ length: 15 }, (_, i) => ({
         id: i + 1,
         name: `Station ${i + 1}`,
@@ -115,7 +112,6 @@ describe('useNearbyStations', () =>
     {
       const { findNearbyStations } = useNearbyStations(() => mockStations);
       
-      // Very small radius (100m) - should only include the closest station
       const result = findNearbyStations(52.5200, 13.4050, 100);
       
       expect(result.length).toBeLessThan(4);
@@ -134,7 +130,6 @@ describe('useNearbyStations', () =>
     {
       const { findNearbyStations } = useNearbyStations(() => mockStations);
       
-      // Location far away from all stations
       const result = findNearbyStations(48.0000, 10.0000);
       
       expect(result).toEqual([]);
@@ -165,48 +160,10 @@ describe('useNearbyStations', () =>
     {
       const { findNearbyStations } = useNearbyStations(() => mockStations);
       
-      // Station at same location should have ~0 distance
       const result = findNearbyStations(52.5200, 13.4050);
       const stationA = result.find(s => s.name === 'Station A');
       
       expect(stationA?.distanceMeters).toBeLessThan(10);
-    });
-  });
-
-  describe('calculateDistanceMeter', () =>
-  {
-    it('should return 0 for same coordinates', () =>
-    {
-      const { calculateDistanceMeter } = useNearbyStations(() => []);
-      
-      const distance = calculateDistanceMeter(52.5200, 13.4050, 52.5200, 13.4050);
-      
-      expect(distance).toBe(0);
-    });
-
-    it('should calculate correct distance (Berlin to Munich ~504km)', () =>
-    {
-      const { calculateDistanceMeter } = useNearbyStations(() => []);
-      
-      // Berlin: 52.52, 13.405
-      // Munich: 48.137, 11.575
-      const distance = calculateDistanceMeter(52.52, 13.405, 48.137, 11.575);
-      
-      // Should be approximately 504km = 504000m (with some tolerance)
-      expect(distance).toBeGreaterThan(480000);
-      expect(distance).toBeLessThan(520000);
-    });
-
-    it('should handle negative coordinates', () =>
-    {
-      const { calculateDistanceMeter } = useNearbyStations(() => []);
-      
-      // New York to London
-      const distance = calculateDistanceMeter(40.7128, -74.0060, 51.5074, -0.1278);
-      
-      // Should be approximately 5570km = 5570000m
-      expect(distance).toBeGreaterThan(5500000);
-      expect(distance).toBeLessThan(5700000);
     });
   });
 });
