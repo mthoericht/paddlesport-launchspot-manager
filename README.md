@@ -99,6 +99,27 @@ A full-stack web application for managing launch points for kayaking, canoeing, 
 - **Leaflet** / **Vue-Leaflet** for maps
 - **Vite**, **Vitest**, **ESLint**
 - **Composables**: Modular, reusable logic (map state, navigation, show on map, etc.)
+- **Component Architecture**: Modular map layer components for better maintainability
+
+### Map Components Architecture
+
+The map view is split into modular, reusable components located in `frontend/src/components/map/`:
+
+| Component | Description |
+|-----------|-------------|
+| `LaunchPointLayer.vue` | Renders all launch point markers on the map |
+| `LaunchPointPopup.vue` | Popup content for launch points (name, categories, nearby stations) |
+| `PublicTransportLayer.vue` | Renders all public transport station markers |
+| `PublicTransportPopup.vue` | Popup content for stations (lines, types, nearby launch points) |
+| `GpsMarkerLayer.vue` | GPS position marker with accuracy circle and heading indicator |
+| `WalkingRouteLayer.vue` | Walking route polyline with distance/duration info popup |
+| `MapControls.vue` | FAB buttons, context menu, and GPS error messages |
+
+This architecture provides:
+- **Separation of Concerns**: Each layer handles its own markers, popups, and styling
+- **Reusability**: Popup components can be used independently
+- **Maintainability**: Changes to one layer don't affect others
+- **Testability**: Individual components can be tested in isolation
 
 ### Composables Architecture
 

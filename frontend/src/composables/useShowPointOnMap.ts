@@ -12,6 +12,21 @@ export interface MapPoint {
 }
 
 /**
+ * Marker ref type - an object with leafletObject property
+ */
+type MarkerRef = { leafletObject?: LeafletMarker } | null;
+
+/**
+ * Component ref that exposes markerRefs (from PublicTransportLayer)
+ */
+type PublicTransportLayerRef = { markerRefs?: Record<number, MarkerRef> } | null;
+
+/**
+ * Component ref that exposes markerRef (from GpsMarkerLayer)
+ */
+type GpsMarkerLayerRef = { markerRef?: MarkerRef } | null;
+
+/**
  * Options for useShowPointOnMap composable
  */
 interface UseShowPointOnMapOptions {
@@ -19,13 +34,13 @@ interface UseShowPointOnMapOptions {
   highlightedPointId: Ref<number | null>;
   showListView: Ref<boolean>;
   isMobile: Ref<boolean>;
-  stationMarkerRefs?: Ref<Record<number, { leafletObject?: LeafletMarker } | null>>;
-  gpsMarkerRef?: Ref<{ leafletObject?: LeafletMarker } | null>;
+  publicTransportLayerRef?: Ref<PublicTransportLayerRef>;
+  gpsMarkerRef?: Ref<GpsMarkerLayerRef>;
 }
 
 export function useShowPointOnMap(options: UseShowPointOnMapOptions) 
 {
-  const { mapRef, highlightedPointId, showListView, isMobile, stationMarkerRefs, gpsMarkerRef } = options;
+  const { mapRef, highlightedPointId, showListView, isMobile, publicTransportLayerRef, gpsMarkerRef } = options;
 
   /**
    * Generic function to center map and open marker popup
@@ -155,7 +170,7 @@ export function useShowPointOnMap(options: UseShowPointOnMapOptions)
       showListView.value = false;
     }
     
-    const markerRef = stationMarkerRefs?.value?.[station.id];
+    const markerRef = publicTransportLayerRef?.value?.markerRefs?.[station.id];
     centerAndShowMarker(station.latitude, station.longitude, 16, markerRef);
   }
 
@@ -167,7 +182,8 @@ export function useShowPointOnMap(options: UseShowPointOnMapOptions)
    */
   function showGpsPosition(lat: number, lng: number, zoom: number = 15): void
   {
-    centerAndShowMarker(lat, lng, zoom, gpsMarkerRef?.value);
+    const markerRef = gpsMarkerRef?.value?.markerRef;
+    centerAndShowMarker(lat, lng, zoom, markerRef);
   }
 
   return {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch, onBeforeUnmount, nextTick, computed } from 'vue';
+import { onMounted, onUnmounted, ref, watch, onBeforeUnmount, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { LMap, LTileLayer, LMarker, LPopup, LIcon, LCircle, LPolyline } from '@vue-leaflet/vue-leaflet';
+import { LMap, LTileLayer } from '@vue-leaflet/vue-leaflet';
 import { useLaunchPointsStore } from '../stores/launchPoints';
 import { usePublicTransportStore } from '../stores/publicTransport';
 import { useMapViewInteractions, useCategories, useShowPointOnMap, useGeolocation, useNearbyStations, useNearbyLaunchpoints, useWalkingRoute } from '../composables';
@@ -10,7 +10,14 @@ import type { LaunchPoint as LaunchPointType } from '../types';
 import FilterPanel from '../components/FilterPanel.vue';
 import AppHeader from '../components/AppHeader.vue';
 import LaunchPointListView from '../components/LaunchPointListView.vue';
-import type { LaunchPoint, PublicTransportType } from '../types';
+import type { LaunchPoint } from '../types';
+
+// Map layer components
+import LaunchPointLayer from '../components/map/LaunchPointLayer.vue';
+import PublicTransportLayer from '../components/map/PublicTransportLayer.vue';
+import GpsMarkerLayer from '../components/map/GpsMarkerLayer.vue';
+import WalkingRouteLayer from '../components/map/WalkingRouteLayer.vue';
+import MapControls from '../components/map/MapControls.vue';
 
 // Stores
 const launchPointsStore = useLaunchPointsStore();
@@ -22,10 +29,10 @@ const router = useRouter();
 const mapRef = ref<any>(null);
 const highlightedPointId = ref<number | null>(null);
 const isMobile = ref(window.innerWidth <= 768);
-const showListView = ref(!isMobile.value); // Auf Mobile standardmäßig ausgeblendet
-const stationMarkerRefs = ref<Record<number, any>>({});
-const gpsMarkerRef = ref<any>(null);
-const walkingRouteMarkerRef = ref<any>(null);
+const showListView = ref(!isMobile.value);
+const publicTransportLayerRef = ref<InstanceType<typeof PublicTransportLayer> | null>(null);
+const gpsMarkerRef = ref<InstanceType<typeof GpsMarkerLayer> | null>(null);
+const walkingRouteLayerRef = ref<InstanceType<typeof WalkingRouteLayer> | null>(null);
 
 // Nearby stations state
 const selectedPointId = ref<number | null>(null);
@@ -81,9 +88,9 @@ function fitToWalkingRouteAndShowPopup(startLat: number, startLng: number, endLa
   const delay = routeBoundsContained ? 100 : 600;
   setTimeout(() =>
   {
-    if (walkingRouteMarkerRef.value?.leafletObject)
+    if (walkingRouteLayerRef.value?.markerRef?.leafletObject)
     {
-      walkingRouteMarkerRef.value.leafletObject.openPopup();
+      walkingRouteLayerRef.value.markerRef.leafletObject.openPopup();
     }
   }, delay);
 }
@@ -95,7 +102,6 @@ function showWalkingRoute(station: NearbyStation, point: LaunchPointType): void
   fetchWalkingRoute(station.latitude, station.longitude, point.latitude, point.longitude)
     .then(() =>
     {
-      // Fit to route and show popup after route is loaded
       fitToWalkingRouteAndShowPopup(station.latitude, station.longitude, point.latitude, point.longitude);
     });
   
@@ -113,7 +119,6 @@ function showWalkingRouteToLaunchpoint(station: { name: string; latitude: number
   fetchWalkingRoute(station.latitude, station.longitude, launchpoint.latitude, launchpoint.longitude)
     .then(() =>
     {
-      // Fit to route and show popup after route is loaded
       fitToWalkingRouteAndShowPopup(station.latitude, station.longitude, launchpoint.latitude, launchpoint.longitude);
     });
   
@@ -159,27 +164,11 @@ function showWalkingRouteFromQuery(): void
   });
 }
 
-// Format distance for display
-function formatWalkingDistance(meters: number): string
+// Handle walking route close
+function handleCloseWalkingRoute(): void
 {
-  if (meters >= 1000)
-  {
-    return `${(meters / 1000).toFixed(1)} km`;
-  }
-  return `${Math.round(meters)} m`;
-}
-
-// Format duration for display
-function formatWalkingDuration(seconds: number): string
-{
-  const minutes = Math.round(seconds / 60);
-  if (minutes >= 60)
-  {
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    return `${hours} Std. ${remainingMinutes} Min.`;
-  }
-  return `${minutes} Min.`;
+  clearWalkingRoute();
+  walkingRouteTarget.value = null;
 }
 
 function handlePopupOpen(point: { id: number; latitude: number; longitude: number })
@@ -218,7 +207,6 @@ function showLaunchpointOnMap(launchpoint: NearbyLaunchpoint): void
 // Watch for window resize to update mobile state
 function checkMobile() {
   isMobile.value = window.innerWidth <= 768;
-  // Auf Mobile: Liste standardmäßig ausblenden, auf Desktop: anzeigen
   if (isMobile.value && showListView.value) {
     showListView.value = false;
   } else if (!isMobile.value && !showListView.value) {
@@ -276,103 +264,18 @@ const {
 
 const { categoryColors, getCategoryIcon, fetchCategories } = useCategories();
 
-// Public transport helper functions
-function getPublicTransportIcon(types: PublicTransportType[]): string
-{
-  // Choose icon color based on primary type
-  const typeColors: Record<PublicTransportType, string> = {
-    train: '#0066CC',
-    tram: '#FF6600',
-    sbahn: '#00A550',
-    ubahn: '#003399'
-  };
-  
-  const primaryType = types[0] || 'train';
-  const color = typeColors[primaryType] || '#666666';
-  
-  const svg = `
-    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="12" cy="12" r="10" fill="${color}" stroke="white" stroke-width="2"/>
-      <path d="M8 8h8v8h-8z" fill="white"/>
-    </svg>
-  `;
-  return 'data:image/svg+xml;base64,' + btoa(svg);
-}
-
-function getTransportTypeLabel(type: PublicTransportType): string
-{
-  const labels: Record<PublicTransportType, string> = {
-    train: 'Bahn',
-    tram: 'Tram',
-    sbahn: 'S-Bahn',
-    ubahn: 'U-Bahn'
-  };
-  return labels[type] || type;
-}
-
 // Use show point on map composable
 const { showPointOnMap, showStationOnMap, showGpsPosition } = useShowPointOnMap({
   mapRef,
   highlightedPointId,
   showListView,
   isMobile,
-  stationMarkerRefs,
+  publicTransportLayerRef,
   gpsMarkerRef
 });
 
 // Use geolocation composable
 const { currentPosition, positionError, isLocating, getCurrentPosition, watchPosition, stopWatching } = useGeolocation();
-
-// Convert heading degrees to compass direction
-function getCompassDirection(heading: number): string
-{
-  const directions = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'] as const;
-  const index = Math.round(heading / 45) % 8;
-  return directions[index] ?? 'N';
-}
-
-// Create GPS marker icon as SVG data URL
-// If heading is available, show a directional arrow
-const gpsIconUrl = computed(() => 
-{
-  const heading = currentPosition.value?.heading;
-  const hasHeading = heading !== null && heading !== undefined && !isNaN(heading);
-  
-  if (hasHeading)
-  {
-    // Directional icon with arrow pointing in heading direction
-    // SVG is rotated via transform to point in the correct direction
-    const svg = `
-      <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.3"/>
-          </filter>
-        </defs>
-        <g transform="rotate(${heading}, 16, 16)" filter="url(#shadow)">
-          <!-- Main circle -->
-          <circle cx="16" cy="16" r="10" fill="#4285F4" stroke="white" stroke-width="2"/>
-          <!-- Direction arrow (pointing up, rotated by heading) -->
-          <polygon points="16,6 20,14 16,12 12,14" fill="white"/>
-          <!-- Center dot -->
-          <circle cx="16" cy="17" r="3" fill="white"/>
-        </g>
-      </svg>
-    `;
-    return 'data:image/svg+xml;base64,' + btoa(svg);
-  }
-  else
-  {
-    // Standard icon without direction
-    const svg = `
-      <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="12" cy="12" r="10" fill="#4285F4" stroke="white" stroke-width="2"/>
-        <circle cx="12" cy="12" r="4" fill="white"/>
-      </svg>
-    `;
-    return 'data:image/svg+xml;base64,' + btoa(svg);
-  }
-});
 
 // Function to center map on current position and open popup
 function centerOnCurrentPosition(): void
@@ -411,7 +314,6 @@ function addPointAtCurrentPosition(): void
   }
   else
   {
-    // Try to get position first
     getCurrentPosition().then(() =>
     {
       if (currentPosition.value)
@@ -452,17 +354,15 @@ function handleHighlightFromQuery() {
       longitude: parseFloat(stationLng as string)
     };
     
-    // Check if marker refs are already available
-    if (stationMarkerRefs.value[station.id]) {
+    if (publicTransportLayerRef.value?.markerRefs?.[station.id]) {
       showStationOnMap(station);
       clearHighlightQueryParams();
     } else {
-      // Wait for stations to load and markers to render
       const unwatch = watch(
         () => publicTransportStore.publicTransportPoints,
         () => {
           nextTick(() => {
-            if (stationMarkerRefs.value[station.id]) {
+            if (publicTransportLayerRef.value?.markerRefs?.[station.id]) {
               showStationOnMap(station);
               clearHighlightQueryParams();
               unwatch();
@@ -476,7 +376,6 @@ function handleHighlightFromQuery() {
   }
   
   if (highlightId && lat && lng) {
-    // Auf Mobile: Liste ausblenden, wenn von Detailansicht navigiert wird
     if (isMobile.value) {
       showListView.value = false;
     }
@@ -488,10 +387,8 @@ function handleHighlightFromQuery() {
       showPointOnMap(point);
       clearHighlightQueryParams();
     } else if (mapRef.value?.leafletObject) {
-      // Point not loaded yet, center map and wait for points to load
       mapRef.value.leafletObject.setView([parseFloat(lat as string), parseFloat(lng as string)], 15);
       
-      // Watch for points to load
       const unwatch = watch(() => launchPointsStore.launchPoints, (points) => {
         const foundPoint = points.find(p => p.id === pointId);
         if (foundPoint) {
@@ -514,13 +411,12 @@ function toggleListView() {
 
 // Watch for list view and filter panel changes to invalidate map size
 function invalidateMapSize() {
-  // Wait for transition to complete (0.3s) plus a small buffer
   nextTick(() => {
     setTimeout(() => {
       if (mapRef.value?.leafletObject) {
         mapRef.value.leafletObject.invalidateSize();
       }
-    }, 350); // Slightly longer than transition duration (0.3s)
+    }, 350);
   });
 }
 
@@ -534,12 +430,8 @@ onMounted(async () =>
   await publicTransportStore.fetchPublicTransportPoints();
   setupInteractions();
   
-  // Start watching position for GPS marker
   watchPosition();
   
-  // Wait for map to be ready, then handle highlight if needed
-  // Note: Map view restoration is already handled in useMapViewInteractions
-  // by setting initial values, so we only need to handle highlight here
   await nextTick();
   setTimeout(() =>
   {
@@ -548,13 +440,10 @@ onMounted(async () =>
       return;
     }
     
-    // Handle walking route from query parameters (e.g., from detail view)
     if (route.query.walkingRoute === 'true')
     {
       showWalkingRouteFromQuery();
     }
-    // Handle highlight from query parameters (e.g., from detail view)
-    // This takes precedence over restore and will override the initial view
     else if (route.query.highlight || route.query.stationId)
     {
       handleHighlightFromQuery();
@@ -580,392 +469,117 @@ onUnmounted(() =>
     
     <div class="view-container">
       <div class="map-container" :class="{ 'with-list': showListView }">
-      <!-- Adress-Suchfeld -->
-      <div v-if="!isMobile || !showListView" class="search-container">
-        <div class="search-box">
-          <input
-            v-model="searchQuery"
-            type="text"
-            placeholder="Adresse suchen..."
-            class="search-input"
-            @keyup.enter="handleSearch"
-          />
-          <button 
-            class="search-btn" 
-            @click="handleSearch"
-            :disabled="isSearching || !searchQuery.trim()"
-          >
-            <svg v-if="!isSearching" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"/>
-              <path d="m21 21-4.35-4.35"/>
-            </svg>
-            <span v-else class="search-spinner"></span>
-          </button>
-        </div>
-        <div v-if="searchError" class="search-error">{{ searchError }}</div>
-      </div>
-      
-      <LMap 
-        ref="mapRef"
-        :center="mapCenter" 
-        :zoom="zoom" 
-        :use-global-leaflet="false"
-        class="map"
-        @mousedown="onMapMouseDown"
-        @mouseup="onMapMouseUp"
-        @click="onMapClick"
-        @contextmenu="onMapContextMenu"
-        @movestart="handleMapMoveStart"
-        @moveend="handleMapMoveEnd"
-        @zoomend="handleMapMoveEnd"
-      >
-        <LTileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        
-        <!-- Launch Point Markers -->
-        <LMarker 
-          v-for="point in launchPointsStore.launchPoints" 
-          :key="point.id"
-          :lat-lng="[point.latitude, point.longitude]"
-          @popupopen="handlePopupOpen(point)"
-          @popupclose="handlePopupClose"
-        >
-          <LIcon 
-            :icon-url="getCategoryIcon(point.categories)"
-            :icon-size="[28, 37]"
-            :icon-anchor="[14, 37]"
-            :popup-anchor="[0, -37]"
-          />
-          <LPopup :options="{ maxWidth: 320, minWidth: 280 }">
-            <div class="popup-content">
-              <h3>{{ point.name }}</h3>
-              <div class="popup-categories">
-                <span 
-                  v-for="cat in point.categories" 
-                  :key="cat" 
-                  class="category-tag"
-                  :style="{ backgroundColor: categoryColors[cat] }"
-                >
-                  {{ cat }}
-                </span>
-              </div>
-              <p class="popup-creator">von {{ point.creator_username }}</p>
-              
-              <!-- Nearby Public Transport Stations -->
-              <div v-if="selectedPointId === point.id && nearbyStations.length > 0" class="popup-nearby-stations">
-                <h4>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                    <rect x="4" y="4" width="16" height="16" rx="2"/>
-                    <path d="M9 18v-6a3 3 0 016 0v6"/>
-                    <circle cx="12" cy="10" r="1"/>
-                  </svg>
-                  ÖPNV in der Nähe
-                  <span class="distance-hint">(Luftlinie, max 2km)</span>
-                </h4>
-                <ul class="nearby-stations-list">
-                  <li v-for="station in nearbyStations" :key="station.id" class="nearby-station-item">
-                    <div class="station-info">
-                      <span class="station-name">{{ station.name }}</span>
-                      <div class="station-types">
-                        <span 
-                          v-for="type in station.types" 
-                          :key="type"
-                          class="transport-type-tag"
-                          :class="`transport-type-${type}`"
-                        >
-                          {{ getTransportTypeLabel(type) }}
-                        </span>
-                      </div>
-                    </div>
-                    <div class="station-actions">
-                      <span class="station-distance">{{ station.distanceMeters }}m</span>
-                      <button 
-                        class="station-map-btn"
-                        @click="showStationOnMap(station)"
-                        title="Auf Karte anzeigen"
-                      >
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                          <circle cx="12" cy="10" r="3"/>
-                        </svg>
-                      </button>
-                      <button 
-                        class="station-map-btn station-walk-btn"
-                        @click="showWalkingRoute(station, point)"
-                        title="Fußweg anzeigen"
-                        :disabled="walkingRouteLoading"
-                      >
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <circle cx="12" cy="4" r="2"/>
-                          <path d="M15 22v-4l-3-3 2-4 3 3h3"/>
-                          <path d="M9 14l-3 8"/>
-                          <path d="M12 11V9"/>
-                        </svg>
-                      </button>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-              <div v-else-if="selectedPointId === point.id && nearbyStations.length === 0" class="popup-no-stations">
-                <span>Keine ÖPNV-Stationen im Umkreis von 2km</span>
-              </div>
-              
-              <div class="popup-actions">
-                <button @click="openDetail(point)" class="popup-btn">Details</button>
-                <button @click="openNavigation(point.latitude, point.longitude)" class="popup-btn popup-btn-nav" title="Route starten">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polygon points="3 11 22 2 13 21 11 13 3 11"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </LPopup>
-        </LMarker>
-        
-        <!-- Public Transport Station Markers -->
-        <LMarker 
-          v-for="station in publicTransportStore.publicTransportPoints" 
-          :key="`pt-${station.id}`"
-          :ref="(el: any) => { if (el && station.id) stationMarkerRefs[station.id] = el }"
-          :lat-lng="[station.latitude, station.longitude]"
-          @popupopen="handleStationPopupOpen(station)"
-          @popupclose="handleStationPopupClose"
-        >
-          <LIcon 
-            :icon-url="getPublicTransportIcon(station.types)"
-            :icon-size="[24, 24]"
-            :icon-anchor="[12, 12]"
-            :popup-anchor="[0, -12]"
-          />
-          <LPopup :options="{ maxWidth: 320, minWidth: 280 }">
-            <div class="popup-content public-transport-popup">
-              <h3>{{ station.name }}</h3>
-              <div class="popup-transport-info">
-                <div v-if="station.lines" class="popup-lines">
-                  <strong>Linie:</strong> {{ station.lines }}
-                </div>
-                <div v-if="station.types.length > 0" class="popup-types">
-                  <strong>Zugarten:</strong>
-                  <div class="transport-types">
-                    <span 
-                      v-for="type in station.types" 
-                      :key="type" 
-                      class="transport-type-tag"
-                      :class="`transport-type-${type}`"
-                    >
-                      {{ getTransportTypeLabel(type) }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Nearby Launchpoints -->
-              <div v-if="selectedStationId === station.id && nearbyLaunchpoints.length > 0" class="popup-nearby-stations">
-                <h4>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                    <path d="M12 2L4 7l8 5 8-5-8-5z"/>
-                    <path d="M4 12l8 5 8-5"/>
-                    <path d="M4 17l8 5 8-5"/>
-                  </svg>
-                  Einsatzstellen in der Nähe
-                  <span class="distance-hint">(Luftlinie, max 2km)</span>
-                </h4>
-                <ul class="nearby-stations-list">
-                  <li v-for="lp in nearbyLaunchpoints" :key="lp.id" class="nearby-station-item">
-                    <div class="station-info">
-                      <span class="station-name">{{ lp.name }}</span>
-                    </div>
-                    <div class="station-actions">
-                      <span class="station-distance">{{ lp.distanceMeters }}m</span>
-                      <button 
-                        class="station-map-btn"
-                        @click="showLaunchpointOnMap(lp)"
-                        title="Auf Karte anzeigen"
-                      >
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                          <circle cx="12" cy="10" r="3"/>
-                        </svg>
-                      </button>
-                      <button 
-                        class="station-map-btn station-walk-btn"
-                        @click="showWalkingRouteToLaunchpoint(station, lp)"
-                        title="Fußweg anzeigen"
-                        :disabled="walkingRouteLoading"
-                      >
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <circle cx="12" cy="4" r="2"/>
-                          <path d="M15 22v-4l-3-3 2-4 3 3h3"/>
-                          <path d="M9 14l-3 8"/>
-                          <path d="M12 11V9"/>
-                        </svg>
-                      </button>
-                      <button 
-                        class="popup-btn"
-                        @click="openDetail(lp)"
-                        title="Details anzeigen"
-                      >
-                        Details
-                      </button>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-              <div v-else-if="selectedStationId === station.id && nearbyLaunchpoints.length === 0" class="popup-no-stations">
-                <span>Keine Einsatzstellen im Umkreis von 2km</span>
-              </div>
-            </div>
-          </LPopup>
-        </LMarker>
-        
-        <!-- Current GPS Position Marker -->
-        <template v-if="currentPosition">
-          <LMarker 
-            :lat-lng="[currentPosition.lat, currentPosition.lng]"
-            :key="'gps-marker'"
-            :ref="(el: any) => { gpsMarkerRef = el }"
-          >
-            <LIcon 
-              :icon-url="gpsIconUrl"
-              :icon-size="currentPosition?.heading !== null && currentPosition?.heading !== undefined ? [32, 32] : [24, 24]"
-              :icon-anchor="currentPosition?.heading !== null && currentPosition?.heading !== undefined ? [16, 16] : [12, 12]"
+        <!-- Adress-Suchfeld -->
+        <div v-if="!isMobile || !showListView" class="search-container">
+          <div class="search-box">
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Adresse suchen..."
+              class="search-input"
+              @keyup.enter="handleSearch"
             />
-            <LPopup>
-              <div class="popup-content">
-                <h3>Meine Position</h3>
-                <p>Genauigkeit: {{ Math.round(currentPosition.accuracy) }}m</p>
-                <p v-if="currentPosition.heading !== null && currentPosition.heading !== undefined">
-                  Richtung: {{ Math.round(currentPosition.heading) }}° {{ getCompassDirection(currentPosition.heading) }}
-                </p>
-                <p v-if="currentPosition.speed !== null && currentPosition.speed !== undefined && currentPosition.speed > 0">
-                  Geschwindigkeit: {{ (currentPosition.speed * 3.6).toFixed(1) }} km/h
-                </p>
-                <div class="popup-actions">
-                  <button @click="centerOnCurrentPosition" class="popup-btn">Zentrieren</button>
-                  <button @click="addPointAtCurrentPosition" class="popup-btn">Einsetzpunkt hinzufügen</button>
-                </div>
-              </div>
-            </LPopup>
-          </LMarker>
-          <LCircle
-            v-if="currentPosition.accuracy > 0"
-            :lat-lng="[currentPosition.lat, currentPosition.lng]"
-            :radius="currentPosition.accuracy"
-            :fill-opacity="0.2"
-            fill-color="#4285F4"
-            color="#4285F4"
-            :weight="1"
-          />
-        </template>
+            <button 
+              class="search-btn" 
+              @click="handleSearch"
+              :disabled="isSearching || !searchQuery.trim()"
+            >
+              <svg v-if="!isSearching" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.35-4.35"/>
+              </svg>
+              <span v-else class="search-spinner"></span>
+            </button>
+          </div>
+          <div v-if="searchError" class="search-error">{{ searchError }}</div>
+        </div>
         
-        <!-- Walking Route Polyline -->
-        <LPolyline
-          v-if="walkingRoute.length > 0"
-          :lat-lngs="walkingRoute"
-          color="#2563eb"
-          :weight="4"
-          :opacity="0.8"
-          dash-array="8, 8"
-          :no-clip="true"
-        />
-        
-        <!-- Walking Route Info Marker at destination -->
-        <LMarker
-          v-if="walkingRoute.length > 0 && walkingRouteTarget"
-          :ref="(el: any) => { walkingRouteMarkerRef = el }"
-          :lat-lng="[walkingRouteTarget.lat, walkingRouteTarget.lng]"
-          :z-index-offset="1000"
+        <LMap 
+          ref="mapRef"
+          :center="mapCenter" 
+          :zoom="zoom" 
+          :use-global-leaflet="false"
+          class="map"
+          @mousedown="onMapMouseDown"
+          @mouseup="onMapMouseUp"
+          @click="onMapClick"
+          @contextmenu="onMapContextMenu"
+          @movestart="handleMapMoveStart"
+          @moveend="handleMapMoveEnd"
+          @zoomend="handleMapMoveEnd"
         >
-          <LPopup :options="{ autoClose: false, closeOnClick: false }">
-            <div class="popup-content walking-route-popup">
-              <h4>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                  <circle cx="12" cy="4" r="2"/>
-                  <path d="M15 22v-4l-3-3 2-4 3 3h3"/>
-                  <path d="M9 14l-3 8"/>
-                  <path d="M12 11V9"/>
-                </svg>
-                Fußweg
-              </h4>
-              <p class="walking-route-target">{{ walkingRouteTarget.stationName }} → {{ walkingRouteTarget.pointName }}</p>
-              <div class="walking-route-info">
-                <span class="walking-distance">{{ formatWalkingDistance(walkingDistance) }}</span>
-                <span class="walking-duration">~{{ formatWalkingDuration(walkingDuration) }}</span>
-              </div>
-              <button class="popup-btn walking-route-close" @click="clearWalkingRoute(); walkingRouteTarget = null;">
-                Route schließen
-              </button>
-            </div>
-          </LPopup>
-        </LMarker>
-      </LMap>
-      
-      <!-- GPS Location Button -->
-      <button 
-        v-if="currentPosition"
-        class="fab gps-fab" 
-        :class="{ 'hide-on-mobile': showListView || showFilterPanel }"
-        @click="centerOnCurrentPosition" 
-        title="Auf meine Position zentrieren"
-        :disabled="isLocating"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-          <circle cx="12" cy="10" r="3"/>
-        </svg>
-      </button>
-      
-      <!-- GPS Error Message -->
-      <div 
-        v-if="positionError && !currentPosition" 
-        class="gps-error"
-        :class="{ 'hide-on-mobile': showListView || showFilterPanel }"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="gps-error-icon">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="12" y1="8" x2="12" y2="12"/>
-          <line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <span>{{ positionError }}</span>
-      </div>
-      
-      <!-- Add Point Button -->
-      <button 
-        class="fab" 
-        :class="{ 'hide-on-mobile': showListView || showFilterPanel }"
-        @click="addNewPoint" 
-        title="Neuen Einsetzpunkt hinzufügen"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="12" y1="5" x2="12" y2="19"/>
-          <line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-      </button>
-      
-      <!-- Kontextmenü -->
-      <div 
-        v-if="showContextMenu" 
-        class="context-menu"
-        :style="{ left: contextMenuPosition.x + 'px', top: contextMenuPosition.y + 'px' }"
-        @click.stop
-      >
-        <button class="context-menu-item" @click="addPointAtContextMenu">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-            <circle cx="12" cy="10" r="3"/>
-          </svg>
-          <span>Einsetzpunkt hinzufügen</span>
-        </button>
-      </div>
-      
-      <Transition name="filter-slide">
-        <FilterPanel 
-          v-if="showFilterPanel" 
-          @close="closeFilterPanel"
+          <LTileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          
+          <!-- Launch Point Layer -->
+          <LaunchPointLayer
+            :category-colors="categoryColors"
+            :get-category-icon="getCategoryIcon"
+            :selected-point-id="selectedPointId"
+            :nearby-stations="nearbyStations"
+            :walking-route-loading="walkingRouteLoading"
+            @popup-open="handlePopupOpen"
+            @popup-close="handlePopupClose"
+            @open-detail="openDetail"
+            @open-navigation="openNavigation"
+            @show-station-on-map="showStationOnMap"
+            @show-walking-route="showWalkingRoute"
+          />
+          
+          <!-- Public Transport Layer -->
+          <PublicTransportLayer
+            ref="publicTransportLayerRef"
+            :selected-station-id="selectedStationId"
+            :nearby-launchpoints="nearbyLaunchpoints"
+            :walking-route-loading="walkingRouteLoading"
+            @popup-open="handleStationPopupOpen"
+            @popup-close="handleStationPopupClose"
+            @show-launchpoint-on-map="showLaunchpointOnMap"
+            @show-walking-route="showWalkingRouteToLaunchpoint"
+            @open-detail="openDetail"
+          />
+          
+          <!-- GPS Marker Layer -->
+          <GpsMarkerLayer
+            ref="gpsMarkerRef"
+            :position="currentPosition"
+            @center-on-position="centerOnCurrentPosition"
+            @add-point-at-position="addPointAtCurrentPosition"
+          />
+          
+          <!-- Walking Route Layer -->
+          <WalkingRouteLayer
+            ref="walkingRouteLayerRef"
+            :route="walkingRoute"
+            :distance="walkingDistance"
+            :duration="walkingDuration"
+            :target="walkingRouteTarget"
+            @close-route="handleCloseWalkingRoute"
+          />
+        </LMap>
+        
+        <!-- Map Controls (FABs, Context Menu, GPS Error) -->
+        <MapControls
+          :show-context-menu="showContextMenu"
+          :context-menu-position="contextMenuPosition"
+          :current-position="currentPosition"
+          :position-error="positionError"
+          :is-locating="isLocating"
+          :hide-on-mobile="showListView || showFilterPanel"
+          @add-new-point="addNewPoint"
+          @center-on-position="centerOnCurrentPosition"
+          @add-point-at-context="addPointAtContextMenu"
+          @close-context-menu="closeContextMenu"
         />
-      </Transition>
+        
+        <Transition name="filter-slide">
+          <FilterPanel 
+            v-if="showFilterPanel" 
+            @close="closeFilterPanel"
+          />
+        </Transition>
       </div>
       
       <Transition name="list-slide">
@@ -986,7 +600,7 @@ onUnmounted(() =>
   display: flex;
   flex-direction: column;
   height: 100vh;
-  height: 100dvh; /* Dynamic viewport height - accounts for mobile browser UI */
+  height: 100dvh;
   background: var(--bg-primary);
 }
 
@@ -1161,426 +775,6 @@ onUnmounted(() =>
   text-align: center;
 }
 
-@media (max-width: 480px) {
-  .search-container {
-    max-width: none;
-    left: 0;
-    transform: none;
-    padding: 0 0.5rem 0 3.5rem; /* Leave space for zoom controls on left */
-  }
-  
-  .search-input {
-    padding: 0.75rem 1rem;
-    font-size: 0.875rem;
-  }
-}
-
-.popup-content {
-  min-width: 180px;
-}
-
-.popup-content h3 {
-  font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 600;
-  color: #1e293b;
-  margin-bottom: 0.5rem;
-}
-
-.popup-categories {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  margin-bottom: 0.5rem;
-}
-
-.category-tag {
-  font-size: 0.625rem;
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-  color: white;
-  font-weight: 500;
-}
-
-.popup-creator {
-  font-size: 0.75rem;
-  color: #64748b;
-  margin-bottom: 0.75rem;
-}
-
-.popup-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.popup-btn {
-  flex: 1;
-  padding: 0.5rem;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-}
-
-.popup-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
-}
-
-.popup-btn-nav {
-  flex: 0 0 2.25rem;
-  padding: 0.5rem;
-}
-
-.popup-btn-nav svg {
-  width: 1rem;
-  height: 1rem;
-}
-
-/* Public Transport Popup Styles */
-.public-transport-popup {
-  min-width: 200px;
-}
-
-.popup-transport-info {
-  margin-top: 0.5rem;
-}
-
-.popup-lines {
-  font-size: 0.875rem;
-  margin-bottom: 0.5rem;
-  color: #1e293b;
-}
-
-.popup-lines strong {
-  color: #475569;
-  margin-right: 0.25rem;
-}
-
-.popup-types {
-  font-size: 0.875rem;
-  color: #1e293b;
-}
-
-.popup-types strong {
-  color: #475569;
-  display: block;
-  margin-bottom: 0.25rem;
-}
-
-.transport-types {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  margin-top: 0.25rem;
-}
-
-.transport-type-tag {
-  font-size: 0.625rem;
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-  color: white;
-  font-weight: 500;
-}
-
-.transport-type-train {
-  background-color: #0066CC;
-}
-
-.transport-type-tram {
-  background-color: #FF6600;
-}
-
-.transport-type-sbahn {
-  background-color: #00A550;
-}
-
-.transport-type-ubahn {
-  background-color: #003399;
-}
-
-/* Nearby Stations in Popup */
-.popup-nearby-stations {
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid #e2e8f0;
-}
-
-.popup-nearby-stations h4 {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #475569;
-  margin: 0 0 0.5rem 0;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-}
-
-.popup-nearby-stations h4 svg {
-  color: #0066CC;
-}
-
-.popup-nearby-stations .distance-hint {
-  font-weight: 400;
-  font-size: 0.625rem;
-  color: #94a3b8;
-  text-transform: none;
-}
-
-.nearby-stations-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  max-height: 150px;
-  overflow-y: auto;
-}
-
-.nearby-station-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.375rem 0.5rem;
-  background: #f8fafc;
-  border-radius: 0.375rem;
-  margin-bottom: 0.375rem;
-  gap: 0.5rem;
-}
-
-.nearby-station-item:last-child {
-  margin-bottom: 0;
-}
-
-.station-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.station-info .station-name {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: #1e293b;
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.station-info .station-types {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  margin-top: 0.25rem;
-}
-
-.nearby-station-item .station-distance {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #0066CC;
-  background: #e0f2fe;
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-  flex-shrink: 0;
-}
-
-.popup-no-stations {
-  margin-top: 0.75rem;
-  padding: 0.5rem;
-  background: #f1f5f9;
-  border-radius: 0.375rem;
-  font-size: 0.75rem;
-  color: #64748b;
-  text-align: center;
-}
-
-.station-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  flex-shrink: 0;
-}
-
-.station-map-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 0.25rem;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-  padding: 0;
-}
-
-.station-map-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3);
-}
-
-.station-map-btn svg {
-  width: 0.75rem;
-  height: 0.75rem;
-}
-
-.station-walk-btn {
-  background: linear-gradient(135deg, #059669, #10b981);
-}
-
-.station-walk-btn:hover {
-  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3);
-}
-
-.station-walk-btn:disabled {
-  opacity: 0.5;
-  cursor: wait;
-}
-
-/* Walking Route Popup */
-.walking-route-popup {
-  min-width: 180px;
-}
-
-.walking-route-popup h4 {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0 0 0.25rem 0;
-}
-
-.walking-route-popup h4 svg {
-  color: #059669;
-}
-
-.walking-route-target {
-  font-size: 0.75rem;
-  color: #64748b;
-  margin: 0 0 0.5rem 0;
-}
-
-.walking-route-info {
-  display: flex;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.walking-distance {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #2563eb;
-  background: #dbeafe;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-}
-
-.walking-duration {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #059669;
-  background: #d1fae5;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-}
-
-.walking-route-close {
-  width: 100%;
-  font-size: 0.75rem;
-  padding: 0.375rem 0.5rem;
-  background: #f1f5f9;
-  color: #475569;
-  border: none;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.walking-route-close:hover {
-  background: #e2e8f0;
-  color: #1e293b;
-}
-
-.fab {
-  position: absolute;
-  bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
-  right: 1.5rem;
-  width: 3.5rem;
-  height: 3.5rem;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  color: white;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
-  transition: all 0.2s;
-  z-index: 1000;
-}
-
-.fab.gps-fab {
-  bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
-  background: linear-gradient(135deg, #4285F4, #34A853);
-  box-shadow: 0 4px 12px rgba(66, 133, 244, 0.4);
-}
-
-.fab.gps-fab:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(66, 133, 244, 0.5);
-}
-
-.fab:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.fab:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.5);
-}
-
-.fab svg {
-  width: 1.5rem;
-  height: 1.5rem;
-}
-
-.gps-error {
-  position: absolute;
-  bottom: calc(10rem + env(safe-area-inset-bottom, 0px));
-  right: 1rem;
-  background: rgba(239, 68, 68, 0.95);
-  color: white;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.5rem;
-  font-size: 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  max-width: 200px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-}
-
-.gps-error-icon {
-  width: 1rem;
-  height: 1rem;
-  flex-shrink: 0;
-}
-
 @media (max-width: 768px) {
   .view-container {
     position: relative;
@@ -1601,86 +795,19 @@ onUnmounted(() =>
     z-index: 500;
     box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
   }
-  
-  .fab {
-    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
-    right: 1rem;
-  }
-  
-  .fab.gps-fab {
-    bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
-  }
-  
-  .list-toggle-btn {
-    bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
-    left: 1rem;
-    width: 2.5rem;
-    height: 2.5rem;
-  }
-  
-  .fab.hide-on-mobile {
-    display: none; /* Hide FAB button when list or filter is shown on mobile */
-  }
-  
-  .gps-error {
-    bottom: calc(9rem + env(safe-area-inset-bottom, 0px));
-    right: 0.75rem;
-    max-width: 180px;
-  }
-  
-  .gps-error.hide-on-mobile {
-    display: none;
-  }
 }
 
-/* Kontextmenü */
-.context-menu {
-  position: absolute;
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
-  z-index: 2000;
-  min-width: 200px;
-  padding: 0.25rem;
-  animation: contextMenuFadeIn 0.15s ease-out;
-}
-
-@keyframes contextMenuFadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
+@media (max-width: 480px) {
+  .search-container {
+    max-width: none;
+    left: 0;
+    transform: none;
+    padding: 0 0.5rem 0 3.5rem;
   }
-  to {
-    opacity: 1;
-    transform: scale(1);
+  
+  .search-input {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
   }
-}
-
-.context-menu-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: none;
-  border: none;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #1e293b;
-  cursor: pointer;
-  transition: all 0.15s;
-  text-align: left;
-}
-
-.context-menu-item:hover {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  color: white;
-}
-
-.context-menu-item svg {
-  width: 1.25rem;
-  height: 1.25rem;
-  flex-shrink: 0;
 }
 </style>
