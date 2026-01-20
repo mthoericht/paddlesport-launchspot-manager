@@ -28,12 +28,43 @@ const {
 
 const nearbyStations = ref<NearbyStation[]>([]);
 const showWalkingRouteMap = ref(false);
+const walkingRouteMapRef = ref<any>(null);
+const walkingRouteStartCoords = ref<{ lat: number; lng: number } | null>(null);
+
+function fitMapToWalkingRoute(startLat: number, startLng: number, endLat: number, endLng: number): void
+{
+  // Wait for map to be ready and route to render
+  setTimeout(() =>
+  {
+    if (!walkingRouteMapRef.value?.leafletObject) return;
+    
+    const map = walkingRouteMapRef.value.leafletObject;
+    
+    // Calculate bounds for the route
+    const bounds: [[number, number], [number, number]] = [
+      [Math.min(startLat, endLat), Math.min(startLng, endLng)],
+      [Math.max(startLat, endLat), Math.max(startLng, endLng)]
+    ];
+    
+    // Fit map to show the entire route with padding
+    map.fitBounds(bounds, { padding: [30, 30], animate: true, duration: 0.5 });
+  }, 100);
+}
 
 function showWalkingRoute(station: NearbyStation): void
 {
   if (!launchPointsStore.selectedPoint) return;
   const point = launchPointsStore.selectedPoint;
-  fetchWalkingRoute(station.latitude, station.longitude, point.latitude, point.longitude);
+  
+  // Store start coordinates for the marker
+  walkingRouteStartCoords.value = { lat: station.latitude, lng: station.longitude };
+  
+  fetchWalkingRoute(station.latitude, station.longitude, point.latitude, point.longitude)
+    .then(() =>
+    {
+      // Fit map to route after it's loaded
+      fitMapToWalkingRoute(station.latitude, station.longitude, point.latitude, point.longitude);
+    });
   showWalkingRouteMap.value = true;
 }
 
@@ -41,6 +72,7 @@ function closeWalkingRoute(): void
 {
   clearWalkingRoute();
   showWalkingRouteMap.value = false;
+  walkingRouteStartCoords.value = null;
 }
 
 function formatWalkingDistance(meters: number): string
@@ -315,6 +347,7 @@ onMounted(async () => {
             </div>
             <div class="walking-route-map-container">
               <LMap
+                ref="walkingRouteMapRef"
                 :zoom="15"
                 :center="[launchPointsStore.selectedPoint?.latitude || 0, launchPointsStore.selectedPoint?.longitude || 0]"
                 :use-global-leaflet="false"
@@ -331,12 +364,12 @@ onMounted(async () => {
                   dash-array="8, 8"
                 />
                 <LMarker
-                  v-if="walkingRoute.length > 0"
-                  :lat-lng="walkingRoute[0] as [number, number]"
+                  v-if="walkingRouteStartCoords"
+                  :lat-lng="[walkingRouteStartCoords.lat, walkingRouteStartCoords.lng]"
                 />
                 <LMarker
-                  v-if="walkingRoute.length > 0"
-                  :lat-lng="walkingRoute[walkingRoute.length - 1] as [number, number]"
+                  v-if="launchPointsStore.selectedPoint"
+                  :lat-lng="[launchPointsStore.selectedPoint.latitude, launchPointsStore.selectedPoint.longitude]"
                 />
               </LMap>
             </div>

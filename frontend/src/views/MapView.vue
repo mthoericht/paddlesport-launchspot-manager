@@ -25,6 +25,7 @@ const isMobile = ref(window.innerWidth <= 768);
 const showListView = ref(!isMobile.value); // Auf Mobile standardmäßig ausgeblendet
 const stationMarkerRefs = ref<Record<number, any>>({});
 const gpsMarkerRef = ref<any>(null);
+const walkingRouteMarkerRef = ref<any>(null);
 
 // Nearby stations state
 const selectedPointId = ref<number | null>(null);
@@ -53,11 +54,50 @@ const {
 // Store reference to current launchpoint for walking route
 const walkingRouteTarget = ref<{ stationName: string; pointName: string; lat: number; lng: number } | null>(null);
 
+// Fit map to walking route bounds and open popup
+function fitToWalkingRouteAndShowPopup(startLat: number, startLng: number, endLat: number, endLng: number): void
+{
+  if (!mapRef.value?.leafletObject) return;
+  
+  const map = mapRef.value.leafletObject;
+  
+  // Calculate bounds for the route
+  const bounds: [[number, number], [number, number]] = [
+    [Math.min(startLat, endLat), Math.min(startLng, endLng)],
+    [Math.max(startLat, endLat), Math.max(startLng, endLng)]
+  ];
+  
+  // Check if bounds are already visible in current view
+  const mapBounds = map.getBounds();
+  const routeBoundsContained = mapBounds.contains([startLat, startLng]) && mapBounds.contains([endLat, endLng]);
+  
+  if (!routeBoundsContained)
+  {
+    // Fit map to show the entire route with padding
+    map.fitBounds(bounds, { padding: [50, 50], animate: true, duration: 0.5 });
+  }
+  
+  // Open popup after map animation (or immediately if no animation needed)
+  const delay = routeBoundsContained ? 100 : 600;
+  setTimeout(() =>
+  {
+    if (walkingRouteMarkerRef.value?.leafletObject)
+    {
+      walkingRouteMarkerRef.value.leafletObject.openPopup();
+    }
+  }, delay);
+}
+
 // Show walking route from station to launch point
 function showWalkingRoute(station: NearbyStation, point: LaunchPointType): void
 {
   walkingRouteTarget.value = { stationName: station.name, pointName: point.name, lat: point.latitude, lng: point.longitude };
-  fetchWalkingRoute(station.latitude, station.longitude, point.latitude, point.longitude);
+  fetchWalkingRoute(station.latitude, station.longitude, point.latitude, point.longitude)
+    .then(() =>
+    {
+      // Fit to route and show popup after route is loaded
+      fitToWalkingRouteAndShowPopup(station.latitude, station.longitude, point.latitude, point.longitude);
+    });
   
   // Close the launchpoint popup
   if (mapRef.value?.leafletObject)
@@ -70,7 +110,12 @@ function showWalkingRoute(station: NearbyStation, point: LaunchPointType): void
 function showWalkingRouteToLaunchpoint(station: { name: string; latitude: number; longitude: number }, launchpoint: NearbyLaunchpoint): void
 {
   walkingRouteTarget.value = { stationName: station.name, pointName: launchpoint.name, lat: launchpoint.latitude, lng: launchpoint.longitude };
-  fetchWalkingRoute(station.latitude, station.longitude, launchpoint.latitude, launchpoint.longitude);
+  fetchWalkingRoute(station.latitude, station.longitude, launchpoint.latitude, launchpoint.longitude)
+    .then(() =>
+    {
+      // Fit to route and show popup after route is loaded
+      fitToWalkingRouteAndShowPopup(station.latitude, station.longitude, launchpoint.latitude, launchpoint.longitude);
+    });
   
   if (mapRef.value?.leafletObject)
   {
@@ -788,6 +833,7 @@ onUnmounted(() =>
         <!-- Walking Route Info Marker at destination -->
         <LMarker
           v-if="walkingRoute.length > 0 && walkingRouteTarget"
+          :ref="(el: any) => { walkingRouteMarkerRef = el }"
           :lat-lng="[walkingRouteTarget.lat, walkingRouteTarget.lng]"
           :z-index-offset="1000"
         >

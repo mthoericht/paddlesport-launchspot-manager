@@ -7,13 +7,21 @@ import { useMapNavigation } from './useMapNavigation';
 import { useAddressSearch } from './useAddressSearch';
 
 /**
- * Options for useMapViewInteractions composable
+ * Options for the useMapViewInteractions composable.
  */
 interface UseMapViewInteractionsOptions {
+  /** Reference to the Leaflet map component instance */
   mapRef: Ref<InstanceType<typeof import('@vue-leaflet/vue-leaflet').LMap> | null>;
 }
 
-// Helper function to get initial map state from query params or sessionStorage
+/**
+ * Retrieves the initial map state from URL query parameters or sessionStorage.
+ * Query parameters take precedence over sessionStorage.
+ * Returns null if highlighting a point (has its own positioning logic).
+ *
+ * @param route - The current Vue Router route object
+ * @returns The initial map center and zoom level, or null if not available
+ */
 function getInitialMapState(route: RouteLocationNormalizedLoaded): { center?: [number, number], zoom?: number } | null
 {
   const { centerLat, centerLng, zoom: queryZoom, highlight } = route.query;
@@ -65,6 +73,14 @@ function getInitialMapState(route: RouteLocationNormalizedLoaded): { center?: [n
   return null;
 }
 
+/**
+ * Composable that manages all map view interactions including context menus,
+ * map state, navigation, address search, and filter panel visibility.
+ * Combines multiple specialized composables into a unified interface for MapView.
+ *
+ * @param options - Configuration options containing the map reference
+ * @returns Object containing reactive state and methods for map interactions
+ */
 export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
 {
   const { mapRef } = options;
@@ -74,7 +90,10 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
   // Get initial map state from query params or sessionStorage
   const initialMapState = getInitialMapState(route);
 
-  // Function to remove highlight query parameters from URL
+  /**
+   * Removes highlight-related query parameters (highlight, lat, lng) from the current URL.
+   * Uses router.replace to avoid adding to browser history.
+   */
   function removeHighlightParams(): void
   {
     if (route.query.highlight || route.query.lat || route.query.lng)
@@ -106,7 +125,10 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
     cleanupGlobalClickHandler
   } = useContextMenu();
 
-  // Wrapper for closeContextMenu that also removes highlight params
+  /**
+   * Closes the context menu and removes highlight parameters from the URL.
+   * Wraps the base context menu close function with additional cleanup.
+   */
   function closeContextMenu(): void
   {
     contextMenuClose();
@@ -129,33 +151,63 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
   // Local state
   const showFilterPanel = ref(false);
 
-  // Event Handlers
+  /**
+   * Handles mouse down events on the map.
+   * Delegates to context menu handler for long-press detection.
+   *
+   * @param e - The Leaflet mouse event
+   */
   function onMapMouseDown(e: LeafletMouseEvent): void
   {
     contextMenuHandleMouseDown(e);
   }
 
+  /**
+   * Handles mouse up events on the map.
+   * Delegates to context menu handler to complete long-press detection.
+   */
   function onMapMouseUp(): void
   {
     contextMenuHandleMouseUp();
   }
 
+  /**
+   * Handles click events on the map.
+   * Delegates to context menu handler for click-based menu interactions.
+   *
+   * @param e - The Leaflet mouse event
+   */
   function onMapClick(e: LeafletMouseEvent): void
   {
     contextMenuHandleClick(e);
   }
 
+  /**
+   * Handles right-click context menu events on the map.
+   * Delegates to context menu handler to show the custom context menu.
+   *
+   * @param e - The Leaflet mouse event
+   */
   function onMapContextMenu(e: LeafletMouseEvent): void
   {
     contextMenuHandleContextMenu(e);
   }
 
+  /**
+   * Handles the start of map movement (pan/drag).
+   * Cancels any pending context menu to prevent accidental triggers during drag.
+   */
   function handleMapMoveStart(): void
   {
-    // Cancel pending context menu when starting drag
     cancelPendingMenu();
   }
 
+  /**
+   * Handles the end of map movement.
+   * Updates map state, closes context menu, and persists position to sessionStorage.
+   *
+   * @param e - The Leaflet event from moveend
+   */
   function handleMapMoveEnd(e: LeafletEvent): void
   {
     mapStateHandleMoveEnd(e);
@@ -183,6 +235,10 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
     }
   }
 
+  /**
+   * Navigates to the add point form with coordinates from the context menu location.
+   * Closes the context menu after initiating navigation.
+   */
   function addPointAtContextMenu(): void
   {
     addPointAtLocation(
@@ -193,6 +249,10 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
     closeContextMenu();
   }
 
+  /**
+   * Navigates to the add point form using the current map center coordinates.
+   * Used when adding a point from the UI button rather than context menu.
+   */
   function addNewPoint(): void
   {
     addPointWithCurrentView(
@@ -202,6 +262,10 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
     );
   }
 
+  /**
+   * Executes an address search and updates the map view to show the results.
+   * Uses bounding box if available, otherwise centers on the result coordinates.
+   */
   function handleSearch(): void
   {
     searchAddress((result) =>
@@ -221,11 +285,17 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
     });
   }
 
+  /**
+   * Toggles the visibility of the filter panel.
+   */
   function toggleFilterPanel(): void
   {
     showFilterPanel.value = !showFilterPanel.value;
   }
 
+  /**
+   * Closes the filter panel.
+   */
   function closeFilterPanel(): void
   {
     showFilterPanel.value = false;
@@ -263,7 +333,11 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
     }
   }, { immediate: false });
 
-  // Lifecycle
+  /**
+   * Sets up all interaction handlers including global click handler and touch events.
+   * Should be called on component mount (e.g., in onMounted hook).
+   * Registers touch event handlers on the Leaflet map for mobile device support.
+   */
   function setupInteractions(): void
   {
     setupGlobalClickHandler();
@@ -299,6 +373,11 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
     }
   }
 
+  /**
+   * Cleans up all interaction handlers including global click handler and touch events.
+   * Should be called on component unmount (e.g., in onUnmounted hook).
+   * Removes touch event handlers from the Leaflet map to prevent memory leaks.
+   */
   function cleanupInteractions(): void
   {
     cleanupGlobalClickHandler();
