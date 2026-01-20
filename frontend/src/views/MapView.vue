@@ -240,7 +240,7 @@ const { showPointOnMap, showStationOnMap, showGpsPosition } = useShowPointOnMap(
 });
 
 // Use geolocation composable
-const { currentPosition, isLocating, getCurrentPosition, watchPosition, stopWatching } = useGeolocation();
+const { currentPosition, positionError, isLocating, getCurrentPosition, watchPosition, stopWatching } = useGeolocation();
 
 // Convert heading degrees to compass direction
 function getCompassDirection(heading: number): string
@@ -829,6 +829,20 @@ onUnmounted(() =>
           <circle cx="12" cy="10" r="3"/>
         </svg>
       </button>
+      
+      <!-- GPS Error Message -->
+      <div 
+        v-if="positionError && !currentPosition" 
+        class="gps-error"
+        :class="{ 'hide-on-mobile': showListView || showFilterPanel }"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="gps-error-icon">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span>{{ positionError }}</span>
+      </div>
       
       <!-- Add Point Button -->
       <button 
@@ -1457,6 +1471,29 @@ onUnmounted(() =>
   height: 1.5rem;
 }
 
+.gps-error {
+  position: absolute;
+  bottom: calc(10rem + env(safe-area-inset-bottom, 0px));
+  right: 1rem;
+  background: rgba(239, 68, 68, 0.95);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 200px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+.gps-error-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
 @media (max-width: 768px) {
   .view-container {
     position: relative;
@@ -1496,6 +1533,16 @@ onUnmounted(() =>
   
   .fab.hide-on-mobile {
     display: none; /* Hide FAB button when list or filter is shown on mobile */
+  }
+  
+  .gps-error {
+    bottom: calc(9rem + env(safe-area-inset-bottom, 0px));
+    right: 0.75rem;
+    max-width: 180px;
+  }
+  
+  .gps-error.hide-on-mobile {
+    display: none;
   }
 }
 
