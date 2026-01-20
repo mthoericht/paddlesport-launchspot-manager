@@ -72,8 +72,10 @@ A full-stack web application for managing launch points for kayaking, canoeing, 
 - **OSRM routing**: Uses OpenStreetMap routing API for accurate walking paths
 - **Route visualization**: Dashed blue polyline on the map showing the walking path
 - **Route info popup**: Shows start station, destination, total distance and estimated walking time
+- **Auto-zoom**: Automatically fits map to show entire route when route extends beyond current view
+- **Auto-popup**: Route info popup opens automatically after route is loaded
 - **One-click access**: Walking route button (pedestrian icon) next to each nearby station
-- **Available everywhere**: In both map popup and detail view ÖPNV lists
+- **Seamless navigation**: Clicking "Walking route" in detail view navigates to map and shows route
 
 ### 🔍 Filters
 - All points, My points, Official points, By user
@@ -127,6 +129,8 @@ The frontend uses Vue 3 Composition API with custom composables for reusable log
   - Fetches walking routes between two coordinates
   - Returns route geometry, distance (meters), and duration (seconds)
   - Reactive loading and error states
+  - Auto-fits map to route bounds when route extends beyond view
+  - Auto-opens route info popup after loading
 - **`useLaunchPointForm`** - Form state and validation
 
 ### Utilities

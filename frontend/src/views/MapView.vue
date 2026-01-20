@@ -123,6 +123,42 @@ function showWalkingRouteToLaunchpoint(station: { name: string; latitude: number
   }
 }
 
+// Show walking route from query parameters (e.g., from detail view)
+function showWalkingRouteFromQuery(): void
+{
+  const { walkingRoute: hasWalkingRoute, fromLat, fromLng, toLat, toLng, stationName, pointName } = route.query;
+  
+  if (hasWalkingRoute !== 'true' || !fromLat || !fromLng || !toLat || !toLng) return;
+  
+  const startLat = parseFloat(fromLat as string);
+  const startLng = parseFloat(fromLng as string);
+  const endLat = parseFloat(toLat as string);
+  const endLng = parseFloat(toLng as string);
+  
+  if (isNaN(startLat) || isNaN(startLng) || isNaN(endLat) || isNaN(endLng)) return;
+  
+  // Set the walking route target for the popup
+  walkingRouteTarget.value = {
+    stationName: (stationName as string) || 'Station',
+    pointName: (pointName as string) || 'Einsetzpunkt',
+    lat: endLat,
+    lng: endLng
+  };
+  
+  // Fetch and display the walking route
+  fetchWalkingRoute(startLat, startLng, endLat, endLng)
+    .then(() =>
+    {
+      fitToWalkingRouteAndShowPopup(startLat, startLng, endLat, endLng);
+    });
+  
+  // Clear the query parameters to avoid re-fetching on navigation
+  router.replace({
+    path: route.path,
+    query: {}
+  });
+}
+
 // Format distance for display
 function formatWalkingDistance(meters: number): string
 {
@@ -512,9 +548,14 @@ onMounted(async () =>
       return;
     }
     
+    // Handle walking route from query parameters (e.g., from detail view)
+    if (route.query.walkingRoute === 'true')
+    {
+      showWalkingRouteFromQuery();
+    }
     // Handle highlight from query parameters (e.g., from detail view)
     // This takes precedence over restore and will override the initial view
-    if (route.query.highlight || route.query.stationId)
+    else if (route.query.highlight || route.query.stationId)
     {
       handleHighlightFromQuery();
     }
