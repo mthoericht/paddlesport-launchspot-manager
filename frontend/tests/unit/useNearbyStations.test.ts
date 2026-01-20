@@ -111,12 +111,12 @@ describe('useNearbyStations', () =>
       expect(result.length).toBeLessThanOrEqual(8);
     });
 
-    it('should respect custom maxDistanceKm parameter', () =>
+    it('should respect custom maxDistanceMeters parameter', () =>
     {
       const { findNearbyStations } = useNearbyStations(() => mockStations);
       
-      // Very small radius - should only include the closest station
-      const result = findNearbyStations(52.5200, 13.4050, 0.1);
+      // Very small radius (100m) - should only include the closest station
+      const result = findNearbyStations(52.5200, 13.4050, 100);
       
       expect(result.length).toBeLessThan(4);
     });
@@ -125,7 +125,7 @@ describe('useNearbyStations', () =>
     {
       const { findNearbyStations } = useNearbyStations(() => mockStations);
       
-      const result = findNearbyStations(52.5200, 13.4050, 2, 2);
+      const result = findNearbyStations(52.5200, 13.4050, 2000, 2);
       
       expect(result.length).toBeLessThanOrEqual(2);
     });
@@ -173,40 +173,40 @@ describe('useNearbyStations', () =>
     });
   });
 
-  describe('calculateDistanceKm', () =>
+  describe('calculateDistanceMeter', () =>
   {
     it('should return 0 for same coordinates', () =>
     {
-      const { calculateDistanceKm } = useNearbyStations(() => []);
+      const { calculateDistanceMeter } = useNearbyStations(() => []);
       
-      const distance = calculateDistanceKm(52.5200, 13.4050, 52.5200, 13.4050);
+      const distance = calculateDistanceMeter(52.5200, 13.4050, 52.5200, 13.4050);
       
       expect(distance).toBe(0);
     });
 
     it('should calculate correct distance (Berlin to Munich ~504km)', () =>
     {
-      const { calculateDistanceKm } = useNearbyStations(() => []);
+      const { calculateDistanceMeter } = useNearbyStations(() => []);
       
       // Berlin: 52.52, 13.405
       // Munich: 48.137, 11.575
-      const distance = calculateDistanceKm(52.52, 13.405, 48.137, 11.575);
+      const distance = calculateDistanceMeter(52.52, 13.405, 48.137, 11.575);
       
-      // Should be approximately 504km (with some tolerance)
-      expect(distance).toBeGreaterThan(480);
-      expect(distance).toBeLessThan(520);
+      // Should be approximately 504km = 504000m (with some tolerance)
+      expect(distance).toBeGreaterThan(480000);
+      expect(distance).toBeLessThan(520000);
     });
 
     it('should handle negative coordinates', () =>
     {
-      const { calculateDistanceKm } = useNearbyStations(() => []);
+      const { calculateDistanceMeter } = useNearbyStations(() => []);
       
       // New York to London
-      const distance = calculateDistanceKm(40.7128, -74.0060, 51.5074, -0.1278);
+      const distance = calculateDistanceMeter(40.7128, -74.0060, 51.5074, -0.1278);
       
-      // Should be approximately 5570km
-      expect(distance).toBeGreaterThan(5500);
-      expect(distance).toBeLessThan(5700);
+      // Should be approximately 5570km = 5570000m
+      expect(distance).toBeGreaterThan(5500000);
+      expect(distance).toBeLessThan(5700000);
     });
   });
 });

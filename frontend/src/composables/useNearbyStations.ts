@@ -1,7 +1,7 @@
 import type { PublicTransportPoint } from '../types';
 
-/** Default maximum distance in kilometers for nearby stations search */
-const MAX_DISTANCE_KM = 2;
+/** Default maximum distance in meters for nearby stations search (2km) */
+const MAX_DISTANCE_METERS = 2000;
 
 /** Default maximum number of stations to return */
 const MAX_STATIONS = 8;
@@ -48,16 +48,16 @@ function calculateDistanceMeters(
  * @param lon1 - Longitude of the first point
  * @param lat2 - Latitude of the second point
  * @param lon2 - Longitude of the second point
- * @returns Distance in kilometers (air distance)
+ * @returns Distance in meters (air distance)
  */
-function calculateDistanceKm(
+function calculateDistanceMeter(
   lat1: number,
   lon1: number,
   lat2: number,
   lon2: number
 ): number
 {
-  return calculateDistanceMeters(lat1, lon1, lat2, lon2) / 1000;
+  return calculateDistanceMeters(lat1, lon1, lat2, lon2);
 }
 
 /**
@@ -71,7 +71,7 @@ export interface NearbyStation extends PublicTransportPoint {
 /**
  * Composable for finding nearby public transport stations based on geographic coordinates
  * @param allStations - Function returning all available public transport stations
- * @returns Object with findNearbyStations and calculateDistanceKm functions
+ * @returns Object with findNearbyStations and calculateDistanceMeter functions
  */
 export function useNearbyStations(allStations: () => PublicTransportPoint[])
 {
@@ -79,19 +79,18 @@ export function useNearbyStations(allStations: () => PublicTransportPoint[])
    * Finds public transport stations within a specified distance, sorted by proximity
    * @param latitude - Latitude of the reference point
    * @param longitude - Longitude of the reference point
-   * @param maxDistanceKm - Maximum distance in km (default: 2)
+   * @param maxDistanceMeters - Maximum distance in meters (default: 2000 = 2km)
    * @param maxStations - Maximum stations to return (default: 8)
    * @returns Array of nearby stations with distance info
    */
   function findNearbyStations(
     latitude: number,
     longitude: number,
-    maxDistanceKm: number = MAX_DISTANCE_KM,
+    maxDistanceMeters: number = MAX_DISTANCE_METERS,
     maxStations: number = MAX_STATIONS
   ): NearbyStation[]
   {
     const stations = allStations();
-    const maxDistanceMeters = maxDistanceKm * 1000;
     
     const stationsWithDistance = stations
       .map(station => ({
@@ -107,6 +106,6 @@ export function useNearbyStations(allStations: () => PublicTransportPoint[])
 
   return {
     findNearbyStations,
-    calculateDistanceKm
+    calculateDistanceMeter
   };
 }
