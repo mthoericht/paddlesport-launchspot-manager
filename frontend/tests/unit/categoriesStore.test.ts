@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { useCategories } from '@/composables/useCategories';
+import { setActivePinia, createPinia } from 'pinia';
+import { useCategoriesStore } from '@/stores/categories';
 
 // Mock the auth store
 vi.mock('@/stores/auth', () => ({
@@ -16,10 +17,11 @@ vi.mock('@/config/api', () => ({
 // Mock fetch globally
 globalThis.fetch = vi.fn();
 
-describe('useCategories', () =>
+describe('useCategoriesStore', () =>
 {
   beforeEach(() => 
   {
+    setActivePinia(createPinia());
     vi.clearAllMocks();
   });
 
@@ -36,11 +38,11 @@ describe('useCategories', () =>
       json: async () => mockCategories
     });
 
-    const { allCategories, fetchCategories } = useCategories();
-    await fetchCategories();
+    const store = useCategoriesStore();
+    await store.fetchCategories();
     
-    expect(allCategories.value).toEqual(mockCategories);
-    expect(allCategories.value).toHaveLength(4);
+    expect(store.categories).toEqual(mockCategories);
+    expect(store.categories).toHaveLength(4);
   });
 
   it('should return category colors', async () => 
@@ -54,28 +56,45 @@ describe('useCategories', () =>
       json: async () => mockCategories
     });
 
-    const { categoryColors, fetchCategories } = useCategories();
-    await fetchCategories();
+    const store = useCategoriesStore();
+    await store.fetchCategories();
     
-    expect(categoryColors.value['Kajak']).toBe('#f59e0b');
-    expect(categoryColors.value['SUP']).toBe('#10b981');
+    expect(store.categoryColors['Kajak']).toBe('#f59e0b');
+    expect(store.categoryColors['SUP']).toBe('#10b981');
+  });
+
+  it('should skip fetch if already fetched', async () =>
+  {
+    const mockCategories = [
+      { id: 1, name_en: 'kajak', name_de: 'Kajak' }
+    ];
+    (globalThis.fetch as any).mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockCategories
+    });
+
+    const store = useCategoriesStore();
+    await store.fetchCategories();
+    await store.fetchCategories(); // Second call should be skipped
+
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
   });
 
   describe('getCategoryColor', () =>
   {
     it('should return correct color for valid category', () => 
     {
-      const { getCategoryColor } = useCategories();
-      expect(getCategoryColor('Kajak')).toBe('#f59e0b');
-      expect(getCategoryColor('SUP')).toBe('#10b981');
-      expect(getCategoryColor('Schwimmen')).toBe('#3b82f6');
-      expect(getCategoryColor('Entspannen')).toBe('#8b5cf6');
+      const store = useCategoriesStore();
+      expect(store.getCategoryColor('Kajak')).toBe('#f59e0b');
+      expect(store.getCategoryColor('SUP')).toBe('#10b981');
+      expect(store.getCategoryColor('Schwimmen')).toBe('#3b82f6');
+      expect(store.getCategoryColor('Entspannen')).toBe('#8b5cf6');
     });
 
     it('should generate color for unknown category', () => 
     {
-      const { getCategoryColor } = useCategories();
-      const color = getCategoryColor('UnknownCategory');
+      const store = useCategoriesStore();
+      const color = store.getCategoryColor('UnknownCategory');
       // Should return a color from the palette
       expect(color).toMatch(/^#[0-9a-f]{6}$/i);
     });
@@ -96,9 +115,9 @@ describe('useCategories', () =>
         json: async () => mockCategories
       });
 
-      const { getCategoryIcon, fetchCategories } = useCategories();
-      await fetchCategories();
-      const icon = getCategoryIcon(['Kajak']);
+      const store = useCategoriesStore();
+      await store.fetchCategories();
+      const icon = store.getCategoryIcon(['Kajak']);
       
       expect(icon).toContain('data:image/svg+xml');
       // Color is URL encoded, so check for encoded version
@@ -118,9 +137,9 @@ describe('useCategories', () =>
         json: async () => mockCategories
       });
 
-      const { getCategoryIcon, fetchCategories } = useCategories();
-      await fetchCategories();
-      const icon = getCategoryIcon(['SUP', 'Kajak']);
+      const store = useCategoriesStore();
+      await store.fetchCategories();
+      const icon = store.getCategoryIcon(['SUP', 'Kajak']);
       
       // Color is URL encoded
       expect(decodeURIComponent(icon)).toContain('#10b981'); // SUP color (first)
@@ -139,9 +158,9 @@ describe('useCategories', () =>
         json: async () => mockCategories
       });
 
-      const { getCategoryIcon, fetchCategories } = useCategories();
-      await fetchCategories();
-      const icon = getCategoryIcon([]);
+      const store = useCategoriesStore();
+      await store.fetchCategories();
+      const icon = store.getCategoryIcon([]);
       
       // Should use first category from fetched list or generate a color
       expect(icon).toContain('data:image/svg+xml');
@@ -152,10 +171,10 @@ describe('useCategories', () =>
   {
     it('should add category if not present', () =>
     {
-      const { toggleCategory } = useCategories();
+      const store = useCategoriesStore();
       const categoryIds: number[] = [1];
       
-      const result = toggleCategory(categoryIds, 2);
+      const result = store.toggleCategory(categoryIds, 2);
       
       expect(result).toEqual([1, 2]);
       expect(result).toHaveLength(2);
@@ -163,10 +182,10 @@ describe('useCategories', () =>
 
     it('should remove category if present', () =>
     {
-      const { toggleCategory } = useCategories();
+      const store = useCategoriesStore();
       const categoryIds: number[] = [1, 2];
       
-      const result = toggleCategory(categoryIds, 2);
+      const result = store.toggleCategory(categoryIds, 2);
       
       expect(result).toEqual([1]);
       expect(result).toHaveLength(1);
@@ -174,13 +193,39 @@ describe('useCategories', () =>
 
     it('should not mutate original array', () =>
     {
-      const { toggleCategory } = useCategories();
+      const store = useCategoriesStore();
       const categoryIds: number[] = [1];
       
-      toggleCategory(categoryIds, 2);
+      store.toggleCategory(categoryIds, 2);
       
       expect(categoryIds).toEqual([1]);
     });
   });
-});
 
+  describe('$reset', () =>
+  {
+    it('should reset store state', async () =>
+    {
+      const mockCategories = [
+        { id: 1, name_en: 'kajak', name_de: 'Kajak' }
+      ];
+      (globalThis.fetch as any).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockCategories
+      });
+
+      const store = useCategoriesStore();
+      await store.fetchCategories();
+      
+      expect(store.categories).toHaveLength(1);
+      expect(store.hasFetched).toBe(true);
+
+      store.$reset();
+
+      expect(store.categories).toHaveLength(0);
+      expect(store.hasFetched).toBe(false);
+      expect(store.loading).toBe(false);
+      expect(store.error).toBe(null);
+    });
+  });
+});

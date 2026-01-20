@@ -19,8 +19,6 @@ defineProps<Props>();
 const emit = defineEmits<{
   'popup-open': [point: { id: number; latitude: number; longitude: number }];
   'popup-close': [];
-  'open-detail': [point: LaunchPoint];
-  'open-navigation': [lat: number, lng: number];
   'show-station-on-map': [station: NearbyStation];
   'show-walking-route': [station: NearbyStation, point: LaunchPoint];
 }>();
@@ -59,8 +57,6 @@ function handlePopupClose()
         :category-colors="categoryColors"
         :walking-route-loading="walkingRouteLoading"
         :is-selected="selectedPointId === point.id"
-        @open-detail="emit('open-detail', $event)"
-        @open-navigation="(lat, lng) => emit('open-navigation', lat, lng)"
         @show-station-on-map="emit('show-station-on-map', $event)"
         @show-walking-route="(station, point) => emit('show-walking-route', station, point)"
       />

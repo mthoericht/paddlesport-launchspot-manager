@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import type { PublicTransportPoint, PublicTransportType } from '../../types';
+import { useRouter } from 'vue-router';
+import type { PublicTransportPoint } from '../../types';
 import type { NearbyLaunchpoint } from '../../composables';
+import { getTransportTypeLabel } from '../../utils/transport';
 
 interface Props
 {
@@ -10,23 +12,19 @@ interface Props
   isSelected: boolean;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 
 const emit = defineEmits<{
   'show-launchpoint-on-map': [launchpoint: NearbyLaunchpoint];
   'show-walking-route': [station: { name: string; latitude: number; longitude: number }, launchpoint: NearbyLaunchpoint];
-  'open-detail': [launchpoint: NearbyLaunchpoint];
 }>();
 
-function getTransportTypeLabel(type: PublicTransportType): string
+const router = useRouter();
+
+// Direct navigation - no event bubbling needed
+function openDetail(launchpoint: NearbyLaunchpoint): void
 {
-  const labels: Record<PublicTransportType, string> = {
-    train: 'Bahn',
-    tram: 'Tram',
-    sbahn: 'S-Bahn',
-    ubahn: 'U-Bahn'
-  };
-  return labels[type] || type;
+  router.push(`/launch-point/${launchpoint.id}`);
 }
 </script>
 
@@ -95,7 +93,7 @@ function getTransportTypeLabel(type: PublicTransportType): string
             </button>
             <button 
               class="popup-btn"
-              @click="emit('open-detail', lp)"
+              @click="openDetail(lp)"
               title="Details anzeigen"
             >
               Details

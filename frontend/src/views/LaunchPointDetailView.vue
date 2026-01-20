@@ -4,7 +4,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { useLaunchPointsStore } from '../stores/launchPoints';
 import { usePublicTransportStore } from '../stores/publicTransport';
 import { useAuthStore } from '../stores/auth';
-import { useCategories, useMapNavigation, useNearbyStations } from '../composables';
+import { useMapNavigation, useNearbyStations } from '../composables';
+import { useCategoriesStore } from '../stores/categories';
 import type { NearbyStation } from '../composables';
 import type { PublicTransportType } from '../types';
 
@@ -13,7 +14,7 @@ const router = useRouter();
 const launchPointsStore = useLaunchPointsStore();
 const publicTransportStore = usePublicTransportStore();
 const authStore = useAuthStore();
-const { categoryColors, fetchCategories } = useCategories();
+const categoriesStore = useCategoriesStore();
 const { openNavigation, navigateToPoint, navigateToStation } = useMapNavigation();
 const { findNearbyStations } = useNearbyStations(() => publicTransportStore.publicTransportPoints);
 
@@ -90,7 +91,7 @@ function editPoint() {
 }
 
 onMounted(async () => {
-  await fetchCategories();
+  await categoriesStore.fetchCategories();
   await publicTransportStore.fetchPublicTransportPoints();
   const id = Number(route.params.id);
   await launchPointsStore.fetchLaunchPoint(id);
@@ -130,7 +131,7 @@ onMounted(async () => {
               v-for="cat in launchPointsStore.selectedPoint.categories" 
               :key="cat" 
               class="category-tag"
-              :style="{ backgroundColor: categoryColors[cat] }"
+              :style="{ backgroundColor: categoriesStore.categoryColors[cat] }"
             >
               {{ cat }}
             </span>

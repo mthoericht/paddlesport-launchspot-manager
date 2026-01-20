@@ -12,8 +12,10 @@
 ## Architecture
 - **frontend/** - Vue 3 SPA with Pinia stores, Vue Router, Leaflet maps, TypeScript
   - **components/map/** - Modular map layer components (LaunchPointLayer, PublicTransportLayer, GpsMarkerLayer, WalkingRouteLayer, MapControls, and Popup components)
-  - **composables/** - Reusable logic (useMapState, useGeolocation, useWalkingRoute, etc.)
-  - **stores/** - Pinia stores (auth, launchPoints, publicTransport)
+  - **composables/** - General reusable logic (useMapState, useGeolocation, useWalkingRoute, etc.)
+  - **composables/map/** - Map-specific composables (useNearbyPopupState, useWalkingRouteDisplay, useMapQueryParams)
+  - **stores/** - Pinia stores (auth, launchPoints, publicTransport, categories)
+  - **utils/** - Shared utilities (geo.ts, transport.ts)
   - **views/** - Page components (MapView, DetailView, etc.)
 - **backend/** - Express API server (`backend/index.ts`), routes in `backend/routes/`
 - **prisma/** - Database schema and seeds (libSQL/Turso adapter)

@@ -108,15 +108,16 @@ The map view is split into modular, reusable components located in `frontend/src
 | Component | Description |
 |-----------|-------------|
 | `LaunchPointLayer.vue` | Renders all launch point markers on the map |
-| `LaunchPointPopup.vue` | Popup content for launch points (name, categories, nearby stations) |
-| `PublicTransportLayer.vue` | Renders all public transport station markers |
-| `PublicTransportPopup.vue` | Popup content for stations (lines, types, nearby launch points) |
+| `LaunchPointPopup.vue` | Popup content for launch points with direct navigation (router, external maps) |
+| `PublicTransportLayer.vue` | Renders all public transport station markers, exposes marker refs |
+| `PublicTransportPopup.vue` | Popup content for stations with direct navigation to launch point details |
 | `GpsMarkerLayer.vue` | GPS position marker with accuracy circle and heading indicator |
 | `WalkingRouteLayer.vue` | Walking route polyline with distance/duration info popup |
 | `MapControls.vue` | FAB buttons, context menu, and GPS error messages |
 
 This architecture provides:
 - **Separation of Concerns**: Each layer handles its own markers, popups, and styling
+- **Direct Navigation**: Popup components handle routing directly (no event bubbling for navigation)
 - **Reusability**: Popup components can be used independently
 - **Maintainability**: Changes to one layer don't affect others
 - **Testability**: Individual components can be tested in isolation
@@ -124,6 +125,8 @@ This architecture provides:
 ### Composables Architecture
 
 The frontend uses Vue 3 Composition API with custom composables for reusable logic:
+
+#### General Composables (`composables/`)
 
 - **`useMapState`** - Map center, zoom, and view management
 - **`useMapNavigation`** - Navigation to detail pages, external navigation apps, and map navigation for points/stations
@@ -154,11 +157,39 @@ The frontend uses Vue 3 Composition API with custom composables for reusable log
   - Auto-opens route info popup after loading
 - **`useLaunchPointForm`** - Form state and validation
 
+#### Map-specific Composables (`composables/map/`)
+
+- **`useNearbyPopupState`** - Manages nearby items state for popups:
+  - Tracks selected launch point/station IDs
+  - Calculates nearby stations for launch point popups
+  - Calculates nearby launch points for station popups
+  - Handles popup open/close events
+- **`useWalkingRouteDisplay`** - Walking route display on the map:
+  - Shows walking routes from stations to launch points
+  - Fits map to route bounds and opens info popup
+  - Handles walking route from URL query parameters
+- **`useMapQueryParams`** - URL query parameter handling:
+  - Handles highlight parameters from detail view navigation
+  - Supports launch point and station highlighting
+  - Clears query params after processing
+
 ### Utilities
 
 - **`utils/geo.ts`** - Shared geographic utilities
   - `haversineDistanceMeters(a, b)` - Calculate distance between two coordinates using Haversine formula
   - `findNearby<T>(items, origin, maxDistance, maxResults)` - Generic function to find nearby items with distance
+- **`utils/transport.ts`** - Public transport utilities
+  - `getTransportTypeLabel(type)` - Get display label for transport type (Bahn, Tram, S-Bahn, U-Bahn)
+
+### Pinia Stores
+
+- **`authStore`** - Authentication state (user, token, login/logout)
+- **`launchPointsStore`** - Launch points data, filtering, CRUD operations
+- **`publicTransportStore`** - Public transport stations data
+- **`categoriesStore`** - Categories with colors, icons, and caching
+  - Fetches categories from API with automatic caching
+  - Provides `getCategoryColor` and `getCategoryIcon` helpers
+  - Prevents duplicate API calls with `hasFetched` flag
 
 ### Backend
 - **Express.js** REST API server

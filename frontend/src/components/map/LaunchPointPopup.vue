@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router';
 import type { LaunchPoint } from '../../types';
 import type { NearbyStation } from '../../composables';
-import type { PublicTransportType } from '../../types';
+import { getTransportTypeLabel } from '../../utils/transport';
 
 interface Props
 {
@@ -15,21 +16,22 @@ interface Props
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  'open-detail': [point: LaunchPoint];
-  'open-navigation': [lat: number, lng: number];
   'show-station-on-map': [station: NearbyStation];
   'show-walking-route': [station: NearbyStation, point: LaunchPoint];
 }>();
 
-function getTransportTypeLabel(type: PublicTransportType): string
+const router = useRouter();
+
+// Direct navigation - no event bubbling needed
+function openDetail(): void
 {
-  const labels: Record<PublicTransportType, string> = {
-    train: 'Bahn',
-    tram: 'Tram',
-    sbahn: 'S-Bahn',
-    ubahn: 'U-Bahn'
-  };
-  return labels[type] || type;
+  router.push(`/launch-point/${props.point.id}`);
+}
+
+function openNavigation(): void
+{
+  const { latitude, longitude } = props.point;
+  window.open(`https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`, '_blank');
 }
 </script>
 
@@ -108,8 +110,8 @@ function getTransportTypeLabel(type: PublicTransportType): string
     </div>
     
     <div class="popup-actions">
-      <button @click="emit('open-detail', point)" class="popup-btn">Details</button>
-      <button @click="emit('open-navigation', point.latitude, point.longitude)" class="popup-btn popup-btn-nav" title="Route starten">
+      <button @click="openDetail" class="popup-btn">Details</button>
+      <button @click="openNavigation" class="popup-btn popup-btn-nav" title="Route starten">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="3 11 22 2 13 21 11 13 3 11"/>
         </svg>

@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch, onBeforeUnmount, nextTick } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 import { LMap, LTileLayer } from '@vue-leaflet/vue-leaflet';
 import { useLaunchPointsStore } from '../stores/launchPoints';
 import { usePublicTransportStore } from '../stores/publicTransport';
-import { useMapViewInteractions, useCategories, useShowPointOnMap, useGeolocation, useNearbyStations, useNearbyLaunchpoints, useWalkingRoute } from '../composables';
-import type { NearbyStation, NearbyLaunchpoint } from '../composables';
-import type { LaunchPoint as LaunchPointType } from '../types';
+import { useMapViewInteractions, useShowPointOnMap, useGeolocation } from '../composables';
+import { useCategoriesStore } from '../stores/categories';
+import { useNearbyPopupState, useWalkingRouteDisplay, useMapQueryParams } from '../composables/map';
 import FilterPanel from '../components/FilterPanel.vue';
 import AppHeader from '../components/AppHeader.vue';
 import LaunchPointListView from '../components/LaunchPointListView.vue';
@@ -19,11 +18,9 @@ import GpsMarkerLayer from '../components/map/GpsMarkerLayer.vue';
 import WalkingRouteLayer from '../components/map/WalkingRouteLayer.vue';
 import MapControls from '../components/map/MapControls.vue';
 
-// Stores
+// Stores - needed for initial data fetch
 const launchPointsStore = useLaunchPointsStore();
 const publicTransportStore = usePublicTransportStore();
-const route = useRoute();
-const router = useRouter();
 
 // Local refs
 const mapRef = ref<any>(null);
@@ -34,195 +31,32 @@ const publicTransportLayerRef = ref<InstanceType<typeof PublicTransportLayer> | 
 const gpsMarkerRef = ref<InstanceType<typeof GpsMarkerLayer> | null>(null);
 const walkingRouteLayerRef = ref<InstanceType<typeof WalkingRouteLayer> | null>(null);
 
-// Nearby stations state
-const selectedPointId = ref<number | null>(null);
-const nearbyStations = ref<NearbyStation[]>([]);
+// Nearby popup state composable
+const {
+  selectedPointId,
+  nearbyStations,
+  selectedStationId,
+  nearbyLaunchpoints,
+  handlePopupOpen,
+  handlePopupClose,
+  handleStationPopupOpen,
+  handleStationPopupClose
+} = useNearbyPopupState();
 
-// Nearby launchpoints state (for public transport popups)
-const selectedStationId = ref<number | null>(null);
-const nearbyLaunchpoints = ref<NearbyLaunchpoint[]>([]);
+// Walking route display composable
+const {
+  walkingRoute,
+  walkingDistance,
+  walkingDuration,
+  walkingRouteLoading,
+  walkingRouteTarget,
+  showWalkingRoute,
+  showWalkingRouteToLaunchpoint,
+  showWalkingRouteFromQuery,
+  handleCloseWalkingRoute
+} = useWalkingRouteDisplay({ mapRef, walkingRouteLayerRef });
 
-// Nearby stations composable
-const { findNearbyStations } = useNearbyStations(() => publicTransportStore.publicTransportPoints);
-
-// Nearby launchpoints composable
-const { findNearbyLaunchpoints } = useNearbyLaunchpoints(() => launchPointsStore.launchPoints);
-
-// Walking route composable
-const { 
-  route: walkingRoute, 
-  distance: walkingDistance, 
-  duration: walkingDuration, 
-  isLoading: walkingRouteLoading, 
-  fetchWalkingRoute, 
-  clearRoute: clearWalkingRoute 
-} = useWalkingRoute();
-
-// Store reference to current launchpoint for walking route
-const walkingRouteTarget = ref<{ stationName: string; pointName: string; lat: number; lng: number } | null>(null);
-
-// Fit map to walking route bounds and open popup
-function fitToWalkingRouteAndShowPopup(startLat: number, startLng: number, endLat: number, endLng: number): void
-{
-  if (!mapRef.value?.leafletObject) return;
-  
-  const map = mapRef.value.leafletObject;
-  
-  // Calculate bounds for the route
-  const bounds: [[number, number], [number, number]] = [
-    [Math.min(startLat, endLat), Math.min(startLng, endLng)],
-    [Math.max(startLat, endLat), Math.max(startLng, endLng)]
-  ];
-  
-  // Check if bounds are already visible in current view
-  const mapBounds = map.getBounds();
-  const routeBoundsContained = mapBounds.contains([startLat, startLng]) && mapBounds.contains([endLat, endLng]);
-  
-  if (!routeBoundsContained)
-  {
-    // Fit map to show the entire route with padding
-    map.fitBounds(bounds, { padding: [50, 50], animate: true, duration: 0.5 });
-  }
-  
-  // Open popup after map animation (or immediately if no animation needed)
-  const delay = routeBoundsContained ? 100 : 600;
-  setTimeout(() =>
-  {
-    if (walkingRouteLayerRef.value?.markerRef?.leafletObject)
-    {
-      walkingRouteLayerRef.value.markerRef.leafletObject.openPopup();
-    }
-  }, delay);
-}
-
-// Show walking route from station to launch point
-function showWalkingRoute(station: NearbyStation, point: LaunchPointType): void
-{
-  walkingRouteTarget.value = { stationName: station.name, pointName: point.name, lat: point.latitude, lng: point.longitude };
-  fetchWalkingRoute(station.latitude, station.longitude, point.latitude, point.longitude)
-    .then(() =>
-    {
-      fitToWalkingRouteAndShowPopup(station.latitude, station.longitude, point.latitude, point.longitude);
-    });
-  
-  // Close the launchpoint popup
-  if (mapRef.value?.leafletObject)
-  {
-    mapRef.value.leafletObject.closePopup();
-  }
-}
-
-// Show walking route from public transport station to nearby launchpoint
-function showWalkingRouteToLaunchpoint(station: { name: string; latitude: number; longitude: number }, launchpoint: NearbyLaunchpoint): void
-{
-  walkingRouteTarget.value = { stationName: station.name, pointName: launchpoint.name, lat: launchpoint.latitude, lng: launchpoint.longitude };
-  fetchWalkingRoute(station.latitude, station.longitude, launchpoint.latitude, launchpoint.longitude)
-    .then(() =>
-    {
-      fitToWalkingRouteAndShowPopup(station.latitude, station.longitude, launchpoint.latitude, launchpoint.longitude);
-    });
-  
-  if (mapRef.value?.leafletObject)
-  {
-    mapRef.value.leafletObject.closePopup();
-  }
-}
-
-// Show walking route from query parameters (e.g., from detail view)
-function showWalkingRouteFromQuery(): void
-{
-  const { walkingRoute: hasWalkingRoute, fromLat, fromLng, toLat, toLng, stationName, pointName } = route.query;
-  
-  if (hasWalkingRoute !== 'true' || !fromLat || !fromLng || !toLat || !toLng) return;
-  
-  const startLat = parseFloat(fromLat as string);
-  const startLng = parseFloat(fromLng as string);
-  const endLat = parseFloat(toLat as string);
-  const endLng = parseFloat(toLng as string);
-  
-  if (isNaN(startLat) || isNaN(startLng) || isNaN(endLat) || isNaN(endLng)) return;
-  
-  // Set the walking route target for the popup
-  walkingRouteTarget.value = {
-    stationName: (stationName as string) || 'Station',
-    pointName: (pointName as string) || 'Einsetzpunkt',
-    lat: endLat,
-    lng: endLng
-  };
-  
-  // Fetch and display the walking route
-  fetchWalkingRoute(startLat, startLng, endLat, endLng)
-    .then(() =>
-    {
-      fitToWalkingRouteAndShowPopup(startLat, startLng, endLat, endLng);
-    });
-  
-  // Clear the query parameters to avoid re-fetching on navigation
-  router.replace({
-    path: route.path,
-    query: {}
-  });
-}
-
-// Handle walking route close
-function handleCloseWalkingRoute(): void
-{
-  clearWalkingRoute();
-  walkingRouteTarget.value = null;
-}
-
-function handlePopupOpen(point: { id: number; latitude: number; longitude: number })
-{
-  selectedPointId.value = point.id;
-  nearbyStations.value = findNearbyStations(point.latitude, point.longitude);
-}
-
-function handlePopupClose()
-{
-  selectedPointId.value = null;
-  nearbyStations.value = [];
-}
-
-function handleStationPopupOpen(station: { id: number; latitude: number; longitude: number })
-{
-  selectedStationId.value = station.id;
-  nearbyLaunchpoints.value = findNearbyLaunchpoints(station.latitude, station.longitude);
-}
-
-function handleStationPopupClose()
-{
-  selectedStationId.value = null;
-  nearbyLaunchpoints.value = [];
-}
-
-function showLaunchpointOnMap(launchpoint: NearbyLaunchpoint): void
-{
-  if (mapRef.value?.leafletObject)
-  {
-    mapRef.value.leafletObject.setView([launchpoint.latitude, launchpoint.longitude], 16);
-    mapRef.value.leafletObject.closePopup();
-  }
-}
-
-// Watch for window resize to update mobile state
-function checkMobile() {
-  isMobile.value = window.innerWidth <= 768;
-  if (isMobile.value && showListView.value) {
-    showListView.value = false;
-  } else if (!isMobile.value && !showListView.value) {
-    showListView.value = true;
-  }
-}
-
-onMounted(() => {
-  window.addEventListener('resize', checkMobile);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', checkMobile);
-});
-
-// Composables
+// Map view interactions composable
 const {
   // Context menu
   showContextMenu,
@@ -255,16 +89,15 @@ const {
   addNewPoint,
   handleSearch,
   openDetail,
-  openNavigation,
 
   // Lifecycle
   setupInteractions,
   cleanupInteractions
 } = useMapViewInteractions({ mapRef });
 
-const { categoryColors, getCategoryIcon, fetchCategories } = useCategories();
+const categoriesStore = useCategoriesStore();
 
-// Use show point on map composable
+// Show point on map composable
 const { showPointOnMap, showStationOnMap, showGpsPosition } = useShowPointOnMap({
   mapRef,
   highlightedPointId,
@@ -274,7 +107,21 @@ const { showPointOnMap, showStationOnMap, showGpsPosition } = useShowPointOnMap(
   gpsMarkerRef
 });
 
-// Use geolocation composable
+// Map query params composable
+const {
+  handleHighlightFromQuery,
+  hasWalkingRouteQuery,
+  hasHighlightQuery
+} = useMapQueryParams({
+  mapRef,
+  publicTransportLayerRef,
+  isMobile,
+  showListView,
+  showPointOnMap,
+  showStationOnMap
+});
+
+// Geolocation composable
 const { currentPosition, positionError, isLocating, getCurrentPosition, watchPosition, stopWatching } = useGeolocation();
 
 // Function to center map on current position and open popup
@@ -333,87 +180,58 @@ function addPointAtCurrentPosition(): void
   }
 }
 
-function clearHighlightQueryParams() {
-  router.replace({ path: route.path, query: {} });
-}
-
-function handleHighlightFromQuery() {
-  const highlightId = route.query.highlight;
-  const lat = route.query.lat;
-  const lng = route.query.lng;
-  
-  // Handle station highlight from DetailView
-  const stationLat = route.query.stationLat;
-  const stationLng = route.query.stationLng;
-  const stationId = route.query.stationId;
-  
-  if (stationLat && stationLng && stationId) {
-    const station = {
-      id: Number(stationId),
-      latitude: parseFloat(stationLat as string),
-      longitude: parseFloat(stationLng as string)
-    };
-    
-    if (publicTransportLayerRef.value?.markerRefs?.[station.id]) {
-      showStationOnMap(station);
-      clearHighlightQueryParams();
-    } else {
-      const unwatch = watch(
-        () => publicTransportStore.publicTransportPoints,
-        () => {
-          nextTick(() => {
-            if (publicTransportLayerRef.value?.markerRefs?.[station.id]) {
-              showStationOnMap(station);
-              clearHighlightQueryParams();
-              unwatch();
-            }
-          });
-        },
-        { immediate: true }
-      );
-    }
-    return;
-  }
-  
-  if (highlightId && lat && lng) {
-    if (isMobile.value) {
-      showListView.value = false;
-    }
-    
-    const pointId = Number(highlightId);
-    const point = launchPointsStore.launchPoints.find(p => p.id === pointId);
-    
-    if (point) {
-      showPointOnMap(point);
-      clearHighlightQueryParams();
-    } else if (mapRef.value?.leafletObject) {
-      mapRef.value.leafletObject.setView([parseFloat(lat as string), parseFloat(lng as string)], 15);
-      
-      const unwatch = watch(() => launchPointsStore.launchPoints, (points) => {
-        const foundPoint = points.find(p => p.id === pointId);
-        if (foundPoint) {
-          showPointOnMap(foundPoint);
-          clearHighlightQueryParams();
-          unwatch();
-        }
-      }, { immediate: true });
-    }
+function showLaunchpointOnMap(launchpoint: { latitude: number; longitude: number }): void
+{
+  if (mapRef.value?.leafletObject)
+  {
+    mapRef.value.leafletObject.setView([launchpoint.latitude, launchpoint.longitude], 16);
+    mapRef.value.leafletObject.closePopup();
   }
 }
 
-function handleListViewOpenDetail(point: LaunchPoint) {
+// Watch for window resize to update mobile state
+function checkMobile()
+{
+  isMobile.value = window.innerWidth <= 768;
+  if (isMobile.value && showListView.value)
+  {
+    showListView.value = false;
+  }
+  else if (!isMobile.value && !showListView.value)
+  {
+    showListView.value = true;
+  }
+}
+
+onMounted(() =>
+{
+  window.addEventListener('resize', checkMobile);
+});
+
+onBeforeUnmount(() =>
+{
+  window.removeEventListener('resize', checkMobile);
+});
+
+function handleListViewOpenDetail(point: LaunchPoint)
+{
   openDetail(point);
 }
 
-function toggleListView() {
+function toggleListView()
+{
   showListView.value = !showListView.value;
 }
 
 // Watch for list view and filter panel changes to invalidate map size
-function invalidateMapSize() {
-  nextTick(() => {
-    setTimeout(() => {
-      if (mapRef.value?.leafletObject) {
+function invalidateMapSize()
+{
+  nextTick(() =>
+  {
+    setTimeout(() =>
+    {
+      if (mapRef.value?.leafletObject)
+      {
         mapRef.value.leafletObject.invalidateSize();
       }
     }, 350);
@@ -425,7 +243,7 @@ watch(showFilterPanel, invalidateMapSize);
 
 onMounted(async () =>
 {
-  await fetchCategories();
+  await categoriesStore.fetchCategories();
   await launchPointsStore.fetchLaunchPoints();
   await publicTransportStore.fetchPublicTransportPoints();
   setupInteractions();
@@ -440,11 +258,11 @@ onMounted(async () =>
       return;
     }
     
-    if (route.query.walkingRoute === 'true')
+    if (hasWalkingRouteQuery())
     {
       showWalkingRouteFromQuery();
     }
-    else if (route.query.highlight || route.query.stationId)
+    else if (hasHighlightQuery())
     {
       handleHighlightFromQuery();
     }
@@ -515,15 +333,13 @@ onUnmounted(() =>
           
           <!-- Launch Point Layer -->
           <LaunchPointLayer
-            :category-colors="categoryColors"
-            :get-category-icon="getCategoryIcon"
+            :category-colors="categoriesStore.categoryColors"
+            :get-category-icon="categoriesStore.getCategoryIcon"
             :selected-point-id="selectedPointId"
             :nearby-stations="nearbyStations"
             :walking-route-loading="walkingRouteLoading"
             @popup-open="handlePopupOpen"
             @popup-close="handlePopupClose"
-            @open-detail="openDetail"
-            @open-navigation="openNavigation"
             @show-station-on-map="showStationOnMap"
             @show-walking-route="showWalkingRoute"
           />
@@ -538,7 +354,6 @@ onUnmounted(() =>
             @popup-close="handleStationPopupClose"
             @show-launchpoint-on-map="showLaunchpointOnMap"
             @show-walking-route="showWalkingRouteToLaunchpoint"
-            @open-detail="openDetail"
           />
           
           <!-- GPS Marker Layer -->

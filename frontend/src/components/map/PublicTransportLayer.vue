@@ -20,7 +20,6 @@ const emit = defineEmits<{
   'popup-close': [];
   'show-launchpoint-on-map': [launchpoint: NearbyLaunchpoint];
   'show-walking-route': [station: { name: string; latitude: number; longitude: number }, launchpoint: NearbyLaunchpoint];
-  'open-detail': [launchpoint: NearbyLaunchpoint];
 }>();
 
 // Store marker refs for external access
@@ -95,7 +94,6 @@ function handleMarkerRef(station: PublicTransportPoint, el: any)
         :is-selected="selectedStationId === station.id"
         @show-launchpoint-on-map="emit('show-launchpoint-on-map', $event)"
         @show-walking-route="(station, lp) => emit('show-walking-route', station, lp)"
-        @open-detail="emit('open-detail', $event)"
       />
     </LPopup>
   </LMarker>

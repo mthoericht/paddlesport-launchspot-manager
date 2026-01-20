@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useLaunchPointsStore } from '../stores/launchPoints';
-import { useCategories, useMapNavigation } from '../composables';
+import { useCategoriesStore } from '../stores/categories';
+import { useMapNavigation } from '../composables';
 import type { LaunchPoint } from '../types';
 
 const props = defineProps<{
@@ -13,7 +14,7 @@ const emit = defineEmits<{
 }>();
 
 const launchPointsStore = useLaunchPointsStore();
-const { categoryColors, getCategoryIcon } = useCategories();
+const categoriesStore = useCategoriesStore();
 const { openNavigation } = useMapNavigation();
 
 function handleShowOnMap(point: LaunchPoint) {
@@ -42,7 +43,7 @@ function handleOpenDetail(point: LaunchPoint) {
         <div class="item-header">
           <div class="item-icon">
             <img 
-              :src="getCategoryIcon(point.categories)" 
+              :src="categoriesStore.getCategoryIcon(point.categories)" 
               :alt="point.categories.join(', ')"
               class="category-icon"
             />
@@ -61,7 +62,7 @@ function handleOpenDetail(point: LaunchPoint) {
             v-for="cat in point.categories" 
             :key="cat" 
             class="category-tag"
-            :style="{ backgroundColor: categoryColors[cat] }"
+            :style="{ backgroundColor: categoriesStore.categoryColors[cat] }"
           >
             {{ cat }}
           </span>

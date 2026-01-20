@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useLaunchPointsStore } from '../stores/launchPoints';
 import { useAuthStore } from '../stores/auth';
-import { useCategories } from '../composables';
+import { useCategoriesStore } from '../stores/categories';
 import { API_BASE_URL } from '../config/api';
 import type { FilterType } from '../types';
 
@@ -12,7 +12,7 @@ const emit = defineEmits<{
 
 const launchPointsStore = useLaunchPointsStore();
 const authStore = useAuthStore();
-const { allCategories, fetchCategories } = useCategories();
+const categoriesStore = useCategoriesStore();
 
 const users = ref<{ id: number; username: string }[]>([]);
 const selectedUsername = ref(launchPointsStore.filter.username || '');
@@ -50,7 +50,7 @@ function clearFilters() {
 }
 
 onMounted(async () => {
-  await fetchCategories();
+  await categoriesStore.fetchCategories();
   fetchUsers();
 });
 </script>
@@ -133,7 +133,7 @@ onMounted(async () => {
         <h3>Kategorien</h3>
         <div class="category-options">
           <label 
-            v-for="cat in allCategories" 
+            v-for="cat in categoriesStore.categories" 
             :key="cat.id" 
             class="category-checkbox"
             :class="{ active: launchPointsStore.filter.categories.includes(cat.id) }"

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { LMap, LTileLayer, LMarker } from '@vue-leaflet/vue-leaflet';
-import { useLaunchPointForm, useCategories } from '../composables';
+import { useLaunchPointForm } from '../composables';
+import { useCategoriesStore } from '../stores/categories';
 
 // Composables
 const {
@@ -23,10 +24,10 @@ const {
   loadExistingPoint
 } = useLaunchPointForm();
 
-const { allCategories, fetchCategories } = useCategories();
+const categoriesStore = useCategoriesStore();
 
 onMounted(async () => {
-  await fetchCategories();
+  await categoriesStore.fetchCategories();
   loadExistingPoint();
 });
 </script>
@@ -61,7 +62,7 @@ onMounted(async () => {
           <label>Kategorien *</label>
           <div class="category-grid">
             <button 
-              v-for="cat in allCategories" 
+              v-for="cat in categoriesStore.categories" 
               :key="cat.id" 
               type="button"
               class="category-checkbox"
