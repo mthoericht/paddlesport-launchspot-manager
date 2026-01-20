@@ -10,6 +10,8 @@ export { useLaunchPointForm } from './useLaunchPointForm';
 export { useShowPointOnMap } from './useShowPointOnMap';
 export type { MapPoint } from './useShowPointOnMap';
 export { useGeolocation } from './useGeolocation';
+export { createUseNearby } from './useNearby';
+export type { UseNearbyDefaults } from './useNearby';
 export { useNearbyStations } from './useNearbyStations';
 export type { NearbyStation } from './useNearbyStations';
 export { useNearbyLaunchpoints } from './useNearbyLaunchpoints';

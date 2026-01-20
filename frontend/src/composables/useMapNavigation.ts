@@ -15,11 +15,21 @@ export function useMapNavigation()
 {
   const router = useRouter();
 
+  /**
+   * Opens the detail page for a launch point.
+   * @param point - Launch point to display details for
+   */
   function openDetail(point: LaunchPoint): void
   {
     router.push(`/launch-point/${point.id}`);
   }
 
+  /**
+   * Navigates to the add form with specific coordinates pre-filled.
+   * @param lat - Latitude for the new point
+   * @param lng - Longitude for the new point
+   * @param zoom - Current map zoom level to preserve
+   */
   function addPointAtLocation(lat: number, lng: number, zoom: number): void
   {
     router.push({
@@ -32,6 +42,12 @@ export function useMapNavigation()
     });
   }
 
+  /**
+   * Navigates to the add form preserving current map view center.
+   * @param centerLat - Current map center latitude
+   * @param centerLng - Current map center longitude
+   * @param zoom - Current map zoom level
+   */
   function addPointWithCurrentView(centerLat: number, centerLng: number, zoom: number): void
   {
     router.push({
@@ -45,7 +61,8 @@ export function useMapNavigation()
   }
 
   /**
-   * Navigate to map and highlight a LaunchPoint
+   * Navigates to the map view and highlights a launch point.
+   * @param point - Point to highlight on the map
    */
   function navigateToPoint(point: MapNavigationPoint): void
   {
@@ -60,7 +77,8 @@ export function useMapNavigation()
   }
 
   /**
-   * Navigate to map and highlight a public transport station
+   * Navigates to the map view and highlights a public transport station.
+   * @param station - Station to highlight on the map
    */
   function navigateToStation(station: MapNavigationPoint): void
   {
@@ -76,10 +94,13 @@ export function useMapNavigation()
   }
 
   /**
-   * Opens navigation using the best available method:
-   * - Mobile: geo: URL scheme (RFC 5870) - opens default navigation app
-   *   Supports: HERE, Waze, Google Maps, Apple Maps, etc.
-   * - Desktop: Google Maps web
+   * Opens external navigation to the specified coordinates.
+   * Mobile: Uses geo: URL scheme (RFC 5870) for native app selection.
+   * Desktop: Opens Google Maps in a new tab.
+   *
+   * @param lat - Destination latitude
+   * @param lng - Destination longitude
+   * @param name - Optional display name for the destination
    */
   function openNavigation(lat: number, lng: number, name?: string): void
   {

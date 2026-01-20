@@ -11,7 +11,7 @@ describe('useShowPointOnMap', () =>
   let highlightedPointId: Ref<number | null>;
   let showListView: Ref<boolean>;
   let isMobile: Ref<boolean>;
-  let stationMarkerRefs: Ref<Record<number, { leafletObject?: LeafletMarker } | null>>;
+  let publicTransportLayerRef: Ref<{ markerRefs?: Record<number, { leafletObject?: LeafletMarker } | null> } | null>;
 
   beforeEach(() =>
   {
@@ -59,7 +59,7 @@ describe('useShowPointOnMap', () =>
     highlightedPointId = ref<number | null>(null);
     showListView = ref<boolean>(false);
     isMobile = ref<boolean>(false);
-    stationMarkerRefs = ref<Record<number, { leafletObject?: LeafletMarker } | null>>({});
+    publicTransportLayerRef = ref<{ markerRefs?: Record<number, { leafletObject?: LeafletMarker } | null> } | null>({ markerRefs: {} });
   });
 
   afterEach(() =>
@@ -456,7 +456,7 @@ describe('useShowPointOnMap', () =>
         highlightedPointId,
         showListView,
         isMobile,
-        stationMarkerRefs
+        publicTransportLayerRef
       });
 
       showStationOnMap(mockStation);
@@ -481,7 +481,7 @@ describe('useShowPointOnMap', () =>
         highlightedPointId,
         showListView,
         isMobile,
-        stationMarkerRefs
+        publicTransportLayerRef
       });
 
       showStationOnMap(mockStation);
@@ -499,7 +499,7 @@ describe('useShowPointOnMap', () =>
         highlightedPointId,
         showListView,
         isMobile,
-        stationMarkerRefs
+        publicTransportLayerRef
       });
 
       showStationOnMap(mockStation);
@@ -510,11 +510,13 @@ describe('useShowPointOnMap', () =>
     it('should open popup when station marker ref is available', () =>
     {
       const mockOpenPopup = vi.fn();
-      stationMarkerRefs.value = {
-        42: {
-          leafletObject: {
-            openPopup: mockOpenPopup
-          } as unknown as LeafletMarker
+      publicTransportLayerRef.value = {
+        markerRefs: {
+          42: {
+            leafletObject: {
+              openPopup: mockOpenPopup
+            } as unknown as LeafletMarker
+          }
         }
       };
 
@@ -523,7 +525,7 @@ describe('useShowPointOnMap', () =>
         highlightedPointId,
         showListView,
         isMobile,
-        stationMarkerRefs
+        publicTransportLayerRef
       });
 
       showStationOnMap(mockStation);
@@ -536,14 +538,14 @@ describe('useShowPointOnMap', () =>
 
     it('should not throw when station marker ref is not available', () =>
     {
-      stationMarkerRefs.value = {};
+      publicTransportLayerRef.value = { markerRefs: {} };
 
       const { showStationOnMap } = useShowPointOnMap({
         mapRef,
         highlightedPointId,
         showListView,
         isMobile,
-        stationMarkerRefs
+        publicTransportLayerRef
       });
 
       expect(() =>
@@ -579,7 +581,7 @@ describe('useShowPointOnMap', () =>
         highlightedPointId,
         showListView,
         isMobile,
-        stationMarkerRefs
+        publicTransportLayerRef
       });
 
       expect(() => showStationOnMap(mockStation)).not.toThrow();

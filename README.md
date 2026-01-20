@@ -43,7 +43,7 @@ A full-stack web application for managing launch points for kayaking, canoeing, 
 - **Create, edit, delete** launch points
 - **Categories**: Kayak, SUP, Swimming, Relaxing (multi-select)
 - **Details**: Opening hours, parking, nearby waters, food supply, hints
-- **Public transport stations** (max 5) with distance
+- **Public transport stations** (max 8) with distance
 - **Navigation**: One-click route planning
 - **Permissions**: Only creators or admins can delete
 - **List view**: Browse all launch points in a scrollable list
@@ -75,6 +75,7 @@ A full-stack web application for managing launch points for kayaking, canoeing, 
 - **Auto-zoom**: Automatically fits map to show entire route when route extends beyond current view
 - **Auto-popup**: Route info popup opens automatically after route is loaded
 - **One-click access**: Walking route button (pedestrian icon) next to each nearby station
+- **External service**: Uses OpenStreetMap Germany OSRM routing (rate limits may apply)
 - **Seamless navigation**: Clicking "Walking route" in detail view navigates to map and shows route
 
 ### 🔍 Filters
@@ -133,6 +134,7 @@ The frontend uses Vue 3 Composition API with custom composables for reusable log
 - **`useShowPointOnMap`** - Center map on point/station, open popup, handle highlighting
 - **`useNearbyStations`** - Calculate nearby public transport stations (uses shared geo utilities)
 - **`useNearbyLaunchpoints`** - Calculate nearby launch points from a station (uses shared geo utilities)
+- **`useNearby`** - Factory composable for creating nearby items logic (shared base for stations and launch points)
 - **`useMapViewInteractions`** - Map click handlers, context menu, search, map view persistence
 - **`useCategories`** - Category fetching and icon/color management
 - **`useAddressSearch`** - Address geocoding with Nominatim

@@ -97,14 +97,17 @@ describe('PublicTransport Routes Integration Tests', () =>
       expect(testPoint.types).toContain('tram');
     });
 
-    it('should return empty array when no public transport points exist', async () =>
+    it('should return array response even with no test points', async () =>
     {
+      // After cleanup, no TEST_ points should exist
+      // Note: Real data may exist in DB, so we only verify response structure
       const response = await request(app)
         .get('/api/public-transport');
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
-      // Filter out any non-TEST points that might exist
+      
+      // Verify no TEST_ points exist after cleanup
       const testPoints = response.body.filter((p: { name: string }) => p.name.startsWith('TEST_'));
       expect(testPoints.length).toBe(0);
     });

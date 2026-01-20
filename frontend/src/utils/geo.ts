@@ -1,15 +1,31 @@
+/**
+ * Geographic coordinates in WGS84 decimal degrees.
+ */
 export interface LatLon {
   latitude: number;
   longitude: number;
 }
 
-const EARTH_RADIUS_M = 6371000;
+/** Earth radius in meters (WGS84 mean radius) */
+const EARTH_RADIUS_M = 6_371_000;
 
+/**
+ * Converts degrees to radians.
+ * @param deg - Angle in degrees
+ * @returns Angle in radians
+ */
 function toRad(deg: number): number
 {
   return deg * (Math.PI / 180);
 }
 
+/**
+ * Computes the great-circle distance between two coordinates using the Haversine formula.
+ *
+ * @param a - First coordinate (lat/lon in decimal degrees)
+ * @param b - Second coordinate (lat/lon in decimal degrees)
+ * @returns Distance in meters (rounded to nearest meter)
+ */
 export function haversineDistanceMeters(a: LatLon, b: LatLon): number
 {
   const dLat = toRad(b.latitude - a.latitude);
@@ -29,8 +45,23 @@ export function haversineDistanceMeters(a: LatLon, b: LatLon): number
   return Math.round(EARTH_RADIUS_M * c);
 }
 
+/**
+ * Extends a type T with a distanceMeters property.
+ * @typeParam T - Base type to extend
+ */
 export type WithDistance<T> = T & { distanceMeters: number };
 
+/**
+ * Finds items near a given origin, sorted by distance.
+ * Adds `distanceMeters` property to each result.
+ *
+ * @typeParam T - Any type with latitude/longitude properties
+ * @param items - Source items (not mutated)
+ * @param origin - Origin coordinate to measure distance from
+ * @param maxDistanceMeters - Maximum distance filter (inclusive)
+ * @param maxResults - Maximum number of items to return
+ * @returns New array of items with `distanceMeters`, sorted ascending
+ */
 export function findNearby<T extends LatLon>(
   items: T[],
   origin: LatLon,

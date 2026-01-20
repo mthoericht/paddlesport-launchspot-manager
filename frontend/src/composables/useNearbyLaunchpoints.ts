@@ -1,30 +1,25 @@
 import type { LaunchPoint } from '../types';
-import { findNearby, haversineDistanceMeters, type WithDistance } from '../utils/geo';
+import type { WithDistance } from '../utils/geo';
+import { createUseNearby } from './useNearby';
 
-const MAX_DISTANCE_METERS = 2000;
-const MAX_LAUNCHPOINTS = 8;
-
+/**
+ * A launch point with calculated distance from origin.
+ */
 export type NearbyLaunchpoint = WithDistance<LaunchPoint>;
 
+/**
+ * Composable for finding nearby launch points.
+ * Uses Haversine formula for distance calculation.
+ *
+ * @param allLaunchpoints - Function returning all available launch points
+ * @returns Object with findNearbyLaunchpoints function
+ */
 export function useNearbyLaunchpoints(allLaunchpoints: () => LaunchPoint[])
 {
-  function findNearbyLaunchpoints(
-    latitude: number,
-    longitude: number,
-    maxDistanceMeters: number = MAX_DISTANCE_METERS,
-    maxLaunchpoints: number = MAX_LAUNCHPOINTS
-  ): NearbyLaunchpoint[]
-  {
-    return findNearby(
-      allLaunchpoints(),
-      { latitude, longitude },
-      maxDistanceMeters,
-      maxLaunchpoints
-    );
-  }
+  const { findNearbyItems, haversineDistanceMeters } = createUseNearby(allLaunchpoints);
 
   return {
-    findNearbyLaunchpoints,
+    findNearbyLaunchpoints: findNearbyItems,
     calculateDistanceMeters: haversineDistanceMeters
   };
 }

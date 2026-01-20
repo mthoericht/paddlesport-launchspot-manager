@@ -34,6 +34,12 @@ export function useWalkingRoute()
    * Fetches a walking route between two points.
    * On success: populates route, distance, duration.
    * On failure: sets error and resets route data.
+   *
+   * @param fromLat - Starting point latitude
+   * @param fromLng - Starting point longitude
+   * @param toLat - Destination latitude
+   * @param toLng - Destination longitude
+   * @returns Promise that resolves when route is fetched or error occurs
    */
   async function fetchWalkingRoute(
     fromLat: number,

@@ -211,7 +211,7 @@ export async function cleanupTestData(): Promise<void>
     if (verifiedOrphanedPoints.length !== orphanedPoints.length)
     {
       console.warn('Warning: Some launch points found did not match TEST_ prefix filter. Skipping cleanup for safety.');
-      return;
+      // Continue with public transport cleanup instead of returning
     }
 
     if (verifiedOrphanedPoints.length > 0)
