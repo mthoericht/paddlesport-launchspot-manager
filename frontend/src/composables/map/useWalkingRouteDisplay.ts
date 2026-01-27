@@ -3,6 +3,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useWalkingRoute } from '../index';
 import type { NearbyStation, NearbyLaunchpoint } from '../index';
 import type { LaunchPoint } from '../../types';
+import { openMarkerPopup, type VueLeafletComponentRef } from '../../utils/leaflet';
 
 interface WalkingRouteTarget
 {
@@ -14,7 +15,7 @@ interface WalkingRouteTarget
 
 interface WalkingRouteLayerRef
 {
-  markerRef?: { leafletObject?: { openPopup: () => void } };
+  markerRef?: VueLeafletComponentRef;
 }
 
 interface MapRef
@@ -84,10 +85,7 @@ export function useWalkingRouteDisplay(options: UseWalkingRouteDisplayOptions)
     const delay = routeBoundsContained ? 100 : 600;
     setTimeout(() =>
     {
-      if (walkingRouteLayerRef.value?.markerRef?.leafletObject)
-      {
-        walkingRouteLayerRef.value.markerRef.leafletObject.openPopup();
-      }
+      openMarkerPopup(walkingRouteLayerRef.value?.markerRef);
     }, delay);
   }
   

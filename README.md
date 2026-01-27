@@ -182,6 +182,10 @@ The frontend uses Vue 3 Composition API with custom composables for reusable log
   - `findNearby<T>(items, origin, maxDistance, maxResults)` - Generic function to find nearby items with distance
 - **`utils/transport.ts`** - Public transport utilities
   - `getTransportTypeLabel(type)` - Get display label for transport type (Bahn, Tram, S-Bahn, U-Bahn)
+- **`utils/leaflet.ts`** - Vue-Leaflet integration helpers
+  - `getLeafletMarker(componentRef)` - Extract Leaflet marker from Vue-Leaflet component ref
+  - `toMarkerRef(componentRef)` - Wrap marker for use with `centerAndShowMarker`
+  - `openMarkerPopup(componentRef)` - Safely open popup on a Vue-Leaflet marker
 
 ### Pinia Stores
 

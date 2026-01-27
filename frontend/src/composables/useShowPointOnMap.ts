@@ -1,6 +1,7 @@
 import type { Ref } from 'vue';
 import type { LaunchPoint } from '../types';
 import type { Map as LeafletMap, Layer as LeafletLayer, Marker as LeafletMarker } from 'leaflet';
+import { toMarkerRef, openMarkerPopup } from '../utils/leaflet';
 
 /**
  * Geographic point with coordinates
@@ -75,26 +76,24 @@ export function useShowPointOnMap(options: UseShowPointOnMapOptions)
       });
       
       // Open popup after animation completes
-      const openPopup = (): void =>
+      const openPopupFn = (): void =>
       {
-        if (markerRef?.leafletObject)
+        // Try direct marker ref first
+        if (openMarkerPopup(markerRef))
         {
-          // Direct marker ref available
-          (markerRef.leafletObject as LeafletMarker).openPopup();
+          return;
         }
-        else if (findMarkerByCoordinates)
+        
+        // Fallback: find marker by coordinates
+        if (findMarkerByCoordinates)
         {
-          // Find marker by coordinates
           const marker = findMarkerByCoordinates(lat, lng);
-          if (marker)
-          {
-            marker.openPopup();
-          }
+          marker?.openPopup();
         }
       };
       
       // Wait for animation to complete (500ms duration + small buffer)
-      setTimeout(openPopup, 550);
+      setTimeout(openPopupFn, 550);
     });
   }
 
@@ -170,7 +169,7 @@ export function useShowPointOnMap(options: UseShowPointOnMapOptions)
       showListView.value = false;
     }
     
-    const markerRef = publicTransportLayerRef?.value?.markerRefs?.[station.id];
+    const markerRef = toMarkerRef(publicTransportLayerRef?.value?.markerRefs?.[station.id]);
     centerAndShowMarker(station.latitude, station.longitude, 16, markerRef);
   }
 
