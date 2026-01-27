@@ -1,31 +1,22 @@
+@reference "../style.css";
+
 /* Shared Auth Styles for Login and Signup */
 
 .auth-container {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  position: relative;
-  overflow: hidden;
+  @apply min-h-screen flex items-center justify-center p-4 relative overflow-hidden;
 }
 
 .water-bg {
-  position: absolute;
-  inset: 0;
+  @apply absolute inset-0 -z-10;
   background: 
     radial-gradient(ellipse at 30% 20%, rgba(56, 189, 248, 0.15) 0%, transparent 50%),
     radial-gradient(ellipse at 70% 80%, rgba(14, 165, 233, 0.1) 0%, transparent 50%),
-    linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
-  z-index: -1;
+    linear-gradient(180deg, var(--color-bg-secondary) 0%, var(--color-bg-primary) 100%);
 }
 
 .water-bg::before {
   content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  @apply absolute bottom-0 left-0 right-0;
   height: 40%;
   background: 
     url("data:image/svg+xml,%3Csvg viewBox='0 0 1200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 100 Q300 50 600 100 T1200 100 L1200 200 L0 200 Z' fill='%230ea5e9' opacity='0.05'/%3E%3C/svg%3E") repeat-x bottom,
@@ -39,137 +30,84 @@
 }
 
 .auth-card {
-  background: var(--bg-card);
-  border-radius: 1.5rem;
-  padding: 2.5rem;
-  width: 100%;
-  max-width: 420px;
+  @apply bg-bg-card rounded-3xl p-10 w-full max-w-md backdrop-blur-sm;
   box-shadow: 
     0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -2px rgba(0, 0, 0, 0.1),
-    0 0 0 1px var(--border-color);
-  backdrop-filter: blur(10px);
+    0 0 0 1px var(--color-border);
 }
 
 .auth-header {
-  text-align: center;
-  margin-bottom: 2rem;
+  @apply text-center mb-8;
 }
 
 .auth-logo {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 4rem;
-  height: 4rem;
+  @apply inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 text-white;
   background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  border-radius: 1rem;
-  margin-bottom: 1rem;
-  color: white;
 }
 
 .auth-logo-icon {
-  width: 2.5rem;
-  height: 2.5rem;
+  @apply w-10 h-10;
 }
 
 .auth-header h1 {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 0.25rem;
+  @apply font-display text-2xl font-bold text-text-primary mb-1;
 }
 
 .auth-subtitle {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
+  @apply text-text-secondary text-sm;
 }
 
 .auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+  @apply flex flex-col gap-5;
 }
 
 .auth-form .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  @apply flex flex-col gap-2;
 }
 
 .auth-form .form-group label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-secondary);
+  @apply text-sm font-medium text-text-secondary;
 }
 
 .auth-form .form-group input {
-  padding: 0.875rem 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
-  font-size: 1rem;
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  transition: all 0.2s;
+  @apply py-3.5 px-4 border border-border rounded-xl text-base bg-bg-secondary text-text-primary transition-all duration-200;
 }
 
 .auth-form .form-group input:focus {
-  outline: none;
-  border-color: var(--color-primary);
+  @apply outline-none border-primary;
   box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
 }
 
 .auth-form .form-group input::placeholder {
-  color: var(--text-muted);
+  @apply text-text-muted;
 }
 
 .auth-error-message {
-  padding: 0.75rem 1rem;
+  @apply py-3 px-4 rounded-xl text-sm;
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 0.75rem;
   color: #ef4444;
-  font-size: 0.875rem;
 }
 
 .auth-btn-primary {
-  padding: 0.875rem 1.5rem;
+  @apply py-3.5 px-6 text-white border-none rounded-xl text-base font-semibold cursor-pointer transition-all duration-200 mt-2;
   background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  color: white;
-  border: none;
-  border-radius: 0.75rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-top: 0.5rem;
 }
 
 .auth-btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
+  @apply -translate-y-px;
   box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
 }
 
 .auth-btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  @apply opacity-60 cursor-not-allowed;
 }
 
 .auth-footer {
-  margin-top: 1.5rem;
-  text-align: center;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
+  @apply mt-6 text-center text-sm text-text-secondary;
 }
 
 .auth-footer a {
-  color: var(--color-primary);
-  text-decoration: none;
-  font-weight: 500;
+  @apply text-primary no-underline font-medium hover:underline;
 }
-
-.auth-footer a:hover {
-  text-decoration: underline;
-}
-

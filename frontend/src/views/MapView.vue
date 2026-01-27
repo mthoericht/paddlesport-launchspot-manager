@@ -277,7 +277,7 @@ onUnmounted(() =>
 </script>
 
 <template>
-  <div class="map-view">
+  <div class="flex flex-col h-screen h-dvh bg-bg-primary">
     <AppHeader 
       :show-list="showListView"
       :show-filter="showFilterPanel"
@@ -285,31 +285,37 @@ onUnmounted(() =>
       @toggle-list="toggleListView"
     />
     
-    <div class="view-container">
-      <div class="map-container" :class="{ 'with-list': showListView }">
+    <div class="flex flex-1 overflow-hidden md:relative">
+      <div 
+        class="flex-1 relative overflow-hidden transition-[width] duration-300"
+        :class="{ 'md:w-[60%] md:min-w-[400px]': showListView }"
+      >
         <!-- Adress-Suchfeld -->
-        <div v-if="!isMobile || !showListView" class="search-container">
-          <div class="search-box">
+        <div 
+          v-if="!isMobile || !showListView" 
+          class="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-[400px] px-4 box-border max-[480px]:max-w-none max-[480px]:left-0 max-[480px]:translate-x-0 max-[480px]:pl-14 max-[480px]:pr-2"
+        >
+          <div class="flex bg-white rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.15)] overflow-hidden">
             <input
               v-model="searchQuery"
               type="text"
               placeholder="Adresse suchen..."
-              class="search-input"
+              class="flex-1 py-3.5 px-5 border-none text-[0.9375rem] bg-transparent outline-none placeholder:text-slate-400 max-[480px]:py-3 max-[480px]:px-4 max-[480px]:text-sm"
               @keyup.enter="handleSearch"
             />
             <button 
-              class="search-btn" 
+              class="search-btn flex items-center justify-center w-12 border-none cursor-pointer transition-all duration-200 hover:enabled:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
               @click="handleSearch"
               :disabled="isSearching || !searchQuery.trim()"
             >
-              <svg v-if="!isSearching" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg v-if="!isSearching" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"/>
                 <path d="m21 21-4.35-4.35"/>
               </svg>
-              <span v-else class="search-spinner"></span>
+              <span v-else class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
             </button>
           </div>
-          <div v-if="searchError" class="search-error">{{ searchError }}</div>
+          <div v-if="searchError" class="mt-2 py-2 px-4 bg-red-50 text-red-600 rounded-lg text-sm text-center">{{ searchError }}</div>
         </div>
         
         <LMap 
@@ -317,7 +323,7 @@ onUnmounted(() =>
           :center="mapCenter" 
           :zoom="zoom" 
           :use-global-leaflet="false"
-          class="map"
+          class="w-full h-full z-[1]"
           @mousedown="onMapMouseDown"
           @mouseup="onMapMouseUp"
           @click="onMapClick"
@@ -403,7 +409,7 @@ onUnmounted(() =>
           :highlighted-point-id="highlightedPointId"
           @show-on-map="showPointOnMap"
           @open-detail="handleListViewOpenDetail"
-          class="list-view-container"
+          class="w-[40%] min-w-[320px] max-w-[500px] max-md:absolute max-md:inset-0 max-md:w-full max-md:max-w-full max-md:z-[500] max-md:shadow-[-4px_0_20px_rgba(0,0,0,0.15)]"
         />
       </Transition>
     </div>
@@ -411,218 +417,32 @@ onUnmounted(() =>
 </template>
 
 <style scoped>
-.map-view {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  height: 100dvh;
-  background: var(--bg-primary);
-}
-
-.view-container {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
-.map-container {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-  transition: width 0.3s ease;
-}
-
-.map-container.with-list {
-  width: 60%;
-  min-width: 400px;
-}
-
-.list-view-container {
-  width: 40%;
-  min-width: 320px;
-  max-width: 500px;
-}
-
 /* List view transition animations */
-.list-slide-enter-active {
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-.list-slide-leave-active {
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-.list-slide-enter-from {
-  transform: translateX(100%);
-  opacity: 0;
-}
-
-.list-slide-enter-to {
-  transform: translateX(0);
-  opacity: 1;
-}
-
-.list-slide-leave-from {
-  transform: translateX(0);
-  opacity: 1;
-}
-
-.list-slide-leave-to {
-  transform: translateX(100%);
-  opacity: 0;
-}
-
-/* Filter panel transition animations */
-.filter-slide-enter-active {
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
+.list-slide-enter-active,
+.list-slide-leave-active,
+.filter-slide-enter-active,
 .filter-slide-leave-active {
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition: all 0.3s ease;
 }
 
-.filter-slide-enter-from {
-  transform: translateX(100%);
-  opacity: 0;
-}
-
-.filter-slide-enter-to {
-  transform: translateX(0);
-  opacity: 1;
-}
-
-.filter-slide-leave-from {
-  transform: translateX(0);
-  opacity: 1;
-}
-
+.list-slide-enter-from,
+.list-slide-leave-to,
+.filter-slide-enter-from,
 .filter-slide-leave-to {
   transform: translateX(100%);
   opacity: 0;
 }
 
-.map {
-  width: 100%;
-  height: 100%;
-  z-index: 1;
+.list-slide-enter-to,
+.list-slide-leave-from,
+.filter-slide-enter-to,
+.filter-slide-leave-from {
+  transform: translateX(0);
+  opacity: 1;
 }
 
-/* Adress-Suchfeld */
-.search-container {
-  position: absolute;
-  top: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  width: 100%;
-  max-width: 400px;
-  padding: 0 1rem;
-  box-sizing: border-box;
-}
-
-.search-box {
-  display: flex;
-  background: white;
-  border-radius: 2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
-}
-
-.search-input {
-  flex: 1;
-  padding: 0.875rem 1.25rem;
-  border: none;
-  font-size: 0.9375rem;
-  background: transparent;
-  outline: none;
-}
-
-.search-input::placeholder {
-  color: #94a3b8;
-}
-
+/* Search button gradient */
 .search-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 3rem;
   background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.search-btn:hover:not(:disabled) {
-  filter: brightness(1.1);
-}
-
-.search-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.search-btn svg {
-  width: 1.25rem;
-  height: 1.25rem;
-  color: white;
-}
-
-.search-spinner {
-  width: 1.25rem;
-  height: 1.25rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.search-error {
-  margin-top: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: #fef2f2;
-  color: #dc2626;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  text-align: center;
-}
-
-@media (max-width: 768px) {
-  .view-container {
-    position: relative;
-  }
-  
-  .map-container.with-list {
-    width: 100%;
-  }
-  
-  .list-view-container {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 100%;
-    max-width: 100%;
-    height: 100%;
-    border-left: none;
-    z-index: 500;
-    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
-  }
-}
-
-@media (max-width: 480px) {
-  .search-container {
-    max-width: none;
-    left: 0;
-    transform: none;
-    padding: 0 0.5rem 0 3.5rem;
-  }
-  
-  .search-input {
-    padding: 0.75rem 1rem;
-    font-size: 0.875rem;
-  }
 }
 </style>

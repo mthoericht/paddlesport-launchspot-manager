@@ -97,6 +97,7 @@ A full-stack web application for managing launch points for kayaking, canoeing, 
 ### Frontend
 - **Vue.js 3** (Composition API)
 - **TypeScript**, **Pinia**, **Vue Router**
+- **Tailwind CSS v4** for styling (utility-first, CSS variables in `@theme`)
 - **Leaflet** / **Vue-Leaflet** for maps
 - **Vite**, **Vitest**, **ESLint**
 - **Composables**: Modular, reusable logic (map state, navigation, show on map, etc.)
@@ -196,6 +197,10 @@ The frontend uses Vue 3 Composition API with custom composables for reusable log
   - Fetches categories from API with automatic caching
   - Provides `getCategoryColor` and `getCategoryIcon` helpers
   - Prevents duplicate API calls with `hasFetched` flag
+- **`themeStore`** - Theme mode management (light/dark/auto)
+  - Persists preference to localStorage
+  - Listens to system preference changes in auto mode
+  - Applies `.dark` class to document root
 
 ### Backend
 - **Express.js** REST API server
@@ -425,13 +430,44 @@ All endpoints are prefixed with `/api` (backend runs on port 3001).
 
 ## 🎨 Design
 
+- **Tailwind CSS v4**: Utility-first styling with custom theme
 - **Responsive**: Optimized for desktop and mobile
-- **Color palette**: Ocean-inspired blue tones
+- **Color palette**: Ocean-inspired blue tones (defined as CSS variables in `@theme`)
 - **Typography**: Outfit (display) + DM Sans (body)
-- **Dark mode**: Automatic based on system preference
+- **Theme switcher**: Toggle between Light, Dark, and Auto (system preference) modes
+  - Accessible via user menu in header
+  - Preference saved in localStorage
 - **Accessibility**: Semantic HTML and ARIA labels
 - **Mobile-first**: List view as overlay on mobile, side-by-side on desktop
 - **Smart UI**: Auto-hide elements (search, FAB button) when panels are open on mobile
+
+### Styling Architecture
+
+The project uses **Tailwind CSS v4** with a custom theme defined in `frontend/src/style.css`:
+
+```css
+@theme {
+  --color-primary: #0ea5e9;
+  --color-bg-card: #ffffff;
+  --color-text-primary: #0f172a;
+  /* ... */
+}
+```
+
+- **Theme colors**: Use classes like `bg-primary`, `bg-bg-card`, `text-text-primary`, `border-border`
+- **Typography**: `font-display` (Outfit), `font-body` (DM Sans)
+- **Dark mode**: Controlled via `.dark` class on `<html>` element (managed by `useThemeStore`)
+- **Vue components**: Use Tailwind utility classes directly in templates
+- **Complex styles**: Minimal `<style scoped>` blocks for gradients/animations with `@reference` directive
+
+### Theme Store
+
+The `useThemeStore` Pinia store (`frontend/src/stores/theme.ts`) manages theme preferences:
+
+- **Modes**: `light`, `dark`, `auto` (follows system preference)
+- **Persistence**: Saved to `localStorage` under `theme-mode` key
+- **System detection**: Listens to `prefers-color-scheme` media query changes
+- **Application**: Adds/removes `.dark` class on `document.documentElement`
 
 ## 📊 Data Import
 

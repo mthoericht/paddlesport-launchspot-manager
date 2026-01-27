@@ -14,7 +14,7 @@
   - **components/map/** - Modular map layer components (LaunchPointLayer, PublicTransportLayer, GpsMarkerLayer, WalkingRouteLayer, MapControls, and Popup components)
   - **composables/** - General reusable logic (useMapState, useGeolocation, useWalkingRoute, etc.)
   - **composables/map/** - Map-specific composables (useNearbyPopupState, useWalkingRouteDisplay, useMapQueryParams)
-  - **stores/** - Pinia stores (auth, launchPoints, publicTransport, categories)
+  - **stores/** - Pinia stores (auth, launchPoints, publicTransport, categories, theme)
   - **utils/** - Shared utilities (geo.ts, transport.ts)
   - **views/** - Page components (MapView, DetailView, etc.)
 - **backend/** - Express API server (`backend/index.ts`), routes in `backend/routes/`
@@ -26,3 +26,12 @@
 - Use TypeScript strict types; shared types go in `shared/types/`
 - Vue components use `<script setup lang="ts">` with Composition API
 - Tests use Vitest + @vue/test-utils; place in `frontend/tests/` or `backend/tests/`
+
+## Styling (Tailwind CSS v4)
+- **Tailwind CSS v4** via `@tailwindcss/vite` plugin
+- Theme colors defined in `frontend/src/style.css` using `@theme` directive
+- Use Tailwind utility classes in Vue templates: `bg-bg-card`, `text-text-primary`, `border-border`, `text-primary`, `font-display`, etc.
+- CSS variable aliases (e.g., `--bg-card`, `--border-color`) available for scoped styles
+- For complex styles (gradients, animations), use minimal `<style scoped>` with `@reference "../style.css"` for Tailwind access
+- Dark mode: controlled via `.dark` class on `<html>` (managed by `useThemeStore`)
+- Theme switcher: Light / Dark / Auto modes, saved in localStorage

@@ -1,135 +1,163 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Outfit:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
 
-:root {
+/* ===== Theme Configuration (Tailwind v4) ===== */
+@theme {
   /* Colors - Ocean inspired palette */
   --color-primary: #0ea5e9;
   --color-secondary: #06b6d4;
   --color-accent: #f59e0b;
-  
-  /* Light theme */
-  --bg-primary: #f8fafc;
-  --bg-secondary: #f1f5f9;
-  --bg-card: #ffffff;
-  --bg-hover: #e2e8f0;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  --border-color: #e2e8f0;
-  
+
+  /* Background colors */
+  --color-bg-primary: #f8fafc;
+  --color-bg-secondary: #f1f5f9;
+  --color-bg-card: #ffffff;
+  --color-bg-hover: #e2e8f0;
+
+  /* Text colors */
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94a3b8;
+
+  /* Border */
+  --color-border: #e2e8f0;
+
   /* Typography */
   --font-display: 'Outfit', system-ui, sans-serif;
   --font-body: 'DM Sans', system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-primary: #0f172a;
-    --bg-secondary: #1e293b;
-    --bg-card: #1e293b;
-    --bg-hover: #334155;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
-    --border-color: #334155;
+/* ===== CSS Variable Aliases (for legacy component styles) ===== */
+:root {
+  --bg-primary: var(--color-bg-primary);
+  --bg-secondary: var(--color-bg-secondary);
+  --bg-card: var(--color-bg-card);
+  --bg-hover: var(--color-bg-hover);
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted: var(--color-text-muted);
+  --border-color: var(--color-border);
+}
+
+/* ===== Dark Mode (class-based for manual toggle) ===== */
+:root.dark {
+  --color-bg-primary: #0f172a;
+  --color-bg-secondary: #1e293b;
+  --color-bg-card: #1e293b;
+  --color-bg-hover: #334155;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #64748b;
+  --color-border: #334155;
+  
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --bg-hover: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border-color: #334155;
+}
+
+/* ===== Base Styles ===== */
+@layer base {
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply font-body bg-bg-primary text-text-primary leading-normal;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-semibold leading-tight;
+  }
+
+  a {
+    @apply text-primary no-underline hover:underline;
+  }
+
+  button, input, textarea, select {
+    font-family: inherit;
   }
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/* ===== Component Styles ===== */
+@layer components {
+  /* Leaflet overrides */
+  .leaflet-container {
+    font-family: var(--font-body) !important;
+  }
+
+  .leaflet-popup-content-wrapper {
+    @apply rounded-xl;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .leaflet-popup-content {
+    margin: 0.875rem 1rem !important;
+  }
+
+  .leaflet-popup-tip {
+    box-shadow: none !important;
+  }
 }
 
-html {
-  font-size: 16px;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ===== Utilities ===== */
+@layer utilities {
+  /* Scrollbar styling */
+  .scrollbar-styled::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  .scrollbar-styled::-webkit-scrollbar-track {
+    @apply bg-bg-secondary;
+  }
+
+  .scrollbar-styled::-webkit-scrollbar-thumb {
+    @apply bg-text-muted rounded;
+  }
+
+  .scrollbar-styled::-webkit-scrollbar-thumb:hover {
+    @apply bg-text-secondary;
+  }
 }
 
-body {
-  font-family: var(--font-body);
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  line-height: 1.5;
-  min-height: 100vh;
-  min-height: 100dvh; /* Dynamic viewport height - accounts for mobile browser UI */
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-a {
-  color: var(--color-primary);
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-button {
-  font-family: inherit;
-}
-
-input, textarea, select {
-  font-family: inherit;
-}
-
-/* Leaflet overrides */
-.leaflet-container {
-  font-family: var(--font-body) !important;
-}
-
-.leaflet-popup-content-wrapper {
-  border-radius: 0.75rem !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
-}
-
-.leaflet-popup-content {
-  margin: 0.875rem 1rem !important;
-}
-
-.leaflet-popup-tip {
-  box-shadow: none !important;
-}
-
-/* Scrollbar styling */
+/* ===== Global Scrollbar ===== */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+  background: var(--color-bg-secondary);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--text-muted);
+  background: var(--color-text-muted);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
+  background: var(--color-text-secondary);
 }
 
-/* Focus styles */
+/* ===== Focus & Selection ===== */
 :focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  @apply outline-2 outline-primary outline-offset-2;
 }
 
-/* Selection */
 ::selection {
   background: rgba(14, 165, 233, 0.2);
-  color: var(--text-primary);
+  color: var(--color-text-primary);
 }
 
-/* Transitions */
+/* ===== Transitions ===== */
 * {
   transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
   transition-duration: 0ms;
