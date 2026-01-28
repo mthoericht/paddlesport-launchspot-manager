@@ -1,0 +1,55 @@
+/* ===== Base Styles ===== */
+@layer base {
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply font-body bg-bg-primary text-text-primary leading-normal;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-semibold leading-tight;
+  }
+
+  a {
+    @apply text-primary no-underline hover:underline;
+  }
+
+  button, input, textarea, select {
+    font-family: inherit;
+  }
+}
+
+/* ===== Focus & Selection ===== */
+:focus-visible {
+  @apply outline-2 outline-primary outline-offset-2;
+}
+
+::selection {
+  background: rgba(14, 165, 233, 0.2);
+  color: var(--color-text-primary);
+}
+
+/* ===== Global Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-text-muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}

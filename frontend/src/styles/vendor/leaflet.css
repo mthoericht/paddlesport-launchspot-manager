@@ -1,0 +1,19 @@
+/* ===== Leaflet Overrides ===== */
+@layer components {
+  .leaflet-container {
+    font-family: var(--font-body) !important;
+  }
+
+  .leaflet-popup-content-wrapper {
+    @apply rounded-xl;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .leaflet-popup-content {
+    margin: 0.875rem 1rem !important;
+  }
+
+  .leaflet-popup-tip {
+    box-shadow: none !important;
+  }
+}

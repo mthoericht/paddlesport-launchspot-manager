@@ -443,9 +443,17 @@ All endpoints are prefixed with `/api` (backend runs on port 3001).
 
 ### Styling Architecture
 
-The project uses **Tailwind CSS v4** with a custom theme defined in `frontend/src/style.css`:
+The project uses **Tailwind CSS v4** with styles organized in `frontend/src/styles/`:
+
+| File | Purpose |
+|------|---------|
+| `theme.css` | Tailwind import, `@theme` tokens, CSS variable aliases, dark mode |
+| `base.css` | Typography, focus/selection, global scrollbar |
+| `vendor/leaflet.css` | Leaflet map overrides |
+| `style.css` | Aggregator that imports all style files |
 
 ```css
+/* theme.css - @theme block defines design tokens */
 @theme {
   --color-primary: #0ea5e9;
   --color-bg-card: #ffffff;
@@ -456,7 +464,7 @@ The project uses **Tailwind CSS v4** with a custom theme defined in `frontend/sr
 
 - **Theme colors**: Use classes like `bg-primary`, `bg-bg-card`, `text-text-primary`, `border-border`
 - **Typography**: `font-display` (Outfit), `font-body` (DM Sans)
-- **Dark mode**: Controlled via `.dark` class on `<html>` element (managed by `useThemeStore`)
+- **Dark mode**: Controlled via `.dark` class on `<html>` element; only source tokens (`--color-*`) are overridden, aliases follow automatically
 - **Vue components**: Use Tailwind utility classes directly in templates
 - **Complex styles**: Minimal `<style scoped>` blocks for gradients/animations with `@reference` directive
 

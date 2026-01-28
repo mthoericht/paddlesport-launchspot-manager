@@ -29,9 +29,13 @@
 
 ## Styling (Tailwind CSS v4)
 - **Tailwind CSS v4** via `@tailwindcss/vite` plugin
-- Theme colors defined in `frontend/src/style.css` using `@theme` directive
-- Use Tailwind utility classes in Vue templates: `bg-bg-card`, `text-text-primary`, `border-border`, `text-primary`, `font-display`, etc.
+- **Style files split by concern** in `frontend/src/styles/`:
+  - `theme.css` - Tailwind import, `@theme` tokens, CSS variable aliases, dark mode
+  - `base.css` - Typography, focus/selection, global scrollbar
+  - `vendor/leaflet.css` - Leaflet overrides
+- `style.css` - Aggregator that imports all style files
+- Theme colors: use `bg-bg-card`, `text-text-primary`, `border-border`, `text-primary`, `font-display`, etc.
 - CSS variable aliases (e.g., `--bg-card`, `--border-color`) available for scoped styles
 - For complex styles (gradients, animations), use minimal `<style scoped>` with `@reference "../style.css"` for Tailwind access
-- Dark mode: controlled via `.dark` class on `<html>` (managed by `useThemeStore`)
+- Dark mode: controlled via `.dark` class on `<html>` (managed by `useThemeStore`), only source tokens (`--color-*`) are overridden
 - Theme switcher: Light / Dark / Auto modes, saved in localStorage
