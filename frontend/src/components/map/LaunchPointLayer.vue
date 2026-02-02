@@ -1,38 +1,36 @@
 <script setup lang="ts">
 import { LMarker, LPopup, LIcon } from '@vue-leaflet/vue-leaflet';
 import { useLaunchPointsStore } from '../../stores/launchPoints';
+import { useCategoriesStore } from '../../stores/categories';
+import { useMapUiStore } from '../../stores/mapUi';
 import type { LaunchPoint } from '../../types';
 import type { NearbyStation } from '../../composables';
 import LaunchPointPopup from './LaunchPointPopup.vue';
 
 interface Props
 {
-  categoryColors: Record<string, string>;
-  getCategoryIcon: (categories: string[]) => string;
-  selectedPointId: number | null;
-  nearbyStations: NearbyStation[];
   walkingRouteLoading: boolean;
 }
 
 defineProps<Props>();
 
 const emit = defineEmits<{
-  'popup-open': [point: { id: number; latitude: number; longitude: number }];
-  'popup-close': [];
   'show-station-on-map': [station: NearbyStation];
   'show-walking-route': [station: NearbyStation, point: LaunchPoint];
 }>();
 
 const launchPointsStore = useLaunchPointsStore();
+const categoriesStore = useCategoriesStore();
+const mapUiStore = useMapUiStore();
 
 function handlePopupOpen(point: LaunchPoint)
 {
-  emit('popup-open', { id: point.id, latitude: point.latitude, longitude: point.longitude });
+  mapUiStore.handlePopupOpen({ id: point.id, latitude: point.latitude, longitude: point.longitude });
 }
 
 function handlePopupClose()
 {
-  emit('popup-close');
+  mapUiStore.handlePopupClose();
 }
 </script>
 
@@ -45,7 +43,7 @@ function handlePopupClose()
     @popupclose="handlePopupClose"
   >
     <LIcon 
-      :icon-url="getCategoryIcon(point.categories)"
+      :icon-url="categoriesStore.getCategoryIcon(point.categories)"
       :icon-size="[28, 37]"
       :icon-anchor="[14, 37]"
       :popup-anchor="[0, -37]"
@@ -53,10 +51,7 @@ function handlePopupClose()
     <LPopup :options="{ maxWidth: 320, minWidth: 280 }">
       <LaunchPointPopup
         :point="point"
-        :nearby-stations="nearbyStations"
-        :category-colors="categoryColors"
         :walking-route-loading="walkingRouteLoading"
-        :is-selected="selectedPointId === point.id"
         @show-station-on-map="emit('show-station-on-map', $event)"
         @show-walking-route="(station, point) => emit('show-walking-route', station, point)"
       />

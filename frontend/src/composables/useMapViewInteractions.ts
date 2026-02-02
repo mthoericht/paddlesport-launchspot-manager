@@ -1,10 +1,11 @@
-import { ref, type Ref, watch } from 'vue';
+import { type Ref, watch } from 'vue';
 import { useRoute, useRouter, type RouteLocationNormalizedLoaded } from 'vue-router';
 import type { LeafletMouseEvent, LeafletEvent } from 'leaflet';
 import { useContextMenu } from './useContextMenu';
 import { useMapState } from './useMapState';
 import { useMapNavigation } from './useMapNavigation';
 import { useAddressSearch } from './useAddressSearch';
+import type { useMapUiStore } from '../stores/mapUi';
 
 /**
  * Options for the useMapViewInteractions composable.
@@ -12,6 +13,8 @@ import { useAddressSearch } from './useAddressSearch';
 interface UseMapViewInteractionsOptions {
   /** Reference to the Leaflet map component instance */
   mapRef: Ref<InstanceType<typeof import('@vue-leaflet/vue-leaflet').LMap> | null>;
+  /** Map UI store for shared state */
+  mapUiStore: ReturnType<typeof useMapUiStore>;
 }
 
 /**
@@ -83,7 +86,7 @@ function getInitialMapState(route: RouteLocationNormalizedLoaded): { center?: [n
  */
 export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
 {
-  const { mapRef } = options;
+  const { mapRef, mapUiStore } = options;
   const route = useRoute();
   const router = useRouter();
 
@@ -132,6 +135,7 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
   function closeContextMenu(): void
   {
     contextMenuClose();
+    mapUiStore.closeContextMenu();
     removeHighlightParams();
   }
 
@@ -147,9 +151,6 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
 
   const { openDetail, addPointAtLocation, addPointWithCurrentView, openNavigation } = useMapNavigation();
   const { searchQuery, isSearching, searchError, searchAddress } = useAddressSearch();
-
-  // Local state
-  const showFilterPanel = ref(false);
 
   /**
    * Handles mouse down events on the map.
@@ -185,12 +186,18 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
   /**
    * Handles right-click context menu events on the map.
    * Delegates to context menu handler to show the custom context menu.
+   * Also updates the store with context menu state.
    *
    * @param e - The Leaflet mouse event
    */
   function onMapContextMenu(e: LeafletMouseEvent): void
   {
     contextMenuHandleContextMenu(e);
+    // Sync context menu state to store after the composable updates it
+    if (showContextMenu.value)
+    {
+      mapUiStore.openContextMenu(contextMenuPosition.value, contextMenuLatLng.value);
+    }
   }
 
   /**
@@ -285,21 +292,7 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
     });
   }
 
-  /**
-   * Toggles the visibility of the filter panel.
-   */
-  function toggleFilterPanel(): void
-  {
-    showFilterPanel.value = !showFilterPanel.value;
-  }
 
-  /**
-   * Closes the filter panel.
-   */
-  function closeFilterPanel(): void
-  {
-    showFilterPanel.value = false;
-  }
 
   // Watch for route changes to restore map view when query parameters change
   // This handles cases where the route changes after initial mount
@@ -397,12 +390,6 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
   }
 
   return {
-    // Context menu
-    showContextMenu,
-    contextMenuPosition,
-    contextMenuLatLng,
-    closeContextMenu,
-
     // Map state
     mapCenter,
     zoom,
@@ -413,11 +400,6 @@ export function useMapViewInteractions(options: UseMapViewInteractionsOptions)
     searchQuery,
     isSearching,
     searchError,
-
-    // Filter panel
-    showFilterPanel,
-    toggleFilterPanel,
-    closeFilterPanel,
 
     // Event handlers
     onMapMouseDown,

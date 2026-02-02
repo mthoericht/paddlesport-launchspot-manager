@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+import { useMapUiStore } from '../../stores/mapUi';
+
 interface GpsPosition
 {
   lat: number;
@@ -10,12 +13,9 @@ interface GpsPosition
 
 interface Props
 {
-  showContextMenu: boolean;
-  contextMenuPosition: { x: number; y: number };
   currentPosition: GpsPosition | null;
   positionError: string | null;
   isLocating: boolean;
-  hideOnMobile: boolean;
 }
 
 defineProps<Props>();
@@ -24,8 +24,11 @@ const emit = defineEmits<{
   'add-new-point': [];
   'center-on-position': [];
   'add-point-at-context': [];
-  'close-context-menu': [];
 }>();
+
+const mapUiStore = useMapUiStore();
+
+const hideOnMobile = computed(() => mapUiStore.showListView || mapUiStore.showFilterPanel);
 </script>
 
 <template>
@@ -73,9 +76,9 @@ const emit = defineEmits<{
   
   <!-- Kontextmenü -->
   <div 
-    v-if="showContextMenu" 
+    v-if="mapUiStore.showContextMenu" 
     class="context-menu"
-    :style="{ left: contextMenuPosition.x + 'px', top: contextMenuPosition.y + 'px' }"
+    :style="{ left: mapUiStore.contextMenuPosition.x + 'px', top: mapUiStore.contextMenuPosition.y + 'px' }"
     @click.stop
   >
     <button class="context-menu-item" @click="emit('add-point-at-context')">

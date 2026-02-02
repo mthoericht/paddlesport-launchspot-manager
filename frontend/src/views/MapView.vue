@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch, onBeforeUnmount, nextTick, computed } from 'vue';
+import { onMounted, onUnmounted, ref, watch, nextTick, computed } from 'vue';
 import { LMap, LTileLayer } from '@vue-leaflet/vue-leaflet';
 import { useLaunchPointsStore } from '../stores/launchPoints';
 import { usePublicTransportStore } from '../stores/publicTransport';
+import { useViewportStore } from '../stores/viewport';
+import { useMapUiStore } from '../stores/mapUi';
 import { useMapViewInteractions, useShowPointOnMap, useGeolocation } from '../composables';
 import { useCategoriesStore } from '../stores/categories';
-import { useNearbyPopupState, useWalkingRouteDisplay, useMapQueryParams } from '../composables/map';
+import { useWalkingRouteDisplay, useMapQueryParams } from '../composables/map';
 import FilterPanel from '../components/FilterPanel.vue';
 import AppHeader from '../components/AppHeader.vue';
 import LaunchPointListView from '../components/LaunchPointListView.vue';
@@ -19,30 +21,17 @@ import GpsMarkerLayer from '../components/map/GpsMarkerLayer.vue';
 import WalkingRouteLayer from '../components/map/WalkingRouteLayer.vue';
 import MapControls from '../components/map/MapControls.vue';
 
-// Stores - needed for initial data fetch
+// Stores
 const launchPointsStore = useLaunchPointsStore();
 const publicTransportStore = usePublicTransportStore();
+const viewportStore = useViewportStore();
+const mapUiStore = useMapUiStore();
 
-// Local refs
+// Local refs (component instances and non-serializable state only)
 const mapRef = ref<any>(null);
-const highlightedPointId = ref<number | null>(null);
-const isMobile = ref(window.innerWidth <= 768);
-const showListView = ref(!isMobile.value);
 const publicTransportLayerRef = ref<InstanceType<typeof PublicTransportLayer> | null>(null);
 const gpsMarkerRef = ref<InstanceType<typeof GpsMarkerLayer> | null>(null);
 const walkingRouteLayerRef = ref<InstanceType<typeof WalkingRouteLayer> | null>(null);
-
-// Nearby popup state composable
-const {
-  selectedPointId,
-  nearbyStations,
-  selectedStationId,
-  nearbyLaunchpoints,
-  handlePopupOpen,
-  handlePopupClose,
-  handleStationPopupOpen,
-  handleStationPopupClose
-} = useNearbyPopupState();
 
 // Walking route display composable
 const {
@@ -81,11 +70,6 @@ function clearMapViewErrors(): void
 
 // Map view interactions composable
 const {
-  // Context menu
-  showContextMenu,
-  contextMenuPosition,
-  closeContextMenu,
-
   // Map state
   mapCenter,
   zoom,
@@ -94,11 +78,6 @@ const {
   searchQuery,
   isSearching,
   searchError,
-
-  // Filter panel
-  showFilterPanel,
-  toggleFilterPanel,
-  closeFilterPanel,
 
   // Event handlers
   onMapMouseDown,
@@ -116,16 +95,14 @@ const {
   // Lifecycle
   setupInteractions,
   cleanupInteractions
-} = useMapViewInteractions({ mapRef });
+} = useMapViewInteractions({ mapRef, mapUiStore });
 
 const categoriesStore = useCategoriesStore();
 
 // Show point on map composable
 const { showPointOnMap, showStationOnMap, showGpsPosition } = useShowPointOnMap({
   mapRef,
-  highlightedPointId,
-  showListView,
-  isMobile,
+  mapUiStore,
   publicTransportLayerRef,
   gpsMarkerRef
 });
@@ -138,8 +115,7 @@ const {
 } = useMapQueryParams({
   mapRef,
   publicTransportLayerRef,
-  isMobile,
-  showListView,
+  mapUiStore,
   showPointOnMap,
   showStationOnMap
 });
@@ -180,7 +156,7 @@ function addPointAtCurrentPosition(): void
       currentPosition.value.lng,
       zoomLevel
     );
-    closeContextMenu();
+    mapUiStore.closeContextMenu();
   }
   else
   {
@@ -194,7 +170,7 @@ function addPointAtCurrentPosition(): void
           currentPosition.value.lng,
           zoomLevel
         );
-        closeContextMenu();
+        mapUiStore.closeContextMenu();
       }
     }).catch(() =>
     {
@@ -212,38 +188,15 @@ function showLaunchpointOnMap(launchpoint: { latitude: number; longitude: number
   }
 }
 
-// Watch for window resize to update mobile state
-function checkMobile()
+// Sync showListView when viewport switches between mobile/desktop
+watch(() => viewportStore.isMobile, (mobile) =>
 {
-  isMobile.value = window.innerWidth <= 768;
-  if (isMobile.value && showListView.value)
-  {
-    showListView.value = false;
-  }
-  else if (!isMobile.value && !showListView.value)
-  {
-    showListView.value = true;
-  }
-}
-
-onMounted(() =>
-{
-  window.addEventListener('resize', checkMobile);
-});
-
-onBeforeUnmount(() =>
-{
-  window.removeEventListener('resize', checkMobile);
+  mapUiStore.syncWithViewport(mobile);
 });
 
 function handleListViewOpenDetail(point: LaunchPoint)
 {
   openDetail(point);
-}
-
-function toggleListView()
-{
-  showListView.value = !showListView.value;
 }
 
 // Watch for list view and filter panel changes to invalidate map size
@@ -261,8 +214,8 @@ function invalidateMapSize()
   });
 }
 
-watch(showListView, invalidateMapSize);
-watch(showFilterPanel, invalidateMapSize);
+watch(() => mapUiStore.showListView, invalidateMapSize);
+watch(() => mapUiStore.showFilterPanel, invalidateMapSize);
 
 onMounted(async () =>
 {
@@ -308,20 +261,20 @@ onUnmounted(() =>
       @dismiss="clearMapViewErrors"
     />
     <AppHeader 
-      :show-list="showListView"
-      :show-filter="showFilterPanel"
-      @toggle-filter="toggleFilterPanel"
-      @toggle-list="toggleListView"
+      :show-list="mapUiStore.showListView"
+      :show-filter="mapUiStore.showFilterPanel"
+      @toggle-filter="mapUiStore.toggleFilterPanel"
+      @toggle-list="mapUiStore.toggleListView"
     />
     
     <div class="flex flex-1 overflow-hidden md:relative">
       <div 
         class="flex-1 relative overflow-hidden transition-[width] duration-300"
-        :class="{ 'md:w-[60%] md:min-w-[400px]': showListView }"
+        :class="{ 'md:w-[60%] md:min-w-[400px]': mapUiStore.showListView }"
       >
         <!-- Adress-Suchfeld -->
         <div 
-          v-if="!isMobile || !showListView" 
+          v-if="!viewportStore.isMobile || !mapUiStore.showListView" 
           class="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-[400px] px-4 box-border max-[480px]:max-w-none max-[480px]:left-0 max-[480px]:translate-x-0 max-[480px]:pl-14 max-[480px]:pr-2"
         >
           <div class="flex bg-white rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.15)] overflow-hidden">
@@ -367,13 +320,7 @@ onUnmounted(() =>
           
           <!-- Launch Point Layer -->
           <LaunchPointLayer
-            :category-colors="categoriesStore.categoryColors"
-            :get-category-icon="categoriesStore.getCategoryIcon"
-            :selected-point-id="selectedPointId"
-            :nearby-stations="nearbyStations"
             :walking-route-loading="walkingRouteLoading"
-            @popup-open="handlePopupOpen"
-            @popup-close="handlePopupClose"
             @show-station-on-map="showStationOnMap"
             @show-walking-route="showWalkingRoute"
           />
@@ -381,11 +328,7 @@ onUnmounted(() =>
           <!-- Public Transport Layer -->
           <PublicTransportLayer
             ref="publicTransportLayerRef"
-            :selected-station-id="selectedStationId"
-            :nearby-launchpoints="nearbyLaunchpoints"
             :walking-route-loading="walkingRouteLoading"
-            @popup-open="handleStationPopupOpen"
-            @popup-close="handleStationPopupClose"
             @show-launchpoint-on-map="showLaunchpointOnMap"
             @show-walking-route="showWalkingRouteToLaunchpoint"
           />
@@ -411,30 +354,25 @@ onUnmounted(() =>
         
         <!-- Map Controls (FABs, Context Menu, GPS Error) -->
         <MapControls
-          :show-context-menu="showContextMenu"
-          :context-menu-position="contextMenuPosition"
           :current-position="currentPosition"
           :position-error="positionError"
           :is-locating="isLocating"
-          :hide-on-mobile="showListView || showFilterPanel"
           @add-new-point="addNewPoint"
           @center-on-position="centerOnCurrentPosition"
           @add-point-at-context="addPointAtContextMenu"
-          @close-context-menu="closeContextMenu"
         />
         
         <Transition name="filter-slide">
           <FilterPanel 
-            v-if="showFilterPanel" 
-            @close="closeFilterPanel"
+            v-if="mapUiStore.showFilterPanel" 
+            @close="mapUiStore.closeFilterPanel"
           />
         </Transition>
       </div>
       
       <Transition name="list-slide">
         <LaunchPointListView 
-          v-if="showListView"
-          :highlighted-point-id="highlightedPointId"
+          v-if="mapUiStore.showListView"
           @show-on-map="showPointOnMap"
           @open-detail="handleListViewOpenDetail"
           class="w-[40%] min-w-[320px] max-w-[500px] max-md:absolute max-md:inset-0 max-md:w-full max-md:max-w-full max-md:z-[500] max-md:shadow-[-4px_0_20px_rgba(0,0,0,0.15)]"

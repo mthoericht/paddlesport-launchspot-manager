@@ -132,6 +132,7 @@ The map view is split into modular, reusable components located in `frontend/src
 
 This architecture provides:
 - **Separation of Concerns**: Each layer handles its own markers, popups, and styling
+- **Direct Store Access**: Components access `mapUiStore` and `categoriesStore` directly instead of receiving props (no prop drilling)
 - **Direct Navigation**: Popup components handle routing directly (no event bubbling for navigation)
 - **Reusability**: Popup components can be used independently
 - **Maintainability**: Changes to one layer don't affect others
@@ -174,11 +175,6 @@ The frontend uses Vue 3 Composition API with custom composables for reusable log
 
 #### Map-specific Composables (`composables/map/`)
 
-- **`useNearbyPopupState`** - Manages nearby items state for popups:
-  - Tracks selected launch point/station IDs
-  - Calculates nearby stations for launch point popups
-  - Calculates nearby launch points for station popups
-  - Handles popup open/close events
 - **`useWalkingRouteDisplay`** - Walking route display on the map:
   - Shows walking routes from stations to launch points
   - Fits map to route bounds and opens info popup
@@ -213,6 +209,13 @@ The frontend uses Vue 3 Composition API with custom composables for reusable log
   - Persists preference to localStorage
   - Listens to system preference changes in auto mode
   - Applies `.dark` class to document root
+- **`viewportStore`** - Viewport/responsive state (isMobile detection)
+- **`mapUiStore`** - Map UI state shared across components
+  - Panel visibility (`showListView`, `showFilterPanel`)
+  - Highlighted and selected point/station IDs
+  - Nearby stations/launch points for popups
+  - Context menu state (position, coordinates)
+  - Viewport sync for responsive behavior
 
 ### Backend
 - **Express.js** REST API server

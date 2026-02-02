@@ -1,7 +1,9 @@
 import type { Ref } from 'vue';
 import type { LaunchPoint } from '../types';
 import type { Map as LeafletMap, Layer as LeafletLayer, Marker as LeafletMarker } from 'leaflet';
+import { useViewportStore } from '../stores/viewport';
 import { toMarkerRef, openMarkerPopup } from '../utils/leaflet';
+import type { useMapUiStore } from '../stores/mapUi';
 
 /**
  * Geographic point with coordinates
@@ -32,16 +34,15 @@ type GpsMarkerLayerRef = { markerRef?: MarkerRef } | null;
  */
 interface UseShowPointOnMapOptions {
   mapRef: Ref<{ leafletObject?: LeafletMap } | null>;
-  highlightedPointId: Ref<number | null>;
-  showListView: Ref<boolean>;
-  isMobile: Ref<boolean>;
+  mapUiStore: ReturnType<typeof useMapUiStore>;
   publicTransportLayerRef?: Ref<PublicTransportLayerRef>;
   gpsMarkerRef?: Ref<GpsMarkerLayerRef>;
 }
 
 export function useShowPointOnMap(options: UseShowPointOnMapOptions) 
 {
-  const { mapRef, highlightedPointId, showListView, isMobile, publicTransportLayerRef, gpsMarkerRef } = options;
+  const { mapRef, mapUiStore, publicTransportLayerRef, gpsMarkerRef } = options;
+  const viewportStore = useViewportStore();
 
   /**
    * Generic function to center map and open marker popup
@@ -100,12 +101,12 @@ export function useShowPointOnMap(options: UseShowPointOnMapOptions)
   function showPointOnMap(point: LaunchPoint) 
   {
     // Set highlight for list view (but not for marker size to avoid re-rendering)
-    highlightedPointId.value = point.id;
+    mapUiStore.setHighlightedPointId(point.id);
     
     // Auf Mobile: Liste ausblenden, wenn "Auf Karte anzeigen" geklickt wird
-    if (isMobile.value) 
+    if (viewportStore.isMobile) 
     {
-      showListView.value = false;
+      mapUiStore.setShowListView(false);
       // Wait a bit for the layout to update before centering map
       setTimeout(() => 
       {
@@ -120,9 +121,9 @@ export function useShowPointOnMap(options: UseShowPointOnMapOptions)
     // Clear highlight after 5 seconds
     setTimeout(() => 
     {
-      if (highlightedPointId.value === point.id) 
+      if (mapUiStore.highlightedPointId === point.id) 
       {
-        highlightedPointId.value = null;
+        mapUiStore.setHighlightedPointId(null);
       }
     }, 5000);
   }
@@ -164,9 +165,9 @@ export function useShowPointOnMap(options: UseShowPointOnMapOptions)
 
   function showStationOnMap(station: MapPoint): void
   {
-    if (isMobile.value) 
+    if (viewportStore.isMobile) 
     {
-      showListView.value = false;
+      mapUiStore.setShowListView(false);
     }
     
     const markerRef = toMarkerRef(publicTransportLayerRef?.value?.markerRefs?.[station.id]);

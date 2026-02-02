@@ -2,22 +2,19 @@
 import { ref } from 'vue';
 import { LMarker, LPopup, LIcon } from '@vue-leaflet/vue-leaflet';
 import { usePublicTransportStore } from '../../stores/publicTransport';
+import { useMapUiStore } from '../../stores/mapUi';
 import type { PublicTransportPoint, PublicTransportType } from '../../types';
 import type { NearbyLaunchpoint } from '../../composables';
 import PublicTransportPopup from './PublicTransportPopup.vue';
 
 interface Props
 {
-  selectedStationId: number | null;
-  nearbyLaunchpoints: NearbyLaunchpoint[];
   walkingRouteLoading: boolean;
 }
 
 defineProps<Props>();
 
 const emit = defineEmits<{
-  'popup-open': [station: { id: number; latitude: number; longitude: number }];
-  'popup-close': [];
   'show-launchpoint-on-map': [launchpoint: NearbyLaunchpoint];
   'show-walking-route': [station: { name: string; latitude: number; longitude: number }, launchpoint: NearbyLaunchpoint];
 }>();
@@ -29,6 +26,7 @@ const markerRefs = ref<Record<number, any>>({});
 defineExpose({ markerRefs });
 
 const publicTransportStore = usePublicTransportStore();
+const mapUiStore = useMapUiStore();
 
 function getPublicTransportIcon(types: PublicTransportType[]): string
 {
@@ -54,12 +52,12 @@ function getPublicTransportIcon(types: PublicTransportType[]): string
 
 function handlePopupOpen(station: PublicTransportPoint)
 {
-  emit('popup-open', { id: station.id, latitude: station.latitude, longitude: station.longitude });
+  mapUiStore.handleStationPopupOpen({ id: station.id, latitude: station.latitude, longitude: station.longitude });
 }
 
 function handlePopupClose()
 {
-  emit('popup-close');
+  mapUiStore.handleStationPopupClose();
 }
 
 function handleMarkerRef(station: PublicTransportPoint, el: any)
@@ -89,9 +87,7 @@ function handleMarkerRef(station: PublicTransportPoint, el: any)
     <LPopup :options="{ maxWidth: 320, minWidth: 280 }">
       <PublicTransportPopup
         :station="station"
-        :nearby-launchpoints="nearbyLaunchpoints"
         :walking-route-loading="walkingRouteLoading"
-        :is-selected="selectedStationId === station.id"
         @show-launchpoint-on-map="emit('show-launchpoint-on-map', $event)"
         @show-walking-route="(station, lp) => emit('show-walking-route', station, lp)"
       />

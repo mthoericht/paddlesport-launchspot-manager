@@ -18,8 +18,8 @@
     - **LaunchPointListView.vue** - Scrollable list of launch points
     - **map/** - Modular map layer components (LaunchPointLayer, PublicTransportLayer, GpsMarkerLayer, WalkingRouteLayer, MapControls, Popup components)
   - **composables/** - General reusable logic (useMapState, useGeolocation, useWalkingRoute, etc.)
-  - **composables/map/** - Map-specific composables (useNearbyPopupState, useWalkingRouteDisplay, useMapQueryParams)
-  - **stores/** - Pinia stores (auth, launchPoints, publicTransport, categories, theme)
+  - **composables/map/** - Map-specific composables (useWalkingRouteDisplay, useMapQueryParams)
+  - **stores/** - Pinia stores (auth, launchPoints, publicTransport, categories, theme, viewport, mapUi)
   - **utils/** - Shared utilities (geo.ts, transport.ts, leaflet.ts)
   - **views/** - Page components (MapView, LaunchPointDetailView, LaunchPointFormView, LoginView, SignupView, ImpressumView)
 - **backend/** - Express API server (`backend/index.ts`), routes in `backend/routes/`

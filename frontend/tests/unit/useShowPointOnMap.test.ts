@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ref, type Ref } from 'vue';
+import { setActivePinia, createPinia } from 'pinia';
 import { useShowPointOnMap } from '@/composables/useShowPointOnMap';
+import { useViewportStore } from '@/stores/viewport';
+import { useMapUiStore } from '@/stores/mapUi';
 import type { LaunchPoint } from '@/types';
 import type { Map as LeafletMap, Marker as LeafletMarker } from 'leaflet';
 
@@ -8,14 +11,16 @@ describe('useShowPointOnMap', () =>
 {
   let mockMap: Partial<LeafletMap>;
   let mapRef: Ref<{ leafletObject?: LeafletMap } | null>;
-  let highlightedPointId: Ref<number | null>;
-  let showListView: Ref<boolean>;
-  let isMobile: Ref<boolean>;
+  let mapUiStore: ReturnType<typeof useMapUiStore>;
   let publicTransportLayerRef: Ref<{ markerRefs?: Record<number, { leafletObject?: LeafletMarker } | null> } | null>;
 
   beforeEach(() =>
   {
+    setActivePinia(createPinia());
     vi.useFakeTimers();
+    
+    // Get the actual store instance
+    mapUiStore = useMapUiStore();
     
     // Mock requestAnimationFrame to execute callback synchronously
     vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) =>
@@ -56,9 +61,6 @@ describe('useShowPointOnMap', () =>
     mapRef = ref({
       leafletObject: mockMap as LeafletMap
     }) as Ref<{ leafletObject?: LeafletMap } | null>;
-    highlightedPointId = ref<number | null>(null);
-    showListView = ref<boolean>(false);
-    isMobile = ref<boolean>(false);
     publicTransportLayerRef = ref<{ markerRefs?: Record<number, { leafletObject?: LeafletMarker } | null> } | null>({ markerRefs: {} });
   });
 
@@ -90,92 +92,82 @@ describe('useShowPointOnMap', () =>
 
   describe('showPointOnMap', () =>
   {
-    it('should set highlighted point ID', () =>
+    it('should set highlighted point ID via store', () =>
     {
       const { showPointOnMap } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile
+        mapUiStore
       });
 
       showPointOnMap(mockPoint);
 
-      expect(highlightedPointId.value).toBe(mockPoint.id);
+      expect(mapUiStore.highlightedPointId).toBe(mockPoint.id);
     });
 
     it('should hide list view on mobile when showing point', () =>
     {
-      isMobile.value = true;
-      showListView.value = true;
+      useViewportStore().isMobile = true;
+      mapUiStore.setShowListView(true);
 
       const { showPointOnMap } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile
+        mapUiStore
       });
 
       showPointOnMap(mockPoint);
 
-      expect(showListView.value).toBe(false);
+      expect(mapUiStore.showListView).toBe(false);
     });
 
     it('should not hide list view on desktop when showing point', () =>
     {
-      isMobile.value = false;
-      showListView.value = true;
+      useViewportStore().isMobile = false;
+      mapUiStore.setShowListView(true);
 
       const { showPointOnMap } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile
+        mapUiStore
       });
 
       showPointOnMap(mockPoint);
 
-      expect(showListView.value).toBe(true);
+      expect(mapUiStore.showListView).toBe(true);
     });
 
     it('should clear highlight after 5 seconds', () =>
     {
       const { showPointOnMap } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile
+        mapUiStore
       });
 
       showPointOnMap(mockPoint);
-      expect(highlightedPointId.value).toBe(mockPoint.id);
+      expect(mapUiStore.highlightedPointId).toBe(mockPoint.id);
 
       // Fast-forward 5 seconds
       vi.advanceTimersByTime(5000);
 
-      expect(highlightedPointId.value).toBeNull();
+      expect(mapUiStore.highlightedPointId).toBeNull();
     });
 
     it('should not clear highlight if point ID changed', () =>
     {
       const { showPointOnMap } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile
+        mapUiStore
       });
 
       showPointOnMap(mockPoint);
-      expect(highlightedPointId.value).toBe(mockPoint.id);
+      expect(mapUiStore.highlightedPointId).toBe(mockPoint.id);
 
       // Change highlighted point
-      highlightedPointId.value = 2;
+      mapUiStore.setHighlightedPointId(2);
 
       // Fast-forward 5 seconds
       vi.advanceTimersByTime(5000);
 
       // Should still be 2, not null
-      expect(highlightedPointId.value).toBe(2);
+      expect(mapUiStore.highlightedPointId).toBe(2);
     });
   });
 
@@ -185,9 +177,7 @@ describe('useShowPointOnMap', () =>
     {
       const { centerAndShowPoint } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile
+        mapUiStore
       });
 
       centerAndShowPoint(mockPoint);
@@ -206,9 +196,7 @@ describe('useShowPointOnMap', () =>
     {
       const { centerAndShowPoint } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile
+        mapUiStore
       });
 
       centerAndShowPoint(mockPoint);
@@ -225,9 +213,7 @@ describe('useShowPointOnMap', () =>
 
       const { centerAndShowPoint } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile
+        mapUiStore
       });
 
       expect(() => centerAndShowPoint(mockPoint)).not.toThrow();
@@ -239,9 +225,7 @@ describe('useShowPointOnMap', () =>
 
       const { centerAndShowPoint } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile
+        mapUiStore
       });
 
       expect(() => centerAndShowPoint(mockPoint)).not.toThrow();
@@ -251,9 +235,7 @@ describe('useShowPointOnMap', () =>
     {
       const { centerAndShowPoint } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile
+        mapUiStore
       });
 
       centerAndShowPoint(mockPoint);
@@ -269,9 +251,7 @@ describe('useShowPointOnMap', () =>
     {
       const { centerAndShowPoint } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile
+        mapUiStore
       });
 
       centerAndShowPoint(mockPoint);
@@ -301,9 +281,7 @@ describe('useShowPointOnMap', () =>
 
       const { centerAndShowPoint } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile
+        mapUiStore
       });
 
       centerAndShowPoint(mockPoint);
@@ -334,9 +312,7 @@ describe('useShowPointOnMap', () =>
 
       const { centerAndShowPoint } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile
+        mapUiStore
       });
 
       centerAndShowPoint(mockPoint);
@@ -366,9 +342,7 @@ describe('useShowPointOnMap', () =>
 
       const { centerAndShowPoint } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile
+        mapUiStore
       });
 
       centerAndShowPoint(mockPoint);
@@ -399,9 +373,7 @@ describe('useShowPointOnMap', () =>
 
       const { centerAndShowPoint } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile
+        mapUiStore
       });
 
       centerAndShowPoint(mockPoint);
@@ -426,9 +398,7 @@ describe('useShowPointOnMap', () =>
 
       const { centerAndShowPoint } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile
+        mapUiStore
       });
 
       centerAndShowPoint(mockPoint);
@@ -453,9 +423,7 @@ describe('useShowPointOnMap', () =>
     {
       const { showStationOnMap } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile,
+        mapUiStore,
         publicTransportLayerRef
       });
 
@@ -473,38 +441,34 @@ describe('useShowPointOnMap', () =>
 
     it('should hide list view on mobile when showing station', () =>
     {
-      isMobile.value = true;
-      showListView.value = true;
+      useViewportStore().isMobile = true;
+      mapUiStore.setShowListView(true);
 
       const { showStationOnMap } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile,
+        mapUiStore,
         publicTransportLayerRef
       });
 
       showStationOnMap(mockStation);
 
-      expect(showListView.value).toBe(false);
+      expect(mapUiStore.showListView).toBe(false);
     });
 
     it('should not hide list view on desktop when showing station', () =>
     {
-      isMobile.value = false;
-      showListView.value = true;
+      useViewportStore().isMobile = false;
+      mapUiStore.setShowListView(true);
 
       const { showStationOnMap } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile,
+        mapUiStore,
         publicTransportLayerRef
       });
 
       showStationOnMap(mockStation);
 
-      expect(showListView.value).toBe(true);
+      expect(mapUiStore.showListView).toBe(true);
     });
 
     it('should open popup when station marker ref is available', () =>
@@ -522,9 +486,7 @@ describe('useShowPointOnMap', () =>
 
       const { showStationOnMap } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile,
+        mapUiStore,
         publicTransportLayerRef
       });
 
@@ -542,9 +504,7 @@ describe('useShowPointOnMap', () =>
 
       const { showStationOnMap } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile,
+        mapUiStore,
         publicTransportLayerRef
       });
 
@@ -559,9 +519,7 @@ describe('useShowPointOnMap', () =>
     {
       const { showStationOnMap } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile
+        mapUiStore
         // stationMarkerRefs not provided
       });
 
@@ -578,9 +536,7 @@ describe('useShowPointOnMap', () =>
 
       const { showStationOnMap } = useShowPointOnMap({
         mapRef,
-        highlightedPointId,
-        showListView,
-        isMobile,
+        mapUiStore,
         publicTransportLayerRef
       });
 
@@ -588,4 +544,3 @@ describe('useShowPointOnMap', () =>
     });
   });
 });
-

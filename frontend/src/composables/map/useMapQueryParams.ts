@@ -2,7 +2,9 @@ import { watch, nextTick, type Ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useLaunchPointsStore } from '../../stores/launchPoints';
 import { usePublicTransportStore } from '../../stores/publicTransport';
+import { useViewportStore } from '../../stores/viewport';
 import type { LaunchPoint } from '../../types';
+import type { useMapUiStore } from '../../stores/mapUi';
 
 interface MapRef
 {
@@ -20,8 +22,7 @@ interface UseMapQueryParamsOptions
 {
   mapRef: Ref<MapRef | null>;
   publicTransportLayerRef: Ref<PublicTransportLayerRef | null>;
-  isMobile: Ref<boolean>;
-  showListView: Ref<boolean>;
+  mapUiStore: ReturnType<typeof useMapUiStore>;
   showPointOnMap: (point: LaunchPoint) => void;
   showStationOnMap: (station: { id: number; latitude: number; longitude: number }) => void;
 }
@@ -35,12 +36,12 @@ export function useMapQueryParams(options: UseMapQueryParamsOptions)
   const { 
     mapRef, 
     publicTransportLayerRef, 
-    isMobile, 
-    showListView, 
+    mapUiStore, 
     showPointOnMap, 
     showStationOnMap 
   } = options;
   
+  const viewportStore = useViewportStore();
   const route = useRoute();
   const router = useRouter();
   const launchPointsStore = useLaunchPointsStore();
@@ -109,9 +110,9 @@ export function useMapQueryParams(options: UseMapQueryParamsOptions)
     if (highlightId && lat && lng)
     {
       // On mobile: hide list when navigating from detail view
-      if (isMobile.value)
+      if (viewportStore.isMobile)
       {
-        showListView.value = false;
+        mapUiStore.setShowListView(false);
       }
       
       const pointId = Number(highlightId);

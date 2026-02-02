@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import { useLaunchPointsStore } from '../stores/launchPoints';
 import { useCategoriesStore } from '../stores/categories';
+import { useMapUiStore } from '../stores/mapUi';
 import { useMapNavigation } from '../composables';
 import type { LaunchPoint } from '../types';
-
-const props = defineProps<{
-  highlightedPointId?: number | null;
-}>();
 
 const emit = defineEmits<{
   'show-on-map': [point: LaunchPoint];
@@ -15,6 +12,7 @@ const emit = defineEmits<{
 
 const launchPointsStore = useLaunchPointsStore();
 const categoriesStore = useCategoriesStore();
+const mapUiStore = useMapUiStore();
 const { openNavigation } = useMapNavigation();
 
 async function retryFetch(): Promise<void>
@@ -68,7 +66,7 @@ function handleOpenDetail(point: LaunchPoint) {
         v-for="point in launchPointsStore.launchPoints" 
         :key="point.id"
         class="list-item bg-bg-secondary border border-border rounded-xl p-4 mb-3 cursor-pointer hover:border-primary hover:shadow-[0_2px_8px_rgba(14,165,233,0.1)] hover:-translate-y-px"
-        :class="{ 'highlighted': highlightedPointId === point.id }"
+        :class="{ 'highlighted': mapUiStore.highlightedPointId === point.id }"
       >
         <div class="flex items-start gap-3 mb-3">
           <div class="shrink-0 w-10 h-10 flex items-center justify-center">

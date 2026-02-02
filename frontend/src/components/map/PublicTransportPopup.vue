@@ -1,25 +1,29 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import type { PublicTransportPoint } from '../../types';
 import type { NearbyLaunchpoint } from '../../composables';
 import { getTransportTypeLabel } from '../../utils/transport';
+import { useMapUiStore } from '../../stores/mapUi';
 
 interface Props
 {
   station: PublicTransportPoint;
-  nearbyLaunchpoints: NearbyLaunchpoint[];
   walkingRouteLoading: boolean;
-  isSelected: boolean;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
   'show-launchpoint-on-map': [launchpoint: NearbyLaunchpoint];
   'show-walking-route': [station: { name: string; latitude: number; longitude: number }, launchpoint: NearbyLaunchpoint];
 }>();
 
+const mapUiStore = useMapUiStore();
 const router = useRouter();
+
+const isSelected = computed(() => mapUiStore.selectedStationId === props.station.id);
+const nearbyLaunchpoints = computed(() => mapUiStore.nearbyLaunchpoints);
 
 // Direct navigation - no event bubbling needed
 function openDetail(launchpoint: NearbyLaunchpoint): void

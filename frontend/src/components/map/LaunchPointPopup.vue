@@ -1,16 +1,16 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import type { LaunchPoint } from '../../types';
 import type { NearbyStation } from '../../composables';
 import { getTransportTypeLabel } from '../../utils/transport';
 import { useMapNavigation } from '../../composables';
+import { useCategoriesStore } from '../../stores/categories';
+import { useMapUiStore } from '../../stores/mapUi';
 
 interface Props
 {
   point: LaunchPoint;
-  nearbyStations: NearbyStation[];
-  categoryColors: Record<string, string>;
   walkingRouteLoading: boolean;
-  isSelected: boolean;
 }
 
 const props = defineProps<Props>();
@@ -19,6 +19,13 @@ const emit = defineEmits<{
   'show-station-on-map': [station: NearbyStation];
   'show-walking-route': [station: NearbyStation, point: LaunchPoint];
 }>();
+
+const categoriesStore = useCategoriesStore();
+const mapUiStore = useMapUiStore();
+
+const isSelected = computed(() => mapUiStore.selectedPointId === props.point.id);
+const nearbyStations = computed(() => mapUiStore.nearbyStations);
+const categoryColors = computed(() => categoriesStore.categoryColors);
 
 const { openDetail: navigateToDetail, openNavigation } = useMapNavigation();
 
