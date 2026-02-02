@@ -9,7 +9,7 @@ export { useMapViewInteractions } from './useMapViewInteractions';
 export { useLaunchPointForm } from './useLaunchPointForm';
 export { useShowPointOnMap } from './useShowPointOnMap';
 export type { MapPoint } from './useShowPointOnMap';
-export { useGeolocation } from './useGeolocation';
+export { useGeolocation, formatCoordinate, getCompassDirection } from './useGeolocation';
 export { createUseNearby } from './useNearby';
 export type { UseNearbyDefaults } from './useNearby';
 export { useNearbyStations } from './useNearbyStations';

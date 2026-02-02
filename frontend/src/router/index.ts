@@ -45,6 +45,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/my-position',
+      name: 'my-position',
+      component: () => import('../views/GpsPositionDetailView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/impressum',
       name: 'impressum',
       component: () => import('../views/ImpressumView.vue')

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch, nextTick, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { LMap, LTileLayer } from '@vue-leaflet/vue-leaflet';
 import { useLaunchPointsStore } from '../stores/launchPoints';
 import { usePublicTransportStore } from '../stores/publicTransport';
@@ -20,6 +21,9 @@ import PublicTransportLayer from '../components/map/PublicTransportLayer.vue';
 import GpsMarkerLayer from '../components/map/GpsMarkerLayer.vue';
 import WalkingRouteLayer from '../components/map/WalkingRouteLayer.vue';
 import MapControls from '../components/map/MapControls.vue';
+
+// Router
+const router = useRouter();
 
 // Stores
 const launchPointsStore = useLaunchPointsStore();
@@ -143,6 +147,12 @@ function centerOnCurrentPosition(): void
       // Error handling is done in the composable
     });
   }
+}
+
+// Function to navigate to GPS position detail page
+function showPositionDetails(): void
+{
+  router.push({ name: 'my-position' });
 }
 
 // Function to add point at current GPS position
@@ -277,12 +287,12 @@ onUnmounted(() =>
           v-if="!viewportStore.isMobile || !mapUiStore.showListView" 
           class="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-[400px] px-4 box-border max-[480px]:max-w-none max-[480px]:left-0 max-[480px]:translate-x-0 max-[480px]:pl-14 max-[480px]:pr-2"
         >
-          <div class="flex bg-white rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.15)] overflow-hidden">
+          <div class="flex bg-bg-card rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.15)] overflow-hidden">
             <input
               v-model="searchQuery"
               type="text"
               placeholder="Adresse suchen..."
-              class="flex-1 py-3.5 px-5 border-none text-[0.9375rem] bg-transparent outline-none placeholder:text-slate-400 max-[480px]:py-3 max-[480px]:px-4 max-[480px]:text-sm"
+              class="flex-1 py-3.5 px-5 border-none text-[0.9375rem] bg-transparent text-text-primary outline-none placeholder:text-text-muted max-[480px]:py-3 max-[480px]:px-4 max-[480px]:text-sm"
               @keyup.enter="handleSearch"
             />
             <button 
@@ -337,7 +347,7 @@ onUnmounted(() =>
           <GpsMarkerLayer
             ref="gpsMarkerRef"
             :position="currentPosition"
-            @center-on-position="centerOnCurrentPosition"
+            @show-position-details="showPositionDetails"
             @add-point-at-position="addPointAtCurrentPosition"
           />
           

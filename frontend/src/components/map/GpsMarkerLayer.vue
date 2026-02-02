@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { LMarker, LPopup, LIcon, LCircle } from '@vue-leaflet/vue-leaflet';
+import { getCompassDirection } from '../../composables';
 
 interface GpsPosition
 {
@@ -19,7 +20,7 @@ interface Props
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  'center-on-position': [];
+  'show-position-details': [];
   'add-point-at-position': [];
 }>();
 
@@ -27,14 +28,6 @@ const markerRef = ref<any>(null);
 
 // Expose marker ref for external popup control
 defineExpose({ markerRef });
-
-// Convert heading degrees to compass direction
-function getCompassDirection(heading: number): string
-{
-  const directions = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'] as const;
-  const index = Math.round(heading / 45) % 8;
-  return directions[index] ?? 'N';
-}
 
 // Create GPS marker icon as SVG data URL
 // If heading is available, show a directional arrow
@@ -115,7 +108,7 @@ const iconAnchor = computed((): [number, number] =>
             Geschwindigkeit: {{ (position.speed * 3.6).toFixed(1) }} km/h
           </p>
           <div class="popup-actions">
-            <button @click="emit('center-on-position')" class="popup-btn">Zentrieren</button>
+            <button @click="emit('show-position-details')" class="popup-btn">Details</button>
             <button @click="emit('add-point-at-position')" class="popup-btn">Einsetzpunkt hinzufügen</button>
           </div>
         </div>

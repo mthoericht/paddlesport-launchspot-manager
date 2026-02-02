@@ -24,6 +24,13 @@ A full-stack web application for managing launch points for kayaking, canoeing, 
   - Add launch point at current GPS position from marker popup
   - **Heading indicator** - Shows direction arrow when device is moving (requires GPS heading data)
   - Speed display in km/h when moving
+  - **GPS Detail View** - Dedicated page with detailed GPS information:
+    - Coordinates in DMS format (degrees, minutes, seconds) and decimal format
+    - Copy coordinates to clipboard
+    - Accuracy indicator with color coding (green ≤10m, yellow ≤50m, red >50m)
+    - Heading/direction display with compass direction
+    - Speed display when moving
+    - Quick actions: Center on map, Open in Google Maps
 - **Map view persistence** - Remembers zoom level and position when navigating
   - Preserves view when adding points
   - Restores view when using back button
@@ -119,7 +126,7 @@ The map view is split into modular, reusable components located in `frontend/src
 | `LaunchPointPopup.vue` | Popup content for launch points with direct navigation (router, external maps) |
 | `PublicTransportLayer.vue` | Renders all public transport station markers, exposes marker refs |
 | `PublicTransportPopup.vue` | Popup content for stations with direct navigation to launch point details |
-| `GpsMarkerLayer.vue` | GPS position marker with accuracy circle and heading indicator |
+| `GpsMarkerLayer.vue` | GPS position marker with accuracy circle, heading indicator, and link to detail view |
 | `WalkingRouteLayer.vue` | Walking route polyline with distance/duration info popup |
 | `MapControls.vue` | FAB buttons, context menu, and GPS error messages |
 

@@ -11,6 +11,36 @@ interface GeolocationPosition {
   speed: number | null;    // Speed in m/s, null if unavailable
 }
 
+/**
+ * Format a coordinate value to DMS (degrees, minutes, seconds) format
+ * @param value - The coordinate value (latitude or longitude)
+ * @param isLat - Whether this is a latitude (true) or longitude (false)
+ * @returns Formatted string like "48° 8' 30.12" N"
+ */
+export function formatCoordinate(value: number, isLat: boolean): string
+{
+  const direction = isLat 
+    ? (value >= 0 ? 'N' : 'S') 
+    : (value >= 0 ? 'E' : 'W');
+  const absValue = Math.abs(value);
+  const degrees = Math.floor(absValue);
+  const minutes = Math.floor((absValue - degrees) * 60);
+  const seconds = ((absValue - degrees) * 60 - minutes) * 60;
+  return `${degrees}° ${minutes}' ${seconds.toFixed(2)}" ${direction}`;
+}
+
+/**
+ * Convert heading degrees to compass direction
+ * @param heading - Heading in degrees (0 = North, 90 = East, etc.)
+ * @returns Compass direction like "N", "NO", "O", etc.
+ */
+export function getCompassDirection(heading: number): string
+{
+  const directions = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'] as const;
+  const index = Math.round(heading / 45) % 8;
+  return directions[index] ?? 'N';
+}
+
 export function useGeolocation() 
 {
   const currentPosition = ref<GeolocationPosition | null>(null);

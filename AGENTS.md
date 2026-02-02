@@ -21,7 +21,7 @@
   - **composables/map/** - Map-specific composables (useWalkingRouteDisplay, useMapQueryParams)
   - **stores/** - Pinia stores (auth, launchPoints, publicTransport, categories, theme, viewport, mapUi)
   - **utils/** - Shared utilities (geo.ts, transport.ts, leaflet.ts)
-  - **views/** - Page components (MapView, LaunchPointDetailView, LaunchPointFormView, LoginView, SignupView, ImpressumView)
+  - **views/** - Page components (MapView, LaunchPointDetailView, LaunchPointFormView, GpsPositionDetailView, LoginView, SignupView, ImpressumView)
 - **backend/** - Express API server (`backend/index.ts`), routes in `backend/routes/`
 - **prisma/** - Database schema and seeds (libSQL/Turso adapter)
 - **shared/** - Shared TypeScript types between frontend and backend
