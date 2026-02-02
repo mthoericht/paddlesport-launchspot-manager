@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
 import type { LaunchPoint } from '../../types';
 import type { NearbyStation } from '../../composables';
 import { getTransportTypeLabel } from '../../utils/transport';
+import { useMapNavigation } from '../../composables';
 
 interface Props
 {
@@ -20,18 +20,16 @@ const emit = defineEmits<{
   'show-walking-route': [station: NearbyStation, point: LaunchPoint];
 }>();
 
-const router = useRouter();
+const { openDetail: navigateToDetail, openNavigation } = useMapNavigation();
 
-// Direct navigation - no event bubbling needed
 function openDetail(): void
 {
-  router.push(`/launch-point/${props.point.id}`);
+  navigateToDetail(props.point);
 }
 
-function openNavigation(): void
+function handleOpenNavigation(): void
 {
-  const { latitude, longitude } = props.point;
-  window.open(`https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`, '_blank');
+  openNavigation(props.point.latitude, props.point.longitude, props.point.name);
 }
 </script>
 
@@ -111,7 +109,7 @@ function openNavigation(): void
     
     <div class="popup-actions">
       <button @click="openDetail" class="popup-btn">Details</button>
-      <button @click="openNavigation" class="popup-btn popup-btn-nav" title="Route starten">
+      <button @click="handleOpenNavigation" class="popup-btn popup-btn-nav" title="Route starten">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="3 11 22 2 13 21 11 13 3 11"/>
         </svg>
