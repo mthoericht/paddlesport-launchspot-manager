@@ -11,12 +11,17 @@
 
 ## Architecture
 - **frontend/** - Vue 3 SPA with Pinia stores, Vue Router, Leaflet maps, TypeScript
-  - **components/map/** - Modular map layer components (LaunchPointLayer, PublicTransportLayer, GpsMarkerLayer, WalkingRouteLayer, MapControls, and Popup components)
+  - **api/** - API client and domain modules (auth, launchPoints, publicTransport); stores call these instead of fetch directly
+  - **components/** - Reusable UI components
+    - **ErrorBanner.vue** - Dismissible error banner used across views (MapView, Login, Signup, Detail, Form)
+    - **FilterPanel.vue** - Filter sidebar (type, user, categories)
+    - **LaunchPointListView.vue** - Scrollable list of launch points
+    - **map/** - Modular map layer components (LaunchPointLayer, PublicTransportLayer, GpsMarkerLayer, WalkingRouteLayer, MapControls, Popup components)
   - **composables/** - General reusable logic (useMapState, useGeolocation, useWalkingRoute, etc.)
   - **composables/map/** - Map-specific composables (useNearbyPopupState, useWalkingRouteDisplay, useMapQueryParams)
   - **stores/** - Pinia stores (auth, launchPoints, publicTransport, categories, theme)
-  - **utils/** - Shared utilities (geo.ts, transport.ts)
-  - **views/** - Page components (MapView, DetailView, etc.)
+  - **utils/** - Shared utilities (geo.ts, transport.ts, leaflet.ts)
+  - **views/** - Page components (MapView, LaunchPointDetailView, LaunchPointFormView, LoginView, SignupView, ImpressumView)
 - **backend/** - Express API server (`backend/index.ts`), routes in `backend/routes/`
 - **prisma/** - Database schema and seeds (libSQL/Turso adapter)
 - **shared/** - Shared TypeScript types between frontend and backend
@@ -26,6 +31,7 @@
 - Use TypeScript strict types; shared types go in `shared/types/`
 - Vue components use `<script setup lang="ts">` with Composition API
 - Tests use Vitest + @vue/test-utils; place in `frontend/tests/` or `backend/tests/`
+- Error display: Use `ErrorBanner` component for API/network errors; store tests mock API modules (not fetch)
 
 ## Styling (Tailwind CSS v4)
 - **Tailwind CSS v4** via `@tailwindcss/vite` plugin

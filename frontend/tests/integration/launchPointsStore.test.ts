@@ -3,8 +3,19 @@ import { setActivePinia, createPinia } from 'pinia';
 import { useLaunchPointsStore } from '@/stores/launchPoints';
 import { useAuthStore } from '@/stores/auth';
 
-// Mock fetch
-globalThis.fetch = vi.fn();
+const mockFetchLaunchPoints = vi.fn();
+const mockFetchLaunchPoint = vi.fn();
+const mockCreateLaunchPoint = vi.fn();
+const mockUpdateLaunchPoint = vi.fn();
+const mockDeleteLaunchPoint = vi.fn();
+
+vi.mock('@/api/launchPoints', () => ({
+  fetchLaunchPoints: (...args: unknown[]) => mockFetchLaunchPoints(...args),
+  fetchLaunchPoint: (...args: unknown[]) => mockFetchLaunchPoint(...args),
+  createLaunchPoint: (...args: unknown[]) => mockCreateLaunchPoint(...args),
+  updateLaunchPoint: (...args: unknown[]) => mockUpdateLaunchPoint(...args),
+  deleteLaunchPoint: (...args: unknown[]) => mockDeleteLaunchPoint(...args)
+}));
 
 describe('LaunchPointsStore Integration', () =>
 {
@@ -12,7 +23,7 @@ describe('LaunchPointsStore Integration', () =>
   {
     setActivePinia(createPinia());
     vi.clearAllMocks();
-    
+
     // Setup auth store with token
     const authStore = useAuthStore();
     authStore.token = 'mock-token';
@@ -35,6 +46,7 @@ describe('LaunchPointsStore Integration', () =>
           nearby_waters: null,
           food_supply: null,
           categories: ['Kajak'],
+          category_ids: [1],
           public_transport_stations: [],
           created_by: 1,
           creator_username: 'testuser',
@@ -42,10 +54,7 @@ describe('LaunchPointsStore Integration', () =>
         }
       ];
 
-      (fetch as any).mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockPoints
-      });
+      mockFetchLaunchPoints.mockResolvedValueOnce(mockPoints);
 
       const store = useLaunchPointsStore();
       await store.fetchLaunchPoints();
@@ -53,13 +62,15 @@ describe('LaunchPointsStore Integration', () =>
       expect(store.launchPoints).toEqual(mockPoints);
       expect(store.loading).toBe(false);
       expect(store.error).toBeNull();
+      expect(mockFetchLaunchPoints).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'all', categories: [] }),
+        'mock-token'
+      );
     });
 
     it('should handle fetch errors', async () =>
     {
-      (fetch as any).mockResolvedValueOnce({
-        ok: false
-      });
+      mockFetchLaunchPoints.mockRejectedValueOnce(new Error('Fehler beim Laden der Einsetzpunkte'));
 
       const store = useLaunchPointsStore();
       await store.fetchLaunchPoints();
@@ -73,16 +84,13 @@ describe('LaunchPointsStore Integration', () =>
   {
     it('should update filter and refetch points', async () =>
     {
-      (fetch as any).mockResolvedValue({
-        ok: true,
-        json: async () => []
-      });
+      mockFetchLaunchPoints.mockResolvedValue([]);
 
       const store = useLaunchPointsStore();
       store.setFilter({ type: 'mine' });
 
       expect(store.filter.type).toBe('mine');
-      expect(fetch).toHaveBeenCalled();
+      expect(mockFetchLaunchPoints).toHaveBeenCalled();
     });
   });
 
@@ -90,18 +98,14 @@ describe('LaunchPointsStore Integration', () =>
   {
     it('should toggle category in filter', async () =>
     {
-      (fetch as any).mockResolvedValue({
-        ok: true,
-        json: async () => []
-      });
+      mockFetchLaunchPoints.mockResolvedValue([]);
 
       const store = useLaunchPointsStore();
-      const categoryId = 1; // Use category ID (number) instead of name
+      const categoryId = 1;
       store.toggleCategory(categoryId);
 
       expect(store.filter.categories).toContain(categoryId);
-      expect(fetch).toHaveBeenCalled();
+      expect(mockFetchLaunchPoints).toHaveBeenCalled();
     });
   });
 });
-

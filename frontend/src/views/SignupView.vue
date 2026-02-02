@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
+import ErrorBanner from '../components/ErrorBanner.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -11,6 +12,13 @@ const username = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 const localError = ref('');
+
+const signupError = computed(() => localError.value || authStore.error || null);
+
+function clearSignupError(): void {
+  localError.value = '';
+  authStore.error = null;
+}
 
 async function handleSubmit() {
   localError.value = '';
@@ -33,7 +41,14 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="auth-container">
+  <div class="auth-page">
+    <ErrorBanner
+      v-if="signupError"
+      :message="signupError"
+      :dismissible="true"
+      @dismiss="clearSignupError"
+    />
+    <div class="auth-container">
     <div class="auth-card">
       <div class="auth-header">
         <div class="auth-logo">
@@ -96,10 +111,6 @@ async function handleSubmit() {
           />
         </div>
         
-        <div v-if="localError || authStore.error" class="auth-error-message">
-          {{ localError || authStore.error }}
-        </div>
-        
         <button type="submit" class="auth-btn-primary" :disabled="authStore.loading">
           <span v-if="authStore.loading">Laden...</span>
           <span v-else>Registrieren</span>
@@ -112,7 +123,19 @@ async function handleSubmit() {
     </div>
     
     <div class="water-bg"></div>
+    </div>
   </div>
 </template>
 
 <style src="../assets/auth.css"></style>
+<style scoped>
+.auth-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+.auth-page .auth-container {
+  flex: 1;
+}
+</style>

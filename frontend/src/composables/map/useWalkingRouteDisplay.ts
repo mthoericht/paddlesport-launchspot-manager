@@ -49,6 +49,7 @@ export function useWalkingRouteDisplay(options: UseWalkingRouteDisplayOptions)
     distance: walkingDistance, 
     duration: walkingDuration, 
     isLoading: walkingRouteLoading, 
+    error: walkingRouteError,
     fetchWalkingRoute, 
     clearRoute: clearWalkingRoute 
   } = useWalkingRoute();
@@ -195,7 +196,8 @@ export function useWalkingRouteDisplay(options: UseWalkingRouteDisplayOptions)
     walkingDuration,
     walkingRouteLoading,
     walkingRouteTarget,
-    
+    walkingRouteError,
+
     // Actions
     showWalkingRoute,
     showWalkingRouteToLaunchpoint,

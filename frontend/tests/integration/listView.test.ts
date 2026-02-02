@@ -4,8 +4,15 @@ import { useLaunchPointsStore } from '@/stores/launchPoints';
 import { useAuthStore } from '@/stores/auth';
 import type { LaunchPoint } from '@/types';
 
-// Mock fetch
-globalThis.fetch = vi.fn();
+const mockFetchLaunchPoints = vi.fn();
+
+vi.mock('@/api/launchPoints', () => ({
+  fetchLaunchPoints: (...args: unknown[]) => mockFetchLaunchPoints(...args),
+  fetchLaunchPoint: vi.fn(),
+  createLaunchPoint: vi.fn(),
+  updateLaunchPoint: vi.fn(),
+  deleteLaunchPoint: vi.fn()
+}));
 
 describe('List View Integration', () =>
 {
@@ -13,7 +20,7 @@ describe('List View Integration', () =>
   {
     setActivePinia(createPinia());
     vi.clearAllMocks();
-    
+
     // Setup auth store with token
     const authStore = useAuthStore();
     authStore.token = 'mock-token';
@@ -64,10 +71,7 @@ describe('List View Integration', () =>
         }
       ];
 
-      (fetch as any).mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockPoints
-      });
+      mockFetchLaunchPoints.mockResolvedValueOnce(mockPoints);
 
       const store = useLaunchPointsStore();
       await store.fetchLaunchPoints();
@@ -100,10 +104,7 @@ describe('List View Integration', () =>
         }
       ];
 
-      (fetch as any).mockResolvedValue({
-        ok: true,
-        json: async () => mockPoints
-      });
+      mockFetchLaunchPoints.mockResolvedValue(mockPoints);
 
       const store = useLaunchPointsStore();
       store.setFilter({ type: 'mine' });
@@ -136,20 +137,17 @@ describe('List View Integration', () =>
         created_at: '2024-01-01T00:00:00Z'
       };
 
-      (fetch as any).mockResolvedValueOnce({
-        ok: true,
-        json: async () => [mockPoint]
-      });
+      mockFetchLaunchPoints.mockResolvedValueOnce([mockPoint]);
 
       const store = useLaunchPointsStore();
       await store.fetchLaunchPoints();
 
       const point = store.launchPoints[0];
-      
+
       // Verify point exists
       expect(point).toBeDefined();
       if (!point) return;
-      
+
       // Verify all fields needed for list view
       expect(point).toHaveProperty('id');
       expect(point).toHaveProperty('name');
@@ -161,7 +159,7 @@ describe('List View Integration', () =>
       expect(point).toHaveProperty('opening_hours');
       expect(point).toHaveProperty('hints');
       expect(point).toHaveProperty('public_transport_stations');
-      
+
       // Verify values
       expect(point.name).toBe('Test Point');
       expect(point.categories).toEqual(['Kajak', 'SUP']);
@@ -193,20 +191,17 @@ describe('List View Integration', () =>
         created_at: '2024-01-01T00:00:00Z'
       };
 
-      (fetch as any).mockResolvedValueOnce({
-        ok: true,
-        json: async () => [mockPoint]
-      });
+      mockFetchLaunchPoints.mockResolvedValueOnce([mockPoint]);
 
       const store = useLaunchPointsStore();
       await store.fetchLaunchPoints();
 
       const point = store.launchPoints[0];
-      
+
       // Verify point exists
       expect(point).toBeDefined();
       if (!point) return;
-      
+
       // Should handle null values gracefully
       expect(point.hints).toBeNull();
       expect(point.parking_options).toBeNull();
@@ -235,10 +230,7 @@ describe('List View Integration', () =>
         created_at: '2024-01-01T00:00:00Z'
       };
 
-      (fetch as any).mockResolvedValueOnce({
-        ok: true,
-        json: async () => [mockPoint]
-      });
+      mockFetchLaunchPoints.mockResolvedValueOnce([mockPoint]);
 
       const store = useLaunchPointsStore();
       await store.fetchLaunchPoints();
@@ -247,4 +239,3 @@ describe('List View Integration', () =>
     });
   });
 });
-

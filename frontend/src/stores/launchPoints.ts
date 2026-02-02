@@ -2,17 +2,21 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { LaunchPoint, LaunchPointFormData, FilterState } from '../types';
 import { useAuthStore } from './auth';
-import { API_BASE_URL } from '../config/api';
+import {
+  fetchLaunchPoints as apiFetchLaunchPoints,
+  fetchLaunchPoint as apiFetchLaunchPoint,
+  createLaunchPoint as apiCreateLaunchPoint,
+  updateLaunchPoint as apiUpdateLaunchPoint,
+  deleteLaunchPoint as apiDeleteLaunchPoint
+} from '../api/launchPoints';
 
-const API_URL = `${API_BASE_URL}/api`;
-
-export const useLaunchPointsStore = defineStore('launchPoints', () => 
+export const useLaunchPointsStore = defineStore('launchPoints', () =>
 {
   const launchPoints = ref<LaunchPoint[]>([]);
   const selectedPoint = ref<LaunchPoint | null>(null);
   const loading = ref(false);
   const error = ref<string | null>(null);
-  
+
   const filter = ref<FilterState>({
     type: 'all',
     categories: []
@@ -20,220 +24,138 @@ export const useLaunchPointsStore = defineStore('launchPoints', () =>
 
   const authStore = useAuthStore();
 
-  function getAuthHeaders() 
-  {
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${authStore.token}`
-    };
-  }
-
-  async function fetchLaunchPoints() 
+  async function fetchLaunchPoints()
   {
     loading.value = true;
     error.value = null;
-    
-    try 
+
+    try
     {
-      const params = new URLSearchParams();
-      
-      if (filter.value.type === 'mine') 
-      {
-        params.append('filter', 'mine');
-      }
-      else if (filter.value.type === 'official') 
-      {
-        params.append('filter', 'official');
-      }
-      else if (filter.value.type === 'user' && filter.value.username) 
-      {
-        params.append('filter', 'user');
-        params.append('username', filter.value.username);
-      }
-      
-      if (filter.value.categories.length > 0) 
-      {
-        params.append('categories', filter.value.categories.map(String).join(','));
-      }
-      
-      const response = await fetch(`${API_URL}/launch-points?${params}`, {
-        headers: getAuthHeaders()
-      });
-      
-      if (!response.ok) 
-      {
-        throw new Error('Fehler beim Laden der Einsetzpunkte');
-      }
-      
-      launchPoints.value = await response.json();
+      launchPoints.value = await apiFetchLaunchPoints(filter.value, authStore.token);
     }
-    catch (err: unknown) 
+    catch (err: unknown)
     {
       const errorMessage = err instanceof Error ? err.message : String(err);
       error.value = errorMessage;
     }
-    finally 
+    finally
     {
       loading.value = false;
     }
   }
 
-  async function fetchLaunchPoint(id: number) 
+  async function fetchLaunchPoint(id: number)
   {
     loading.value = true;
     error.value = null;
-    
-    try 
+
+    try
     {
-      const response = await fetch(`${API_URL}/launch-points/${id}`, {
-        headers: getAuthHeaders()
-      });
-      
-      if (!response.ok) 
-      {
-        throw new Error('Einsetzpunkt nicht gefunden');
-      }
-      
-      selectedPoint.value = await response.json();
+      selectedPoint.value = await apiFetchLaunchPoint(id, authStore.token);
       return selectedPoint.value;
     }
-    catch (err: unknown) 
+    catch (err: unknown)
     {
       const errorMessage = err instanceof Error ? err.message : String(err);
       error.value = errorMessage;
       return null;
     }
-    finally 
+    finally
     {
       loading.value = false;
     }
   }
 
-  async function createLaunchPoint(data: LaunchPointFormData) 
+  async function createLaunchPoint(data: LaunchPointFormData)
   {
     loading.value = true;
     error.value = null;
-    
-    try 
+
+    try
     {
-      const response = await fetch(`${API_URL}/launch-points`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data)
-      });
-      
-      const result = await response.json();
-      
-      if (!response.ok) 
-      {
-        throw new Error(result.error || 'Fehler beim Erstellen');
-      }
-      
+      const result = await apiCreateLaunchPoint(data, authStore.token);
       await fetchLaunchPoints();
       return result.id;
     }
-    catch (err: unknown) 
+    catch (err: unknown)
     {
       const errorMessage = err instanceof Error ? err.message : String(err);
       error.value = errorMessage;
       return null;
     }
-    finally 
+    finally
     {
       loading.value = false;
     }
   }
 
-  async function updateLaunchPoint(id: number, data: LaunchPointFormData) 
+  async function updateLaunchPoint(id: number, data: LaunchPointFormData)
   {
     loading.value = true;
     error.value = null;
-    
-    try 
+
+    try
     {
-      const response = await fetch(`${API_URL}/launch-points/${id}`, {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data)
-      });
-      
-      const result = await response.json();
-      
-      if (!response.ok) 
-      {
-        throw new Error(result.error || 'Fehler beim Aktualisieren');
-      }
-      
+      await apiUpdateLaunchPoint(id, data, authStore.token);
       await fetchLaunchPoints();
       return true;
     }
-    catch (err: unknown) 
+    catch (err: unknown)
     {
       const errorMessage = err instanceof Error ? err.message : String(err);
       error.value = errorMessage;
       return false;
     }
-    finally 
+    finally
     {
       loading.value = false;
     }
   }
 
-  async function deleteLaunchPoint(id: number) 
+  async function deleteLaunchPoint(id: number)
   {
     loading.value = true;
     error.value = null;
-    
-    try 
+
+    try
     {
-      const response = await fetch(`${API_URL}/launch-points/${id}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders()
-      });
-      
-      const result = await response.json();
-      
-      if (!response.ok) 
-      {
-        throw new Error(result.error || 'Fehler beim Löschen');
-      }
-      
+      await apiDeleteLaunchPoint(id, authStore.token);
       await fetchLaunchPoints();
       return true;
     }
-    catch (err: unknown) 
+    catch (err: unknown)
     {
       const errorMessage = err instanceof Error ? err.message : String(err);
       error.value = errorMessage;
       return false;
     }
-    finally 
+    finally
     {
       loading.value = false;
     }
   }
 
-  function setFilter(newFilter: Partial<FilterState>) 
+  function setFilter(newFilter: Partial<FilterState>)
   {
     filter.value = { ...filter.value, ...newFilter };
     fetchLaunchPoints();
   }
 
-  function toggleCategory(categoryId: number) 
+  function toggleCategory(categoryId: number)
   {
     const index = filter.value.categories.indexOf(categoryId);
-    if (index === -1) 
+    if (index === -1)
     {
       filter.value.categories.push(categoryId);
     }
-    else 
+    else
     {
       filter.value.categories.splice(index, 1);
     }
     fetchLaunchPoints();
   }
 
-  function clearFilters() 
+  function clearFilters()
   {
     filter.value = { type: 'all', categories: [] };
     fetchLaunchPoints();
@@ -255,4 +177,3 @@ export const useLaunchPointsStore = defineStore('launchPoints', () =>
     clearFilters
   };
 });
-

@@ -178,7 +178,7 @@ describe('useWalkingRoute', () =>
       const { fetchWalkingRoute, error } = useWalkingRoute();
       await fetchWalkingRoute(52.5200, 13.4050, 52.5220, 13.4070);
 
-      expect(error.value).toBe('HTTP error: 500');
+      expect(error.value).toBe('Routenservice vorübergehend nicht erreichbar.');
     });
 
     it('should set error when OSRM returns non-Ok code', async () =>
@@ -191,7 +191,7 @@ describe('useWalkingRoute', () =>
       const { fetchWalkingRoute, error } = useWalkingRoute();
       await fetchWalkingRoute(52.5200, 13.4050, 52.5220, 13.4070);
 
-      expect(error.value).toBe('No route found');
+      expect(error.value).toBe('Keine Fußweg-Route gefunden.');
     });
 
     it('should set error when no routes in response', async () =>
@@ -204,7 +204,7 @@ describe('useWalkingRoute', () =>
       const { fetchWalkingRoute, error } = useWalkingRoute();
       await fetchWalkingRoute(52.5200, 13.4050, 52.5220, 13.4070);
 
-      expect(error.value).toBe('No route found');
+      expect(error.value).toBe('Keine Fußweg-Route gefunden.');
     });
 
     it('should set error on network failure', async () =>
@@ -244,7 +244,7 @@ describe('useWalkingRoute', () =>
       const { fetchWalkingRoute, error } = useWalkingRoute();
       await fetchWalkingRoute(52.5200, 13.4050, 52.5220, 13.4070);
 
-      expect(error.value).toBe('Unknown error');
+      expect(error.value).toBe('Fehler beim Laden der Route.');
     });
   });
 

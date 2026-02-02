@@ -16,8 +16,10 @@ const categoriesStore = useCategoriesStore();
 
 const users = ref<{ id: number; username: string }[]>([]);
 const selectedUsername = ref(launchPointsStore.filter.username || '');
+const usersError = ref<string | null>(null);
 
 async function fetchUsers() {
+  usersError.value = null;
   try {
     const response = await fetch(`${API_BASE_URL}/api/auth/users`, {
       headers: { 'Authorization': `Bearer ${authStore.token}` }
@@ -25,7 +27,22 @@ async function fetchUsers() {
     if (response.ok) {
       users.value = await response.json();
     }
-  } catch (error) {
+    else
+    {
+      try
+      {
+        const data = await response.json();
+        usersError.value = (data as { error?: string }).error || 'Fehler beim Laden der Benutzerliste.';
+      }
+      catch
+      {
+        usersError.value = 'Fehler beim Laden der Benutzerliste.';
+      }
+    }
+  }
+  catch (error)
+  {
+    usersError.value = 'Verbindungsfehler. Bitte später erneut versuchen.';
     console.error('Failed to fetch users:', error);
   }
 }
@@ -146,6 +163,19 @@ onMounted(async () => {
             {{ user.username }}
           </option>
         </select>
+        <div 
+          v-if="launchPointsStore.filter.type === 'user' && usersError" 
+          class="mt-2 py-2 px-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-xs"
+        >
+          {{ usersError }}
+          <button 
+            type="button" 
+            class="block mt-1 text-red-600 font-medium hover:underline"
+            @click="fetchUsers"
+          >
+            Erneut versuchen
+          </button>
+        </div>
       </div>
       
       <div class="mb-6 last:mb-0">

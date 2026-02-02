@@ -17,6 +17,12 @@ const launchPointsStore = useLaunchPointsStore();
 const categoriesStore = useCategoriesStore();
 const { openNavigation } = useMapNavigation();
 
+async function retryFetch(): Promise<void>
+{
+  launchPointsStore.error = null;
+  await launchPointsStore.fetchLaunchPoints();
+}
+
 function handleShowOnMap(point: LaunchPoint) {
   emit('show-on-map', point);
 }
@@ -36,6 +42,28 @@ function handleOpenDetail(point: LaunchPoint) {
     </div>
     
     <div class="flex-1 overflow-y-auto p-3">
+      <div 
+        v-if="launchPointsStore.error" 
+        class="flex flex-col items-center justify-center py-12 px-4 gap-4 text-center"
+      >
+        <p class="text-red-500 text-sm font-medium m-0">{{ launchPointsStore.error }}</p>
+        <button 
+          type="button"
+          class="px-4 py-2 rounded-xl bg-primary text-white text-sm font-semibold border-none cursor-pointer transition-all hover:opacity-90"
+          :disabled="launchPointsStore.loading"
+          @click="retryFetch"
+        >
+          {{ launchPointsStore.loading ? 'Laden...' : 'Erneut versuchen' }}
+        </button>
+      </div>
+      <div 
+        v-else-if="launchPointsStore.loading"
+        class="flex flex-col items-center justify-center py-12 px-4 text-text-muted"
+      >
+        <div class="w-8 h-8 border-2 border-border border-t-primary rounded-full animate-spin mb-3"></div>
+        <p class="m-0 text-sm">Laden...</p>
+      </div>
+      <template v-else>
       <div 
         v-for="point in launchPointsStore.launchPoints" 
         :key="point.id"
@@ -121,9 +149,13 @@ function handleOpenDetail(point: LaunchPoint) {
         </div>
       </div>
       
-      <div v-if="launchPointsStore.launchPoints.length === 0" class="flex items-center justify-center py-12 px-4 text-text-muted text-center">
+      <div 
+        v-if="launchPointsStore.launchPoints.length === 0" 
+        class="flex items-center justify-center py-12 px-4 text-text-muted text-center"
+      >
         <p class="m-0 text-[0.9375rem]">Keine Einsetzpunkte gefunden</p>
       </div>
+      </template>
     </div>
   </div>
 </template>

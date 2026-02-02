@@ -1,11 +1,9 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { User } from '../types';
-import { API_BASE_URL } from '../config/api';
+import { login as apiLogin, signup as apiSignup, fetchCurrentUser } from '../api/auth';
 
-const API_URL = `${API_BASE_URL}/api`;
-
-export const useAuthStore = defineStore('auth', () => 
+export const useAuthStore = defineStore('auth', () =>
 {
   const user = ref<User | null>(null);
   const token = ref<string | null>(localStorage.getItem('token'));
@@ -15,110 +13,74 @@ export const useAuthStore = defineStore('auth', () =>
   const isAuthenticated = computed(() => !!token.value && !!user.value);
   const isAdmin = computed(() => user.value?.is_admin ?? false);
 
-  async function signup(email: string, username: string, password: string) 
+  async function signup(email: string, username: string, password: string)
   {
     loading.value = true;
     error.value = null;
-    
-    try 
+
+    try
     {
-      const response = await fetch(`${API_URL}/auth/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, username, password })
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) 
-      {
-        throw new Error(data.error || 'Registrierung fehlgeschlagen');
-      }
-      
+      const data = await apiSignup(email, username, password);
       token.value = data.token;
       user.value = data.user;
       localStorage.setItem('token', data.token);
-      
       return true;
     }
-    catch (err: unknown) 
+    catch (err: unknown)
     {
       const errorMessage = err instanceof Error ? err.message : String(err);
       error.value = errorMessage;
       return false;
     }
-    finally 
+    finally
     {
       loading.value = false;
     }
   }
 
-  async function login(email: string, password: string) 
+  async function login(email: string, password: string)
   {
     loading.value = true;
     error.value = null;
-    
-    try 
+
+    try
     {
-      const response = await fetch(`${API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) 
-      {
-        throw new Error(data.error || 'Login fehlgeschlagen');
-      }
-      
+      const data = await apiLogin(email, password);
       token.value = data.token;
       user.value = data.user;
       localStorage.setItem('token', data.token);
-      
       return true;
     }
-    catch (err: unknown) 
+    catch (err: unknown)
     {
       const errorMessage = err instanceof Error ? err.message : String(err);
       error.value = errorMessage;
       return false;
     }
-    finally 
+    finally
     {
       loading.value = false;
     }
   }
 
-  async function fetchCurrentUser() 
+  async function fetchCurrentUserIfAuthenticated()
   {
     if (!token.value) return false;
-    
-    try 
+
+    try
     {
-      const response = await fetch(`${API_URL}/auth/me`, {
-        headers: { 'Authorization': `Bearer ${token.value}` }
-      });
-      
-      if (!response.ok) 
-      {
-        logout();
-        return false;
-      }
-      
-      const data = await response.json();
+      const data = await fetchCurrentUser(token.value);
       user.value = data.user;
       return true;
     }
-    catch 
+    catch
     {
       logout();
       return false;
     }
   }
 
-  function logout() 
+  function logout()
   {
     token.value = null;
     user.value = null;
@@ -134,8 +96,7 @@ export const useAuthStore = defineStore('auth', () =>
     isAdmin,
     signup,
     login,
-    fetchCurrentUser,
+    fetchCurrentUser: fetchCurrentUserIfAuthenticated,
     logout
   };
 });
-

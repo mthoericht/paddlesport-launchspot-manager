@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch, onBeforeUnmount, nextTick } from 'vue';
+import { onMounted, onUnmounted, ref, watch, onBeforeUnmount, nextTick, computed } from 'vue';
 import { LMap, LTileLayer } from '@vue-leaflet/vue-leaflet';
 import { useLaunchPointsStore } from '../stores/launchPoints';
 import { usePublicTransportStore } from '../stores/publicTransport';
@@ -9,6 +9,7 @@ import { useNearbyPopupState, useWalkingRouteDisplay, useMapQueryParams } from '
 import FilterPanel from '../components/FilterPanel.vue';
 import AppHeader from '../components/AppHeader.vue';
 import LaunchPointListView from '../components/LaunchPointListView.vue';
+import ErrorBanner from '../components/ErrorBanner.vue';
 import type { LaunchPoint } from '../types';
 
 // Map layer components
@@ -50,11 +51,33 @@ const {
   walkingDuration,
   walkingRouteLoading,
   walkingRouteTarget,
+  walkingRouteError,
   showWalkingRoute,
   showWalkingRouteToLaunchpoint,
   showWalkingRouteFromQuery,
   handleCloseWalkingRoute
 } = useWalkingRouteDisplay({ mapRef, walkingRouteLayerRef });
+
+// Aggregated error for banner (first error wins)
+const mapViewError = computed(() =>
+  launchPointsStore.error ||
+  publicTransportStore.error ||
+  categoriesStore.error ||
+  walkingRouteError.value ||
+  searchError.value ||
+  positionError.value ||
+  null
+);
+
+function clearMapViewErrors(): void
+{
+  launchPointsStore.error = null;
+  publicTransportStore.error = null;
+  categoriesStore.error = null;
+  handleCloseWalkingRoute();
+  searchError.value = '';
+  positionError.value = null;
+}
 
 // Map view interactions composable
 const {
@@ -278,6 +301,12 @@ onUnmounted(() =>
 
 <template>
   <div class="flex flex-col h-screen h-dvh bg-bg-primary">
+    <ErrorBanner
+      v-if="mapViewError"
+      :message="mapViewError"
+      :dismissible="true"
+      @dismiss="clearMapViewErrors"
+    />
     <AppHeader 
       :show-list="showListView"
       :show-filter="showFilterPanel"
@@ -315,7 +344,6 @@ onUnmounted(() =>
               <span v-else class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
             </button>
           </div>
-          <div v-if="searchError" class="mt-2 py-2 px-4 bg-red-50 text-red-600 rounded-lg text-sm text-center">{{ searchError }}</div>
         </div>
         
         <LMap 

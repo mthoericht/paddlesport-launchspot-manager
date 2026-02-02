@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, computed } from 'vue';
 import { LMap, LTileLayer, LMarker } from '@vue-leaflet/vue-leaflet';
 import { useLaunchPointForm } from '../composables';
 import { useCategoriesStore } from '../stores/categories';
+import { useLaunchPointsStore } from '../stores/launchPoints';
+import ErrorBanner from '../components/ErrorBanner.vue';
 
 // Composables
 const {
@@ -25,6 +27,14 @@ const {
 } = useLaunchPointForm();
 
 const categoriesStore = useCategoriesStore();
+const launchPointsStore = useLaunchPointsStore();
+
+const formError = computed(() => localError.value || storeError.value || null);
+
+function clearFormErrors(): void {
+  localError.value = '';
+  launchPointsStore.error = null;
+}
 
 onMounted(async () => {
   await categoriesStore.fetchCategories();
@@ -34,6 +44,12 @@ onMounted(async () => {
 
 <template>
   <div class="min-h-screen min-h-dvh bg-bg-primary">
+    <ErrorBanner
+      v-if="formError"
+      :message="formError"
+      :dismissible="true"
+      @dismiss="clearFormErrors"
+    />
     <header class="flex items-center gap-4 px-6 py-4 bg-bg-card border-b border-border sticky top-0 z-10">
       <button 
         class="flex items-center justify-center w-10 h-10 rounded-xl bg-bg-secondary border border-border text-text-primary cursor-pointer transition-all duration-200 hover:bg-bg-hover" 
@@ -208,13 +224,6 @@ onMounted(async () => {
             </button>
           </li>
         </ul>
-      </div>
-      
-      <div 
-        v-if="localError || storeError" 
-        class="py-3 px-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm mb-6"
-      >
-        {{ localError || storeError }}
       </div>
       
       <div class="flex gap-4 justify-end max-sm:flex-col-reverse">

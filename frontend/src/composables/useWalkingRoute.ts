@@ -58,7 +58,7 @@ export function useWalkingRoute()
 
       if (!response.ok)
       {
-        throw new Error(`HTTP error: ${response.status}`);
+        throw new Error('Routenservice vorübergehend nicht erreichbar.');
       }
 
       const data: OSRMResponse = await response.json();
@@ -66,7 +66,7 @@ export function useWalkingRoute()
       const routeData = data.routes?.[0];
       if (data.code !== 'Ok' || !routeData)
       {
-        throw new Error('No route found');
+        throw new Error('Keine Fußweg-Route gefunden.');
       }
       
       route.value = routeData.geometry.coordinates.map(
@@ -77,7 +77,14 @@ export function useWalkingRoute()
     }
     catch (err)
     {
-      error.value = err instanceof Error ? err.message : 'Unknown error';
+      if (err instanceof TypeError && (err.message === 'Failed to fetch' || err.message.includes('fetch')))
+      {
+        error.value = 'Verbindungsfehler. Bitte prüfe deine Internetverbindung.';
+      }
+      else
+      {
+        error.value = err instanceof Error ? err.message : 'Fehler beim Laden der Route.';
+      }
       route.value = [];
       distance.value = 0;
       duration.value = 0;

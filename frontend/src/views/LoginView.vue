@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
+import ErrorBanner from '../components/ErrorBanner.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -15,10 +16,21 @@ async function handleSubmit() {
     router.push('/map');
   }
 }
+
+function clearAuthError(): void {
+  authStore.error = null;
+}
 </script>
 
 <template>
-  <div class="auth-container">
+  <div class="auth-page">
+    <ErrorBanner
+      v-if="authStore.error"
+      :message="authStore.error"
+      :dismissible="true"
+      @dismiss="clearAuthError"
+    />
+    <div class="auth-container">
     <div class="auth-card">
       <div class="auth-header">
         <div class="auth-logo">
@@ -57,10 +69,6 @@ async function handleSubmit() {
           />
         </div>
         
-        <div v-if="authStore.error" class="auth-error-message">
-          {{ authStore.error }}
-        </div>
-        
         <button type="submit" class="auth-btn-primary" :disabled="authStore.loading">
           <span v-if="authStore.loading">Laden...</span>
           <span v-else>Anmelden</span>
@@ -73,7 +81,19 @@ async function handleSubmit() {
     </div>
     
     <div class="water-bg"></div>
+    </div>
   </div>
 </template>
 
 <style src="../assets/auth.css"></style>
+<style scoped>
+.auth-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+.auth-page .auth-container {
+  flex: 1;
+}
+</style>

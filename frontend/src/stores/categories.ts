@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { CategoryInfo } from '../types';
 import { useAuthStore } from './auth';
-import { API_BASE_URL } from '../config/api';
+import { fetchCategories as apiFetchCategories } from '../api/launchPoints';
 
 // Default colors for known categories (for backward compatibility)
 const DEFAULT_CATEGORY_COLORS: Record<string, string> = {
@@ -37,14 +37,14 @@ function generateCategoryColor(categoryName: string | undefined): string
   {
     return COLOR_PALETTE[0] ?? FALLBACK_COLOR;
   }
-  
+
   // Use default color if available
   const defaultColor = DEFAULT_CATEGORY_COLORS[categoryName];
   if (defaultColor)
   {
     return defaultColor;
   }
-  
+
   // Generate a consistent color based on category name hash
   let hash = 0;
   for (let i = 0; i < categoryName.length; i++)
@@ -58,7 +58,7 @@ function generateCategoryColor(categoryName: string | undefined): string
 export const useCategoriesStore = defineStore('categories', () =>
 {
   const authStore = useAuthStore();
-  
+
   // State
   const categories = ref<CategoryInfo[]>([]);
   const loading = ref(false);
@@ -146,19 +146,7 @@ export const useCategoriesStore = defineStore('categories', () =>
 
     try
     {
-      const response = await fetch(`${API_BASE_URL}/api/launch-points/categories`, {
-        headers: {
-          'Authorization': `Bearer ${authStore.token}`
-        }
-      });
-
-      if (!response.ok)
-      {
-        throw new Error('Fehler beim Laden der Kategorien');
-      }
-
-      const data: CategoryInfo[] = await response.json();
-      categories.value = data;
+      categories.value = await apiFetchCategories(authStore.token);
       hasFetched.value = true;
     }
     catch (err: unknown)
@@ -195,16 +183,16 @@ export const useCategoriesStore = defineStore('categories', () =>
     loading,
     error,
     hasFetched,
-    
+
     // Computed
     categoryColors,
-    
+
     // Getters
     getCategoryById,
     getCategoryByName,
     getCategoryColor,
     getCategoryIcon,
-    
+
     // Actions
     toggleCategory,
     fetchCategories,

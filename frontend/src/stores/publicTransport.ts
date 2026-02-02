@@ -1,31 +1,22 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type { PublicTransportPoint } from '../types';
-import { API_BASE_URL } from '../config/api';
+import { fetchPublicTransportPoints } from '../api/publicTransport';
 
-const API_URL = `${API_BASE_URL}/api`;
-
-export const usePublicTransportStore = defineStore('publicTransport', () => 
+export const usePublicTransportStore = defineStore('publicTransport', () =>
 {
   const publicTransportPoints = ref<PublicTransportPoint[]>([]);
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-  async function fetchPublicTransportPoints() 
+  async function fetchPublicTransportPointsAction()
   {
     loading.value = true;
     error.value = null;
-    
-    try 
+
+    try
     {
-      const response = await fetch(`${API_URL}/public-transport`);
-      
-      if (!response.ok) 
-      {
-        throw new Error('Fehler beim Laden der ÖPNV-Stationen');
-      }
-      
-      publicTransportPoints.value = await response.json();
+      publicTransportPoints.value = await fetchPublicTransportPoints();
     }
     catch (err: unknown)
     {
@@ -33,7 +24,7 @@ export const usePublicTransportStore = defineStore('publicTransport', () =>
       error.value = errorMessage;
       console.error('Error fetching public transport points:', errorMessage);
     }
-    finally 
+    finally
     {
       loading.value = false;
     }
@@ -43,6 +34,6 @@ export const usePublicTransportStore = defineStore('publicTransport', () =>
     publicTransportPoints,
     loading,
     error,
-    fetchPublicTransportPoints
+    fetchPublicTransportPoints: fetchPublicTransportPointsAction
   };
 });

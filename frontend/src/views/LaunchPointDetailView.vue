@@ -6,6 +6,7 @@ import { usePublicTransportStore } from '../stores/publicTransport';
 import { useAuthStore } from '../stores/auth';
 import { useMapNavigation, useNearbyStations } from '../composables';
 import { useCategoriesStore } from '../stores/categories';
+import ErrorBanner from '../components/ErrorBanner.vue';
 import type { NearbyStation } from '../composables';
 import type { PublicTransportType } from '../types';
 
@@ -90,6 +91,19 @@ function editPoint() {
   router.push(`/launch-point/${route.params.id}/edit`);
 }
 
+const detailViewError = computed(() =>
+  launchPointsStore.error ||
+  publicTransportStore.error ||
+  categoriesStore.error ||
+  null
+);
+
+function clearDetailViewErrors(): void {
+  launchPointsStore.error = null;
+  publicTransportStore.error = null;
+  categoriesStore.error = null;
+}
+
 onMounted(async () => {
   await categoriesStore.fetchCategories();
   await publicTransportStore.fetchPublicTransportPoints();
@@ -100,6 +114,12 @@ onMounted(async () => {
 
 <template>
   <div class="min-h-screen min-h-dvh bg-bg-primary">
+    <ErrorBanner
+      v-if="detailViewError"
+      :message="detailViewError"
+      :dismissible="true"
+      @dismiss="clearDetailViewErrors"
+    />
     <header class="flex items-center gap-4 px-6 py-4 bg-bg-card border-b border-border sticky top-0 z-10">
       <button 
         class="flex items-center justify-center w-10 h-10 rounded-xl bg-bg-secondary border border-border text-text-primary cursor-pointer transition-all duration-200 hover:bg-bg-hover"
@@ -290,7 +310,6 @@ onMounted(async () => {
     </div>
     
     <div class="flex flex-col items-center justify-center min-h-[50vh] gap-4 text-text-secondary" v-else-if="launchPointsStore.error">
-      <p>{{ launchPointsStore.error }}</p>
       <button 
         @click="goBack" 
         class="btn-primary px-6 py-3 text-white border-none rounded-xl font-semibold cursor-pointer transition-all duration-200 hover:-translate-y-px hover:shadow-lg"

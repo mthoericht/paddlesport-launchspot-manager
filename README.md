@@ -43,7 +43,7 @@ A full-stack web application for managing launch points for kayaking, canoeing, 
 - **Create, edit, delete** launch points
 - **Categories**: Kayak, SUP, Swimming, Relaxing (multi-select)
 - **Details**: Opening hours, parking, nearby waters, food supply, hints
-- **Public transport stations** (max 8) with distance
+- **Public transport stations** (max 5) with distance
 - **Navigation**: One-click route planning
 - **Permissions**: Only creators or admins can delete
 - **List view**: Browse all launch points in a scrollable list
@@ -77,6 +77,12 @@ A full-stack web application for managing launch points for kayaking, canoeing, 
 - **One-click access**: Walking route button (pedestrian icon) next to each nearby station
 - **External service**: Uses OpenStreetMap Germany OSRM routing (rate limits may apply)
 - **Seamless navigation**: Clicking "Walking route" in detail view navigates to map and shows route
+
+### ⚠️ Error Handling
+- **ErrorBanner** - Dismissible error banner for API/network errors
+- Used in MapView, Login, Signup, Detail, and Form views
+- Covers: launch points, public transport, categories, walking route, address search, GPS errors
+- FilterPanel and LaunchPointListView show inline errors with retry
 
 ### 🔍 Filters
 - All points, My points, Official points, By user
@@ -117,6 +123,13 @@ The map view is split into modular, reusable components located in `frontend/src
 | `WalkingRouteLayer.vue` | Walking route polyline with distance/duration info popup |
 | `MapControls.vue` | FAB buttons, context menu, and GPS error messages |
 
+**Other components** (`components/`):
+| Component | Description |
+|-----------|-------------|
+| `ErrorBanner.vue` | Dismissible error banner for API/network errors, used across views |
+| `FilterPanel.vue` | Filter sidebar (type, user, categories) with error display |
+| `LaunchPointListView.vue` | Scrollable list of launch points with error state and retry |
+
 This architecture provides:
 - **Separation of Concerns**: Each layer handles its own markers, popups, and styling
 - **Direct Navigation**: Popup components handle routing directly (no event bubbling for navigation)
@@ -137,7 +150,6 @@ The frontend uses Vue 3 Composition API with custom composables for reusable log
 - **`useNearbyLaunchpoints`** - Calculate nearby launch points from a station (uses shared geo utilities)
 - **`useNearby`** - Factory composable for creating nearby items logic (shared base for stations and launch points)
 - **`useMapViewInteractions`** - Map click handlers, context menu, search, map view persistence
-- **`useCategories`** - Category fetching and icon/color management
 - **`useAddressSearch`** - Address geocoding with Nominatim
 - **`useContextMenu`** - Context menu handling with smart delay logic:
   - Right-click: Immediate display
@@ -211,6 +223,23 @@ The frontend uses Vue 3 Composition API with custom composables for reusable log
   - `TypedPrismaClient` extends base PrismaClient with custom model delegates
   - Shared type definitions in `backend/types/point.ts`
   - No `as any` or `as unknown` assertions in production code
+
+### API Layer
+
+The frontend uses a dedicated **API layer** (`frontend/src/api/`) instead of calling `fetch` directly from stores:
+
+```
+frontend/src/api/
+├── client.ts         # Base fetch wrapper (apiRequest) with error handling
+├── auth.ts           # signup, login, fetchCurrentUser
+├── launchPoints.ts   # CRUD, fetchCategories
+├── publicTransport.ts
+└── index.ts          # Barrel export
+```
+
+- **Stores** call API modules; API modules handle HTTP (URLs, headers, JSON, errors)
+- **Network errors** (offline) show user-friendly message: "Verbindungsfehler. Bitte prüfe deine Internetverbindung."
+- **Token** passed as parameter to avoid circular store dependencies
 
 ### Shared Types
 
@@ -355,18 +384,22 @@ shared/
 
 The project uses **Vitest** with a multi-layered testing strategy:
 
-- **Unit Tests** (`frontend/tests/unit/`): Test composables in isolation
+- **Unit Tests** (`frontend/tests/unit/`): Test composables and API in isolation
+  - `api.test.ts` - API layer (auth, launchPoints, publicTransport)
   - `useMapState.test.ts` - Map state management
   - `useMapNavigation.test.ts` - Navigation functionality (points, stations, external navigation)
   - `useShowPointOnMap.test.ts` - "Show on map" feature with highlighting and station popup handling
   - `geo.test.ts` - Geographic utilities (Haversine distance, findNearby)
+  - `transport.test.ts` - Transport type utilities
   - `useNearbyStations.test.ts` - Nearby stations composable
   - `useNearbyLaunchpoints.test.ts` - Nearby launchpoints composable
-  - `useCategories.test.ts` - Category management
+  - `categoriesStore.test.ts` - Categories store (colors, icons, fetch)
   - `useGeolocation.test.ts` - GPS position tracking and error handling
+  - `useWalkingRoute.test.ts` - Walking route (OSRM) composable
 - **Frontend Integration** (`frontend/tests/integration/`): Test Pinia stores with mocked API
   - `authStore.test.ts` - Authentication store
   - `launchPointsStore.test.ts` - Launch points store
+  - `publicTransportStore.test.ts` - Public transport store
   - `listView.test.ts` - List view data handling
 - **Backend Integration** (`backend/tests/integration/`): Test API routes with real database
   - `auth.test.ts` - Authentication endpoints

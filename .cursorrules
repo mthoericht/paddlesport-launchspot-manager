@@ -9,6 +9,7 @@ The `AGENTS.md` file contains:
 - Code style guidelines
 - Available commands and scripts
 - Testing conventions
+- Error display (ErrorBanner component)
 - TypeScript and Vue.js best practices
 
 Before starting any task, review `AGENTS.md` to ensure your changes align with the project's conventions and architecture.
