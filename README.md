@@ -346,12 +346,18 @@ shared/
 | `npm run build` | Production build (TypeScript check + Vite build) |
 | `npm run preview` | Preview production build locally |
 
+### Storybook
+| Script | Description |
+|--------|-------------|
+| `npm run storybook` | Start Storybook for component development (http://localhost:6006) |
+| `npm run build-storybook` | Build Storybook for static deployment |
+
 ### Testing
 | Script | Description |
 |--------|-------------|
 | `npm run test` | Run all tests in watch mode |
 | `npm run test:ui` | Run tests with Vitest UI |
-| `npm run test:run` | Run all tests once (no watch) |
+| `npm run test:run` | Run all tests once (no watch) – includes Storybook story tests |
 | `npm run test:unit` | Run frontend unit tests only |
 | `npm run test:integration` | Run frontend integration tests only |
 | `npm run test:backend` | Run backend integration tests only |
@@ -390,10 +396,20 @@ shared/
 | `npm run parse:tables-public-transport-export` | Parse CSV to JSON (default: `scripts/external-data-preset/berlin-public-transport.csv`) |
 | `npm run import:publictransportStations` | Import to database (default: `scripts/external-data-preset/berlin-public-transport.json`) |
 
+## 📚 Storybook
+
+The project uses **Storybook** for component development:
+
+- **Stories** in `frontend/src/**/*.stories.ts` (components, views)
+- **Addons**: Vitest (run story tests), a11y (accessibility checks), Chromatic, Docs
+- **View stories** use `.storybook/StorybookRouterView.vue` with route-based navigation; decorators patch auth/categories; shared mocks in `.storybook/mocks.ts`
+- **Router**: Shared routes in `frontend/src/router/routes.ts`; Storybook uses `.storybook/router.ts` with memory history
+
 ## 🧪 Testing
 
 The project uses **Vitest** with a multi-layered testing strategy:
 
+- **Storybook tests**: Vitest addon runs story tests in Playwright (Chromium); see `.storybook/vitest.setup.ts`
 - **Unit Tests** (`frontend/tests/unit/`): Test composables and API in isolation
   - `api.test.ts` - API layer (auth, launchPoints, publicTransport)
   - `useMapState.test.ts` - Map state management
@@ -431,6 +447,7 @@ The test suite covers:
 - ✅ Nearby stations calculation (Haversine distance)
 - ✅ Mobile vs. desktop behavior
 - ✅ GPS position tracking, heading, speed, and error handling
+- ✅ Storybook story rendering (view components, map controls, popups, etc.)
 
 ## 🔐 API Endpoints
 
@@ -480,7 +497,7 @@ All endpoints are prefixed with `/api` (backend runs on port 3001).
 - **Theme switcher**: Toggle between Light, Dark, and Auto (system preference) modes
   - Accessible via user menu in header
   - Preference saved in localStorage
-- **Accessibility**: Semantic HTML and ARIA labels
+- **Accessibility**: Semantic HTML (`main`, `header`, `aside`, `section`), ARIA labels for icon buttons, skip link, `fieldset`/`legend` for form groups, `role="menu"` for dropdowns, `:focus-visible` for keyboard focus
 - **Mobile-first**: List view as overlay on mobile, side-by-side on desktop
 - **Smart UI**: Auto-hide elements (search, FAB button) when panels are open on mobile
 

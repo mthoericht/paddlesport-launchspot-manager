@@ -11,11 +11,12 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:run": "vitest run",
+    "test:run": "vitest run --project=main",
+    "test:storybook": "vitest run --project=storybook",
     "test:unit": "vitest run frontend/tests/unit",
     "test:integration": "vitest run frontend/tests/integration",
     "test:backend": "vitest run backend/tests",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "vitest run --project=main --coverage",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "db:push": "prisma db push",
@@ -30,7 +31,9 @@
     "parse:tables-launchpoints-export": "tsx scripts/parse-tables-launchpoints-export.ts",
     "parse:tables-public-transport-export": "tsx scripts/parse-tables-public-transport-export.ts",
     "import:external-launchpoints": "tsx scripts/import-external-launchpoints.ts",
-    "import:publictransportStations": "tsx scripts/import-external-public-transport.ts"
+    "import:publictransportStations": "tsx scripts/import-external-public-transport.ts",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@libsql/client": "^0.15.15",
@@ -82,6 +85,15 @@
     "vite": "^7.2.4",
     "vitest": "^4.0.16",
     "vue-eslint-parser": "^10.2.0",
-    "vue-tsc": "^3.1.4"
+    "vue-tsc": "^3.1.4",
+    "storybook": "^10.2.7",
+    "@storybook/vue3-vite": "^10.2.7",
+    "@chromatic-com/storybook": "^5.0.0",
+    "@storybook/addon-vitest": "^10.2.7",
+    "@storybook/addon-a11y": "^10.2.7",
+    "@storybook/addon-docs": "^10.2.7",
+    "@storybook/addon-onboarding": "^10.2.7",
+    "@vitest/browser-playwright": "^4.0.16",
+    "@vitest/coverage-v8": "^4.0.16"
   }
 }

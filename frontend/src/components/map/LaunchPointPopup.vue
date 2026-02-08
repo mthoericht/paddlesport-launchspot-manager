@@ -86,7 +86,7 @@ function handleOpenNavigation(): void
             <button 
               class="station-map-btn"
               @click="emit('show-station-on-map', station)"
-              title="Auf Karte anzeigen"
+              :aria-label="`${station.name} auf Karte anzeigen`"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
@@ -96,7 +96,7 @@ function handleOpenNavigation(): void
             <button 
               class="station-map-btn station-walk-btn"
               @click="emit('show-walking-route', station, point)"
-              title="Fußweg anzeigen"
+              :aria-label="`Fußweg von ${station.name} zum Einsetzpunkt anzeigen`"
               :disabled="walkingRouteLoading"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -116,7 +116,7 @@ function handleOpenNavigation(): void
     
     <div class="popup-actions">
       <button @click="openDetail" class="popup-btn">Details</button>
-      <button @click="handleOpenNavigation" class="popup-btn popup-btn-nav" title="Route starten">
+      <button @click="handleOpenNavigation" class="popup-btn popup-btn-nav" :aria-label="`Navigation zu ${point.name} starten`">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="3 11 22 2 13 21 11 13 3 11"/>
         </svg>

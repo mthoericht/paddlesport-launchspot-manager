@@ -54,6 +54,7 @@ onMounted(async () => {
       <button 
         class="flex items-center justify-center w-10 h-10 rounded-xl bg-bg-secondary border border-border text-text-primary cursor-pointer transition-all duration-200 hover:bg-bg-hover" 
         @click="goBack"
+        aria-label="Zurück"
       >
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
@@ -62,7 +63,8 @@ onMounted(async () => {
       <h1 class="font-display text-xl font-semibold text-text-primary">{{ isEdit ? 'Einsetzpunkt bearbeiten' : 'Neuer Einsetzpunkt' }}</h1>
     </header>
     
-    <form @submit.prevent="handleSubmit" class="max-w-[800px] mx-auto p-6">
+    <main class="p-6">
+    <form @submit.prevent="handleSubmit" class="max-w-[800px] mx-auto">
       <div class="bg-bg-card rounded-2xl p-6 mb-6 shadow-sm">
         <h2 class="font-display text-lg font-semibold text-text-primary mb-4">Grunddaten</h2>
         
@@ -78,9 +80,9 @@ onMounted(async () => {
           />
         </div>
         
-        <div class="mb-5 last:mb-0">
-          <label class="block text-sm font-medium text-text-secondary mb-2">Kategorien *</label>
-          <div class="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-3">
+        <fieldset class="mb-5 last:mb-0">
+          <legend class="block text-sm font-medium text-text-secondary mb-2">Kategorien *</legend>
+          <div class="grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-3" role="group" aria-label="Kategorien auswählen">
             <button 
               v-for="cat in categoriesStore.categories" 
               :key="cat.id" 
@@ -88,11 +90,12 @@ onMounted(async () => {
               class="flex items-center justify-center p-3 bg-bg-secondary border-2 border-border rounded-xl cursor-pointer transition-all duration-200 font-medium text-text-secondary hover:border-primary"
               :class="{ 'category-active': form.categories.includes(cat.id) }"
               @click="toggleCategory(cat.id)"
+              :aria-pressed="form.categories.includes(cat.id)"
             >
               {{ cat.name_de }}
             </button>
           </div>
-        </div>
+        </fieldset>
         
         <div class="mb-5 last:mb-0">
           <label for="opening_hours" class="block text-sm font-medium text-text-secondary mb-2">Öffnungszeiten</label>
@@ -188,6 +191,7 @@ onMounted(async () => {
             v-model="newStation.name" 
             type="text" 
             placeholder="Stationsname"
+            aria-label="Stationsname"
             class="flex-[2] py-3 px-4 border border-border rounded-xl bg-bg-secondary text-text-primary"
           />
           <input 
@@ -195,6 +199,7 @@ onMounted(async () => {
             type="number" 
             min="1"
             placeholder="Entfernung (m)"
+            aria-label="Entfernung in Metern"
             class="flex-1 py-3 px-4 border border-border rounded-xl bg-bg-secondary text-text-primary"
           />
           <button 
@@ -202,6 +207,7 @@ onMounted(async () => {
             @click="addStation"
             class="w-11 h-11 rounded-xl bg-primary text-white border-none text-2xl cursor-pointer flex items-center justify-center transition-all duration-200 hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
             :disabled="form.public_transport_stations.length >= 5"
+            aria-label="ÖPNV-Station hinzufügen"
           >
             +
           </button>
@@ -219,6 +225,7 @@ onMounted(async () => {
               type="button" 
               @click="removeStation(index)" 
               class="w-7 h-7 rounded-full bg-red-500/10 text-red-500 border-none text-xl cursor-pointer flex items-center justify-center transition-all duration-200 hover:bg-red-500 hover:text-white"
+              :aria-label="`${station.name} entfernen`"
             >
               ×
             </button>
@@ -244,6 +251,7 @@ onMounted(async () => {
         </button>
       </div>
     </form>
+    </main>
   </div>
 </template>
 

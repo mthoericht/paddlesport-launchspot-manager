@@ -30,7 +30,7 @@ function clearAuthError(): void {
       :dismissible="true"
       @dismiss="clearAuthError"
     />
-    <div class="auth-container">
+    <main class="auth-container">
     <div class="auth-card">
       <div class="auth-header">
         <div class="auth-logo">
@@ -81,7 +81,7 @@ function clearAuthError(): void {
     </div>
     
     <div class="water-bg"></div>
-    </div>
+    </main>
   </div>
 </template>
 

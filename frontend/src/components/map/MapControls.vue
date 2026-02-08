@@ -38,7 +38,7 @@ const hideOnMobile = computed(() => mapUiStore.showListView || mapUiStore.showFi
     class="fab gps-fab" 
     :class="{ 'hide-on-mobile': hideOnMobile }"
     @click="emit('center-on-position')" 
-    title="Auf meine Position zentrieren"
+    aria-label="Auf meine Position zentrieren"
     :disabled="isLocating"
   >
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -51,6 +51,7 @@ const hideOnMobile = computed(() => mapUiStore.showListView || mapUiStore.showFi
   <div 
     v-if="positionError && !currentPosition" 
     class="gps-error"
+    role="alert"
     :class="{ 'hide-on-mobile': hideOnMobile }"
   >
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="gps-error-icon">
@@ -66,7 +67,7 @@ const hideOnMobile = computed(() => mapUiStore.showListView || mapUiStore.showFi
     class="fab" 
     :class="{ 'hide-on-mobile': hideOnMobile }"
     @click="emit('add-new-point')" 
-    title="Neuen Einsetzpunkt hinzufügen"
+    aria-label="Neuen Einsetzpunkt hinzufügen"
   >
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <line x1="12" y1="5" x2="12" y2="19"/>
@@ -78,10 +79,11 @@ const hideOnMobile = computed(() => mapUiStore.showListView || mapUiStore.showFi
   <div 
     v-if="mapUiStore.showContextMenu" 
     class="context-menu"
+    role="menu"
     :style="{ left: mapUiStore.contextMenuPosition.x + 'px', top: mapUiStore.contextMenuPosition.y + 'px' }"
     @click.stop
   >
-    <button class="context-menu-item" @click="emit('add-point-at-context')">
+    <button class="context-menu-item" @click="emit('add-point-at-context')" role="menuitem">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
         <circle cx="12" cy="10" r="3"/>

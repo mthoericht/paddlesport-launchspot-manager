@@ -6,7 +6,7 @@ import vueParser from 'vue-eslint-parser';
 import globals from 'globals';
 
 export default [
-  { ignores: ['dist', 'node_modules', '**/node_modules/**', '**/dist/**'] },
+  { ignores: ['dist', 'node_modules', '**/node_modules/**', '**/dist/**', 'storybook-static/**'] },
   {
     files: ['**/*.{js,mjs,cjs,ts}'],
     languageOptions: {

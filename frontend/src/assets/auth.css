@@ -74,7 +74,7 @@
   @apply py-3.5 px-4 border border-border rounded-xl text-base bg-bg-secondary text-text-primary transition-all duration-200;
 }
 
-.auth-form .form-group input:focus {
+.auth-form .form-group input:focus-visible {
   @apply outline-none border-primary;
   box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
 }

@@ -1,0 +1,8 @@
+---
+description: Verweis auf AGENTS.md für Projekt-Konventionen
+alwaysApply: true
+---
+
+# Projekt-Richtlinien
+
+**ALWAYS read and follow the guidelines in `AGENTS.md` before making any changes or answering questions about this codebase.**

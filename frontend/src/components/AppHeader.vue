@@ -89,10 +89,10 @@ function getActiveFilterLabel() {
 </script>
 
 <template>
-  <header class="flex items-center justify-between px-4 py-3 bg-bg-card border-b border-border z-[1100] relative">
+  <header class="flex items-center justify-between px-4 py-3 bg-bg-card border-b border-border z-[1100] relative" role="banner">
     <div class="flex items-center gap-3">
-      <div class="flex items-center justify-center w-10 h-10 rounded-[0.625rem] text-white bg-gradient-to-br from-primary to-secondary">
-        <svg viewBox="0 0 100 100" class="w-6 h-6">
+      <div class="flex items-center justify-center w-10 h-10 rounded-[0.625rem] text-white bg-gradient-to-br from-primary to-secondary" aria-hidden="true">
+        <svg viewBox="0 0 100 100" class="w-6 h-6" aria-hidden="true">
           <path d="M50 10 C30 10 15 35 15 55 C15 75 30 90 50 90 C70 90 85 75 85 55 C85 35 70 10 50 10 Z" fill="currentColor" opacity="0.2"/>
           <path d="M30 50 Q50 30 70 50 Q50 70 30 50" fill="none" stroke="currentColor" stroke-width="3"/>
           <line x1="50" y1="35" x2="50" y2="65" stroke="currentColor" stroke-width="2"/>
@@ -108,7 +108,7 @@ function getActiveFilterLabel() {
       <button 
         class="flex items-center justify-center w-10 h-10 rounded-[0.625rem] bg-bg-secondary border border-border text-text-secondary cursor-pointer hover:bg-bg-hover hover:text-primary [&_svg]:w-5 [&_svg]:h-5"
         @click="$emit('toggle-list')" 
-        :title="props.showList ? 'Liste ausblenden' : 'Liste anzeigen'"
+        :aria-label="props.showList ? 'Liste ausblenden' : 'Liste anzeigen'"
       >
         <svg v-if="props.showList" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18"/>
@@ -128,7 +128,8 @@ function getActiveFilterLabel() {
         class="flex items-center justify-center w-10 h-10 rounded-[0.625rem] bg-bg-secondary border border-border text-text-secondary cursor-pointer hover:bg-bg-hover hover:text-primary [&_svg]:w-5 [&_svg]:h-5"
         :class="{ 'bg-gradient-to-br from-primary to-secondary !border-transparent !text-white': props.showFilter }" 
         @click="$emit('toggle-filter')" 
-        title="Filter"
+        :aria-label="props.showFilter ? 'Filter ausblenden' : 'Filter anzeigen'"
+        :aria-expanded="props.showFilter"
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
@@ -139,6 +140,9 @@ function getActiveFilterLabel() {
         <button 
           class="flex items-center gap-2 py-1.5 pr-2.5 pl-1.5 bg-bg-secondary border border-border rounded-full cursor-pointer hover:bg-bg-hover"
           @click="toggleUserMenu"
+          :aria-expanded="showUserMenu"
+          aria-haspopup="menu"
+          :aria-label="`Benutzermenü für ${authStore.user?.username ?? 'Benutzer'}`"
         >
           <span class="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-primary to-secondary text-white text-sm font-semibold">{{ authStore.user?.username.charAt(0).toUpperCase() }}</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 text-text-secondary">
@@ -147,13 +151,13 @@ function getActiveFilterLabel() {
         </button>
         
         <Transition name="menu">
-          <div v-if="showUserMenu" class="absolute top-[calc(100%+0.5rem)] right-0 min-w-[220px] bg-bg-card border border-border rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] overflow-hidden z-[1001]">
+          <div v-if="showUserMenu" class="absolute top-[calc(100%+0.5rem)] right-0 min-w-[220px] bg-bg-card border border-border rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] overflow-hidden z-[1001]" role="menu">
             <div class="p-4">
               <span class="block font-semibold text-text-primary mb-0.5">{{ authStore.user?.username }}</span>
               <span class="block text-sm text-text-secondary">{{ authStore.user?.email }}</span>
             </div>
             <div class="h-px bg-border"></div>
-            <button class="flex items-center gap-3 w-full py-3.5 px-4 bg-transparent border-none text-text-primary text-[0.9375rem] cursor-pointer text-left hover:bg-bg-secondary [&_svg]:w-[1.125rem] [&_svg]:h-[1.125rem] [&_svg]:text-text-secondary" @click="cycleTheme">
+            <button class="flex items-center gap-3 w-full py-3.5 px-4 bg-transparent border-none text-text-primary text-[0.9375rem] cursor-pointer text-left hover:bg-bg-secondary [&_svg]:w-[1.125rem] [&_svg]:h-[1.125rem] [&_svg]:text-text-secondary" @click="cycleTheme" role="menuitem">
               <!-- Sun icon for light mode -->
               <svg v-if="themeStore.mode === 'light'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="5"/>
@@ -178,7 +182,7 @@ function getActiveFilterLabel() {
               </svg>
               {{ themeStore.mode === 'light' ? 'Hell' : themeStore.mode === 'dark' ? 'Dunkel' : 'Automatisch' }}
             </button>
-            <button class="flex items-center gap-3 w-full py-3.5 px-4 bg-transparent border-none text-text-primary text-[0.9375rem] cursor-pointer text-left hover:bg-bg-secondary [&_svg]:w-[1.125rem] [&_svg]:h-[1.125rem] [&_svg]:text-text-secondary" @click="goToImpressum">
+            <button class="flex items-center gap-3 w-full py-3.5 px-4 bg-transparent border-none text-text-primary text-[0.9375rem] cursor-pointer text-left hover:bg-bg-secondary [&_svg]:w-[1.125rem] [&_svg]:h-[1.125rem] [&_svg]:text-text-secondary" @click="goToImpressum" role="menuitem">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"/>
                 <line x1="12" y1="16" x2="12" y2="12"/>
@@ -186,7 +190,7 @@ function getActiveFilterLabel() {
               </svg>
               Impressum
             </button>
-            <button class="flex items-center gap-3 w-full py-3.5 px-4 bg-transparent border-none text-red-500 text-[0.9375rem] cursor-pointer text-left hover:bg-bg-secondary [&_svg]:w-[1.125rem] [&_svg]:h-[1.125rem] [&_svg]:text-red-500" @click="handleLogout">
+            <button class="flex items-center gap-3 w-full py-3.5 px-4 bg-transparent border-none text-red-500 text-[0.9375rem] cursor-pointer text-left hover:bg-bg-secondary [&_svg]:w-[1.125rem] [&_svg]:h-[1.125rem] [&_svg]:text-red-500" @click="handleLogout" role="menuitem">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
                 <polyline points="16 17 21 12 16 7"/>

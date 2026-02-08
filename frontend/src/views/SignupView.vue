@@ -48,7 +48,7 @@ async function handleSubmit() {
       :dismissible="true"
       @dismiss="clearSignupError"
     />
-    <div class="auth-container">
+    <main class="auth-container">
     <div class="auth-card">
       <div class="auth-header">
         <div class="auth-logo">
@@ -123,7 +123,7 @@ async function handleSubmit() {
     </div>
     
     <div class="water-bg"></div>
-    </div>
+    </main>
   </div>
 </template>
 

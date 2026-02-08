@@ -31,13 +31,13 @@ function handleOpenDetail(point: LaunchPoint) {
 </script>
 
 <template>
-  <div class="flex flex-col h-full bg-bg-card border-l border-border">
-    <div class="flex items-center justify-between px-5 py-4 border-b border-border bg-bg-card sticky top-0 z-10">
+  <aside class="flex flex-col h-full bg-bg-card border-l border-border" aria-label="Liste der Einsetzpunkte">
+    <header class="flex items-center justify-between px-5 py-4 border-b border-border bg-bg-card sticky top-0 z-10">
       <h2 class="font-display text-lg font-semibold text-text-primary m-0">Einsetzpunkte</h2>
       <span class="inline-flex items-center justify-center min-w-7 h-7 px-2 bg-gradient-to-br from-primary to-secondary text-white rounded-2xl text-xs font-semibold">
         {{ launchPointsStore.launchPoints.length }}
       </span>
-    </div>
+    </header>
     
     <div class="flex-1 overflow-y-auto p-3">
       <div 
@@ -62,12 +62,13 @@ function handleOpenDetail(point: LaunchPoint) {
         <p class="m-0 text-sm">Laden...</p>
       </div>
       <template v-else>
-      <div 
-        v-for="point in launchPointsStore.launchPoints" 
-        :key="point.id"
-        class="list-item bg-bg-secondary border border-border rounded-xl p-4 mb-3 cursor-pointer hover:border-primary hover:shadow-[0_2px_8px_rgba(14,165,233,0.1)] hover:-translate-y-px"
-        :class="{ 'highlighted': mapUiStore.highlightedPointId === point.id }"
-      >
+      <ul class="list-none p-0 m-0">
+        <li 
+          v-for="point in launchPointsStore.launchPoints" 
+          :key="point.id"
+          class="list-item bg-bg-secondary border border-border rounded-xl p-4 mb-3 cursor-pointer hover:border-primary hover:shadow-[0_2px_8px_rgba(14,165,233,0.1)] hover:-translate-y-px"
+          :class="{ 'highlighted': mapUiStore.highlightedPointId === point.id }"
+        >
         <div class="flex items-start gap-3 mb-3">
           <div class="shrink-0 w-10 h-10 flex items-center justify-center">
             <img 
@@ -113,7 +114,7 @@ function handleOpenDetail(point: LaunchPoint) {
           <button 
             class="flex items-center gap-2 py-2 px-3 border-none rounded-lg text-[0.8125rem] font-medium cursor-pointer flex-1 min-w-0 justify-center bg-gradient-to-br from-primary to-secondary text-white hover:-translate-y-px hover:shadow-[0_2px_8px_rgba(14,165,233,0.3)] max-md:w-full"
             @click="handleShowOnMap(point)"
-            title="Auf Karte anzeigen"
+            :aria-label="`${point.name} auf Karte anzeigen`"
           >
             <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
@@ -124,7 +125,7 @@ function handleOpenDetail(point: LaunchPoint) {
           <button 
             class="flex items-center gap-2 py-2 px-3 rounded-lg text-[0.8125rem] font-medium cursor-pointer flex-1 min-w-0 justify-center bg-bg-hover text-text-primary border border-border hover:bg-bg-secondary hover:border-primary max-md:w-full"
             @click="handleOpenDetail(point)"
-            title="Details anzeigen"
+            :aria-label="`Details von ${point.name} anzeigen`"
           >
             <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
@@ -138,14 +139,15 @@ function handleOpenDetail(point: LaunchPoint) {
           <button 
             class="nav-btn flex items-center justify-center shrink-0 w-10 h-10 p-0 rounded-lg cursor-pointer bg-bg-hover text-text-primary border border-border"
             @click="openNavigation(point.latitude, point.longitude, point.name)"
-            title="Navigation starten"
+            :aria-label="`Navigation zu ${point.name} starten`"
           >
             <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="3 11 22 2 13 21 11 13 3 11"/>
             </svg>
           </button>
         </div>
-      </div>
+        </li>
+      </ul>
       
       <div 
         v-if="launchPointsStore.launchPoints.length === 0" 
@@ -155,7 +157,7 @@ function handleOpenDetail(point: LaunchPoint) {
       </div>
       </template>
     </div>
-  </div>
+  </aside>
 </template>
 
 <style scoped>

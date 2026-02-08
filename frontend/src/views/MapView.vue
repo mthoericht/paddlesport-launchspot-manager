@@ -263,7 +263,7 @@ onUnmounted(() =>
 </script>
 
 <template>
-  <div class="flex flex-col h-screen h-dvh bg-bg-primary">
+  <main class="flex flex-col h-screen h-dvh bg-bg-primary" id="main-content">
     <ErrorBanner
       v-if="mapViewError"
       :message="mapViewError"
@@ -287,11 +287,14 @@ onUnmounted(() =>
           v-if="!viewportStore.isMobile || !mapUiStore.showListView" 
           class="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-[400px] px-4 box-border max-[480px]:max-w-none max-[480px]:left-0 max-[480px]:translate-x-0 max-[480px]:pl-14 max-[480px]:pr-2"
         >
-          <div class="flex bg-bg-card rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.15)] overflow-hidden">
+          <div class="flex bg-bg-card rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.15)] overflow-hidden" role="search">
             <input
+              id="address-search"
               v-model="searchQuery"
-              type="text"
+              type="search"
               placeholder="Adresse suchen..."
+              aria-label="Adresse suchen"
+              autocomplete="address-level1"
               class="flex-1 py-3.5 px-5 border-none text-[0.9375rem] bg-transparent text-text-primary outline-none placeholder:text-text-muted max-[480px]:py-3 max-[480px]:px-4 max-[480px]:text-sm"
               @keyup.enter="handleSearch"
             />
@@ -299,6 +302,7 @@ onUnmounted(() =>
               class="search-btn flex items-center justify-center w-12 border-none cursor-pointer transition-all duration-200 hover:enabled:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
               @click="handleSearch"
               :disabled="isSearching || !searchQuery.trim()"
+              aria-label="Suchen"
             >
               <svg v-if="!isSearching" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"/>
@@ -389,7 +393,7 @@ onUnmounted(() =>
         />
       </Transition>
     </div>
-  </div>
+  </main>
 </template>
 
 <style scoped>

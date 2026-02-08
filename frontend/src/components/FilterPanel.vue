@@ -73,12 +73,13 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="absolute top-0 right-0 w-80 max-w-full h-full bg-bg-card shadow-[-4px_0_20px_rgba(0,0,0,0.15)] flex flex-col z-[1000] transition-all duration-300 ease-in-out max-md:z-[1001] max-[480px]:w-full">
+  <aside class="absolute top-0 right-0 w-80 max-w-full h-full bg-bg-card shadow-[-4px_0_20px_rgba(0,0,0,0.15)] flex flex-col z-[1000] transition-all duration-300 ease-in-out max-md:z-[1001] max-[480px]:w-full" aria-label="Filteroptionen">
     <div class="flex items-center justify-between px-5 py-4 border-b border-border">
       <h2 class="font-display text-lg font-semibold text-text-primary">Filter</h2>
       <button 
         class="flex items-center justify-center w-8 h-8 rounded-lg bg-bg-secondary text-text-secondary cursor-pointer transition-all duration-200 hover:bg-bg-hover hover:text-text-primary"
         @click="$emit('close')"
+        aria-label="Filter schließen"
       >
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18"/>
@@ -88,8 +89,8 @@ onMounted(async () => {
     </div>
     
     <div class="flex-1 overflow-y-auto p-5">
-      <div class="mb-6 last:mb-0">
-        <h3 class="text-xs font-semibold text-text-muted uppercase tracking-wide mb-3">Anzeigen</h3>
+      <fieldset class="mb-6 last:mb-0 border-none p-0 m-0">
+        <legend class="text-xs font-semibold text-text-muted uppercase tracking-wide mb-3">Anzeigen</legend>
         <div class="flex flex-col gap-2">
           <label 
             class="filter-radio flex items-center gap-3 py-3 px-4 bg-bg-secondary border border-border rounded-xl cursor-pointer transition-all duration-200 text-text-primary hover:border-primary"
@@ -156,6 +157,8 @@ onMounted(async () => {
           v-if="launchPointsStore.filter.type === 'user'"
           v-model="selectedUsername"
           @change="handleUsernameChange"
+          id="filter-username"
+          aria-label="Benutzer auswählen"
           class="w-full mt-3 py-3 px-4 border border-border rounded-xl bg-bg-secondary text-text-primary text-[0.9375rem] cursor-pointer focus:outline-none focus:border-primary"
         >
           <option value="">Benutzer wählen...</option>
@@ -172,14 +175,15 @@ onMounted(async () => {
             type="button" 
             class="block mt-1 text-red-600 font-medium hover:underline"
             @click="fetchUsers"
+            aria-label="Benutzerliste erneut laden"
           >
             Erneut versuchen
           </button>
         </div>
-      </div>
+      </fieldset>
       
-      <div class="mb-6 last:mb-0">
-        <h3 class="text-xs font-semibold text-text-muted uppercase tracking-wide mb-3">Kategorien</h3>
+      <fieldset class="mb-6 last:mb-0 border-none p-0 m-0">
+        <legend class="text-xs font-semibold text-text-muted uppercase tracking-wide mb-3">Kategorien</legend>
         <div class="flex flex-col gap-2">
           <label 
             v-for="cat in categoriesStore.categories" 
@@ -204,7 +208,7 @@ onMounted(async () => {
             <span>{{ cat.name_de }}</span>
           </label>
         </div>
-      </div>
+      </fieldset>
     </div>
     
     <div class="px-5 py-4 border-t border-border">
@@ -215,7 +219,7 @@ onMounted(async () => {
         Filter zurücksetzen
       </button>
     </div>
-  </div>
+  </aside>
 </template>
 
 <style scoped>

@@ -124,6 +124,7 @@ onMounted(async () => {
       <button 
         class="flex items-center justify-center w-10 h-10 rounded-xl bg-bg-secondary border border-border text-text-primary cursor-pointer transition-all duration-200 hover:bg-bg-hover"
         @click="goBack"
+        aria-label="Zurück zur Karte"
       >
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
@@ -134,7 +135,7 @@ onMounted(async () => {
         <button 
           class="flex items-center justify-center w-10 h-10 rounded-xl bg-bg-secondary border border-border text-text-secondary cursor-pointer transition-all duration-200 hover:bg-bg-hover hover:text-primary"
           @click="editPoint" 
-          title="Bearbeiten"
+          aria-label="Einsetzpunkt bearbeiten"
         >
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
@@ -144,7 +145,7 @@ onMounted(async () => {
         <button 
           class="flex items-center justify-center w-10 h-10 rounded-xl bg-bg-secondary border border-border text-text-secondary cursor-pointer transition-all duration-200 hover:bg-bg-hover hover:text-red-500"
           @click="handleDelete" 
-          title="Löschen"
+          aria-label="Einsetzpunkt löschen"
         >
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
@@ -277,7 +278,7 @@ onMounted(async () => {
                 <button 
                   class="station-map-btn flex items-center justify-center w-8 h-8 rounded-md text-white border-none cursor-pointer transition-all duration-200 hover:-translate-y-px hover:shadow-lg"
                   @click="showStationOnMap(station)"
-                  title="Auf Karte anzeigen"
+                  :aria-label="`${station.name} auf Karte anzeigen`"
                 >
                   <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
@@ -287,7 +288,7 @@ onMounted(async () => {
                 <button 
                   class="station-walk-btn flex items-center justify-center w-8 h-8 rounded-md text-white border-none cursor-pointer transition-all duration-200 hover:-translate-y-px hover:shadow-lg"
                   @click="showWalkingRoute(station)"
-                  title="Fußweg anzeigen"
+                  :aria-label="`Fußweg von ${station.name} zum Einsetzpunkt anzeigen`"
                 >
                   <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="4" r="2"/>

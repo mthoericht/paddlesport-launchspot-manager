@@ -42,3 +42,6 @@ playwright/.cache/
 
 # Vitest
 .vitest/
+
+# Storybook
+storybook-static/

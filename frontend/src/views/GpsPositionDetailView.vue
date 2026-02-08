@@ -84,6 +84,7 @@ onUnmounted(() =>
       <button 
         class="flex items-center justify-center w-10 h-10 rounded-xl bg-bg-secondary border border-border text-text-primary cursor-pointer transition-all duration-200 hover:bg-bg-hover"
         @click="goBack"
+        aria-label="Zurück zur Karte"
       >
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M19 12H5M12 19l-7-7 7-7"/>
@@ -123,7 +124,7 @@ onUnmounted(() =>
               <button 
                 @click="copyCoordinates"
                 class="p-1.5 rounded-md bg-bg-secondary hover:bg-bg-hover text-text-secondary hover:text-primary transition-colors"
-                title="Koordinaten kopieren"
+                aria-label="Koordinaten in Zwischenablage kopieren"
               >
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2"/>
