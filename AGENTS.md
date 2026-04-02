@@ -33,7 +33,7 @@
 ## Storybook
 - **Routes**: shared in `frontend/src/router/routes.ts`; Storybook uses `.storybook/router.ts` with `createMemoryHistory()`
 - **Router guards**: Storybook router has no `beforeEach` (avoids useAuthStore in guard context)
-- **Stories**: `frontend/src/**/*.stories.ts`; View stories use `.storybook/StorybookRouterView.vue` + decorator for route-based views; shared mocks in `.storybook/mocks.ts`; import via relative paths (e.g. `../../../.storybook/StorybookRouterView.vue`)
+- **Stories**: `frontend/tests/stories/**/*.stories.ts` (mirror of `src/components/`, `src/views/`, etc.); View stories use `.storybook/StorybookRouterView.vue` + decorator for route-based views; shared mocks in `.storybook/mocks.ts`; import app code via `../../../src/...`, `.storybook` via `../../../../.storybook/...` from `tests/stories/views/`
 - **Storybook tests**: `npm run test:storybook` (Vitest browser mode); tests can also run via the Storybook UI testing widget
 
 ## Code Style

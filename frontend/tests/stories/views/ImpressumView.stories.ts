@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import ImpressumView from './ImpressumView.vue';
+import ImpressumView from '../../../src/views/ImpressumView.vue';
 
 const meta: Meta<typeof ImpressumView> = {
   component: ImpressumView,

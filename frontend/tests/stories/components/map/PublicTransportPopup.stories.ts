@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import PublicTransportPopup from './PublicTransportPopup.vue';
-import { useMapUiStore } from '../../stores/mapUi';
-import { mockPublicTransportStation, mockNearbyLaunchpoints } from '../../../../.storybook/mocks';
+import PublicTransportPopup from '../../../../src/components/map/PublicTransportPopup.vue';
+import { useMapUiStore } from '../../../../src/stores/mapUi';
+import { mockPublicTransportStation, mockNearbyLaunchpoints } from '../../../../../.storybook/mocks';
 
 const meta: Meta<typeof PublicTransportPopup> = {
   component: PublicTransportPopup,

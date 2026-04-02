@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import ErrorBanner from './ErrorBanner.vue';
+import ErrorBanner from '../../../src/components/ErrorBanner.vue';
 
 const meta: Meta<typeof ErrorBanner> = {
   component: ErrorBanner,

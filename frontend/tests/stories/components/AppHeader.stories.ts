@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import AppHeader from './AppHeader.vue';
-import { useAuthStore } from '../stores/auth';
-import { useLaunchPointsStore } from '../stores/launchPoints';
-import { useThemeStore } from '../stores/theme';
+import AppHeader from '../../../src/components/AppHeader.vue';
+import { useAuthStore } from '../../../src/stores/auth';
+import { useLaunchPointsStore } from '../../../src/stores/launchPoints';
+import { useThemeStore } from '../../../src/stores/theme';
 
 const meta: Meta<typeof AppHeader> = {
   component: AppHeader,

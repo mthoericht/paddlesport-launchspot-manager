@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import SignupView from './SignupView.vue';
-import { useAuthStore } from '../stores/auth';
+import SignupView from '../../../src/views/SignupView.vue';
+import { useAuthStore } from '../../../src/stores/auth';
 
 const meta: Meta<typeof SignupView> = {
   component: SignupView,

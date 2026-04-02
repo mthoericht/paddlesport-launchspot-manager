@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import MapView from './MapView.vue';
-import { useAuthStore } from '../stores/auth';
-import { useCategoriesStore } from '../stores/categories';
+import MapView from '../../../src/views/MapView.vue';
+import { useAuthStore } from '../../../src/stores/auth';
+import { useCategoriesStore } from '../../../src/stores/categories';
 
 const mockCategories = [
   { id: 1, name_en: 'kajak', name_de: 'Kajak' },
@@ -28,7 +28,8 @@ const meta: Meta<typeof MapView> = {
         });
         const categoriesStore = useCategoriesStore();
         categoriesStore.$patch({ categories: mockCategories, hasFetched: true });
-        onMounted(() => {
+        onMounted(() => 
+        {
           router.replace({ name: 'map' });
         });
       },

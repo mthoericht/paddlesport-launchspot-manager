@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../stores/auth';
-import { useCategoriesStore } from '../stores/categories';
-import StorybookRouterView from '../../../.storybook/StorybookRouterView.vue';
+import { useAuthStore } from '../../../src/stores/auth';
+import { useCategoriesStore } from '../../../src/stores/categories';
+import StorybookRouterView from '../../../../.storybook/StorybookRouterView.vue';
 
 const mockCategories = [
   { id: 1, name_en: 'kajak', name_de: 'Kajak' },
@@ -29,7 +29,8 @@ const meta: Meta<typeof StorybookRouterView> = {
         });
         const categoriesStore = useCategoriesStore();
         categoriesStore.$patch({ categories: mockCategories, hasFetched: true });
-        onMounted(() => {
+        onMounted(() => 
+        {
           router.replace({ name: 'new-launch-point' });
         });
       },
@@ -61,7 +62,8 @@ export const EditPoint: Story = {
         });
         const categoriesStore = useCategoriesStore();
         categoriesStore.$patch({ categories: mockCategories, hasFetched: true });
-        onMounted(() => {
+        onMounted(() => 
+        {
           router.replace({ name: 'edit-launch-point', params: { id: '1' } });
         });
       },

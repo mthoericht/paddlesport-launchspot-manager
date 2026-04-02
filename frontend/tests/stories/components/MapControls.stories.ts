@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import MapControls from './map/MapControls.vue';
+import MapControls from '../../../src/components/map/MapControls.vue';
 
 const meta: Meta<typeof MapControls> = {
   component: MapControls,
@@ -68,4 +68,3 @@ export const Locating: Story = {
     isLocating: true
   }
 };
-

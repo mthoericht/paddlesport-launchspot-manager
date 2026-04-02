@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import GpsPositionDetailView from './GpsPositionDetailView.vue';
+import GpsPositionDetailView from '../../../src/views/GpsPositionDetailView.vue';
 
 const meta: Meta<typeof GpsPositionDetailView> = {
   component: GpsPositionDetailView,

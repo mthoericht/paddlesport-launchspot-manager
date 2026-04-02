@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import FilterPanel from './FilterPanel.vue';
-import { useAuthStore } from '../stores/auth';
-import { useLaunchPointsStore } from '../stores/launchPoints';
-import { useCategoriesStore } from '../stores/categories';
+import FilterPanel from '../../../src/components/FilterPanel.vue';
+import { useAuthStore } from '../../../src/stores/auth';
+import { useLaunchPointsStore } from '../../../src/stores/launchPoints';
+import { useCategoriesStore } from '../../../src/stores/categories';
 
 const mockCategories = [
   { id: 1, name_en: 'kajak', name_de: 'Kajak' },

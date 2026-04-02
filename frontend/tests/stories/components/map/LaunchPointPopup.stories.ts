@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import LaunchPointPopup from './LaunchPointPopup.vue';
-import { useCategoriesStore } from '../../stores/categories';
-import { useMapUiStore } from '../../stores/mapUi';
-import { mockLaunchPoint, mockNearbyStations } from '../../../../.storybook/mocks';
+import LaunchPointPopup from '../../../../src/components/map/LaunchPointPopup.vue';
+import { useCategoriesStore } from '../../../../src/stores/categories';
+import { useMapUiStore } from '../../../../src/stores/mapUi';
+import { mockLaunchPoint, mockNearbyStations } from '../../../../../.storybook/mocks';
 
 const meta: Meta<typeof LaunchPointPopup> = {
   component: LaunchPointPopup,

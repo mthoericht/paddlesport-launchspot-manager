@@ -8,7 +8,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const config: StorybookConfig = {
   stories: [
-    '../frontend/src/**/*.stories.@(js|jsx|mjs|ts|tsx)'
+    '../frontend/tests/**/*.stories.@(js|jsx|mjs|ts|tsx)'
   ],
   addons: [
     '@chromatic-com/storybook',

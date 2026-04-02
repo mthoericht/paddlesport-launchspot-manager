@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import LaunchPointListView from './LaunchPointListView.vue';
-import { useLaunchPointsStore } from '../stores/launchPoints';
-import { useCategoriesStore } from '../stores/categories';
-import { useMapUiStore } from '../stores/mapUi';
+import LaunchPointListView from '../../../src/components/LaunchPointListView.vue';
+import { useLaunchPointsStore } from '../../../src/stores/launchPoints';
+import { useCategoriesStore } from '../../../src/stores/categories';
+import { useMapUiStore } from '../../../src/stores/mapUi';
 
 const mockCategories = [
   { id: 1, name_en: 'kajak', name_de: 'Kajak' },

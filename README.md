@@ -400,7 +400,7 @@ shared/
 
 The project uses **Storybook** for component development:
 
-- **Stories** in `frontend/src/**/*.stories.ts` (components, views)
+- **Stories** in `frontend/tests/stories/**/*.stories.ts` (mirror of `src/components/`, `src/views/`, …)
 - **Addons**: Vitest (run story tests), a11y (accessibility checks), Chromatic, Docs
 - **View stories** use `.storybook/StorybookRouterView.vue` with route-based navigation; decorators patch auth/categories; shared mocks in `.storybook/mocks.ts`
 - **Router**: Shared routes in `frontend/src/router/routes.ts`; Storybook uses `.storybook/router.ts` with memory history
