@@ -87,7 +87,7 @@ async function main()
       console.log('  ℹ️  Detected old schema (LaunchPoint with name/latitude/longitude)');
       console.log('     Will migrate to new Point-based schema during restore\n');
       
-      launchPoints = await prisma.$queryRaw<Array<{
+      const oldLaunchPoints = await prisma.$queryRaw<Array<{
         id: number;
         name: string;
         latitude: number;
@@ -123,7 +123,7 @@ async function main()
       `;
       
       // Attach categories and stations to launch points
-      launchPoints = launchPoints.map(lp => ({
+      launchPoints = oldLaunchPoints.map(lp => ({
         ...lp,
         point: {
           name: lp.name,
@@ -190,7 +190,7 @@ async function main()
       });
       
       // Extract only the fields that exist in the new schema
-      const { id, name, latitude, longitude, ...launchPointFields } = lpData;
+      const { id, ...launchPointFields } = lpData;
       
       // Then create LaunchPoint
       await prisma.launchPoint.create({

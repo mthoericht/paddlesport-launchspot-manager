@@ -21,9 +21,9 @@ const meta: Meta<typeof MapControls> = {
       control: 'boolean',
       description: 'GPS locating in progress'
     },
-    'add-new-point': { action: 'add-new-point' },
-    'center-on-position': { action: 'center-on-position' },
-    'add-point-at-context': { action: 'add-point-at-context' }
+    'onAdd-new-point': { action: 'add-new-point' },
+    'onCenter-on-position': { action: 'center-on-position' },
+    'onAdd-point-at-context': { action: 'add-point-at-context' }
   }
 };
 

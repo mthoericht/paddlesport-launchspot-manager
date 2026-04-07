@@ -5,10 +5,20 @@ import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const dbPath = path.join(__dirname, '..', 'data', 'database.sqlite');
+const defaultDbPath = path.join(__dirname, '..', 'data', 'database.sqlite');
+const defaultTestDbPath = path.join(__dirname, '..', 'data', 'database.test.sqlite');
+const defaultDbUrl = `file:${defaultDbPath}`;
+const defaultTestDbUrl = `file:${defaultTestDbPath}`;
+const isTestEnv = process.env.NODE_ENV === 'test';
+const databaseUrl = process.env.DATABASE_URL || (isTestEnv ? defaultTestDbUrl : defaultDbUrl);
+
+if (isTestEnv && databaseUrl === defaultDbUrl)
+{
+  throw new Error('Unsafe seed configuration: tests must not use data/database.sqlite.');
+}
 
 const adapter = new PrismaLibSql({
-  url: `file:${dbPath}`
+  url: databaseUrl
 });
 
 const prisma = new PrismaClient({ 
